@@ -1,31 +1,24 @@
-import sys
+from ships import Ships
 from datetime import datetime
 
-print (datetime.utcfromtimestamp(1))
+def format_date(ts):
+	return datetime.fromtimestamp(int(ts)/1000).strftime('%Y-%m-%d %H:%M:%S')
 
-boats = {}
+LIMIT_TO_DATE = datetime(2018, 5, 2).timestamp() * 1000
 
-with open("../ship-docs/AIS_2018-05_1.txt") as f:
+ships = Ships()
+ships.load_data("../ship-docs/AIS_2018-05_1.txt", LIMIT_TO_DATE)
 
-	raw_line = True
+# test case:
 
-	while raw_line:
-		raw_line = f.readline()
-		line = raw_line.strip().split(' ')
+print("Amount of ship entries: ", len(ships.list_ships()))
 
-		locations = []
+SHIP_KEY = ships.list_ships()[0]
 
-		for x in range(1, len(line), 3):
-			locations.append(line[x:x+3])
+print("Listing ship with id: ", SHIP_KEY)
 
-		boats[line[0]] = locations
+for x in ships.data[SHIP_KEY]:
+	print (format_date(x[0]) +" // " +str(x[1:3]))
 
-	#print(boats)
 
-BOAT_KEY = boats.keys()[2]
 
-print(BOAT_KEY)
-#print(boats[boats.keys()[2]])
-
-for x in boats[BOAT_KEY]:
-	print (str(datetime.utcfromtimestamp(int(x[0])/1000)) +" // " +str(x[1:3]))
