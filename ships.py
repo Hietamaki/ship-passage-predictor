@@ -1,4 +1,8 @@
 import sys
+from pyproj import Transformer, Proj
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
 #from datetime import datetime
 
 class Ships:
@@ -34,13 +38,30 @@ class Ships:
 
 				for x in range(1, len(line), 3):
 
-					if int(line[x]) > limit_to_date:
+					unixtime = int(line[x])
+
+					if unixtime > limit_to_date:
 						#if (line[0] == "230992680"):
 						#	print("line[x]:       %s >" % format_date(line[x]))
 						#	print("LIMIT_TO_DATE: %s" % format_date(LIMIT_TO_DATE))
 						break
 
-					locations.append(line[x:x+3])
+					locations.append([float(line[x+1]), float(line[x+2]), unixtime])
 
 				if locations:
 					self.data[ship_id] = locations
+
+	def transform(self, points):
+		# projections from WSG 84 to TM35FIN(E,N)
+		trans = Transformer.from_proj(Proj(init="epsg:4326"), Proj(init="epsg:3067"))
+
+		res = []
+		for pt in trans.itransform(points, time_3rd = True):
+			res.append(pt)
+
+		return res
+
+	def draw_map(self):
+		ax = plt.axes(projection=ccrs.Mollweide())
+		ax.stock_img()
+		plt.show()

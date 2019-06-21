@@ -13,12 +13,16 @@ ships.load_data("../ship-docs/AIS_2018-05_1.txt", LIMIT_TO_DATE)
 
 print("Amount of ship entries: ", len(ships.list_ships()))
 
-SHIP_KEY = ships.list_ships()[0]
+SHIP_KEY = ships.list_ships()[2]
 
 print("Listing ship with id: ", SHIP_KEY)
-
+y = []
 for x in ships.data[SHIP_KEY]:
-	print (format_date(x[0]) +" // " +str(x[1:3]))
+	y.append(x)
+#	print (format_date(x[0]) +" // " +str(x[1:3]))
 
 
+for x in ships.transform(y):
+	print("", x[0:2], format_date(x[2]))
 
+ships.draw_map()
