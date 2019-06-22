@@ -1,6 +1,8 @@
 from ships import Ships
 from datetime import datetime
 
+import cartopy.crs as ccrs
+
 def format_date(ts):
 	return datetime.fromtimestamp(int(ts)/1000).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -16,13 +18,24 @@ print("Amount of ship entries: ", len(ships.list_ships()))
 SHIP_KEY = ships.list_ships()[2]
 
 print("Listing ship with id: ", SHIP_KEY)
+
 y = []
-for x in ships.data[SHIP_KEY]:
-	y.append(x)
-#	print (format_date(x[0]) +" // " +str(x[1:3]))
+x = []
+
+for i in ships.data[SHIP_KEY]:
+	y.append(i[1])
+	x.append(i[0])
+	#print (format_date(x[2]) +" // " +str(x[0:2]))
+
+plt = ships.draw_map()
+#for i in range(0, len(x)-2):
+plt.plot(x, y, color='red', linewidth=1, transform=ccrs.Geodetic())
+
+#print(y[1][1])
+plt.axis([17,31, 55,67])
+plt.show()
 
 
-for x in ships.transform(y):
-	print("", x[0:2], format_date(x[2]))
-
-ships.draw_map()
+#for x in ships.transform(y):
+#	pass
+	#print("", x[0:2], format_date(x[2]))

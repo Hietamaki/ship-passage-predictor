@@ -3,6 +3,12 @@ from pyproj import Transformer, Proj
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
+from cartopy.io import shapereader
+import cartopy.feature as feature
+
+import numpy as np
+import geopandas
+
 #from datetime import datetime
 
 class Ships:
@@ -62,6 +68,20 @@ class Ships:
 		return res
 
 	def draw_map(self):
-		ax = plt.axes(projection=ccrs.Mollweide())
-		ax.stock_img()
-		plt.show()
+		shpfilename = shapereader.natural_earth("10m", "physical", "land")
+		#df = geopandas.read_file(shpfilename)
+		poly = shapereader.Reader(shpfilename).geometries()
+		#print(poly)
+
+		ax = plt.axes(projection=ccrs.PlateCarree())
+		#ax = plt.axes(projection=ccrs.epsg(3067))
+		ax.add_geometries(poly, crs=ccrs.PlateCarree(), facecolor='none', edgecolor='0.5')
+		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
+		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
+		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
+		#ax.add_feature(feature.NaturalEarthFeature("physical", "land", "50m"))
+
+
+
+
+		return plt
