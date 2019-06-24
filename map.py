@@ -3,19 +3,20 @@ import cartopy.crs as ccrs
 import cartopy.feature as feature
 import matplotlib.pyplot as plt
 from pyproj import Transformer, Proj
+from ship import Ship
 
 
 #from datetime import datetime
 
-class Ships:
+class Map:
 
 	def __init__(self):
-		self.data = {}
+		self.ships = []
 
 	# @.output	list of loaded ship ids
 	#
 	def list_ships(self):
-		return list(self.data.keys())
+		return self.ships
 
 	# @.input	filename of file that holds AIS data
 	# @.output	dictionary
@@ -23,7 +24,7 @@ class Ships:
 	#			[unixtime, lat, lon], [unixtime, lat, lon], ...] } 
 	#
 
-	def load_data(self, filename, limit_to_date = sys.maxsize):
+	def load_data(self, filename, limit_to_date = 253385798400000):
 
 		# data is in form:
 		# shipid (unixtime lat lon) (unixtime lat lon) (unixtime lat lon) ... \n
@@ -36,19 +37,25 @@ class Ships:
 				line = raw_line.strip().split(' ')
 				ship_id = line[0]
 
-				locations = []
+				#locations = []
+				x = []
+				y = []
+				time = []
 
-				for x in range(1, len(line), 3):
+				for i in range(1, len(line), 3):
 
-					unixtime = int(line[x])
+					unixtime = int(line[i])
 
 					if unixtime > limit_to_date:
 						break
 
-					locations.append([float(line[x+1]), float(line[x+2]), unixtime])
+					#locations.append([float(line[x+1]), float(line[x+2]), unixtime])
+					x.append(float(line[i+1]))
+					y.append(float(line[i+2]))
+					time.append(unixtime)
 
-				if locations:
-					self.data[ship_id] = locations
+				if x:
+					self.ships.append(Ship(ship_id, x, y, time))
 
 	def transform(self, points):
 		# projections from WSG 84 to TM35FIN(E,N)
@@ -75,3 +82,6 @@ class Ships:
 		#plt.axis([1800100,4300100, 7800100,10100100])
 
 		return plt
+
+	def plot_route(self, x, y):
+		plt.plot(x, y, color='red', linewidth=1, transform=ccrs.Geodetic())
