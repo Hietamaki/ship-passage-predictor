@@ -15,9 +15,9 @@ ships.load_data("../ship-docs/AIS_2018-05_1.txt", LIMIT_TO_DATE)
 
 print("Amount of ship entries: ", len(ships.list_ships()))
 
-SHIP_KEY = ships.list_ships()[2]
+SHIP_KEY = ships.list_ships()[15]
 
-print("Listing ship with id: ", SHIP_KEY)
+print(f"Details of ship (id: {SHIP_KEY})")
 
 y = []
 x = []
@@ -25,14 +25,12 @@ x = []
 for i in ships.data[SHIP_KEY]:
 	y.append(i[1])
 	x.append(i[0])
-	#print (format_date(x[2]) +" // " +str(x[0:2]))
+	print (format_date(i[2]) +" // " +str(i[0:2]))
 
 plt = ships.draw_map()
-#for i in range(0, len(x)-2):
 plt.plot(x, y, color='red', linewidth=1, transform=ccrs.Geodetic())
 
-#print(y[1][1])
-plt.axis([17,31, 55,67])
+
 plt.show()
 
 

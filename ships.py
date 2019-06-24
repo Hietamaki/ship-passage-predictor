@@ -1,13 +1,9 @@
 import sys
-from pyproj import Transformer, Proj
 import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-
-from cartopy.io import shapereader
 import cartopy.feature as feature
+import matplotlib.pyplot as plt
+from pyproj import Transformer, Proj
 
-import numpy as np
-import geopandas
 
 #from datetime import datetime
 
@@ -47,9 +43,6 @@ class Ships:
 					unixtime = int(line[x])
 
 					if unixtime > limit_to_date:
-						#if (line[0] == "230992680"):
-						#	print("line[x]:       %s >" % format_date(line[x]))
-						#	print("LIMIT_TO_DATE: %s" % format_date(LIMIT_TO_DATE))
 						break
 
 					locations.append([float(line[x+1]), float(line[x+2]), unixtime])
@@ -68,20 +61,17 @@ class Ships:
 		return res
 
 	def draw_map(self):
-		shpfilename = shapereader.natural_earth("10m", "physical", "land")
-		#df = geopandas.read_file(shpfilename)
-		poly = shapereader.Reader(shpfilename).geometries()
-		#print(poly)
-
-		ax = plt.axes(projection=ccrs.PlateCarree())
-		#ax = plt.axes(projection=ccrs.epsg(3067))
-		ax.add_geometries(poly, crs=ccrs.PlateCarree(), facecolor='none', edgecolor='0.5')
-		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
-		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
+		
+		ax = plt.axes(projection=ccrs.Mercator())
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
-		#ax.add_feature(feature.NaturalEarthFeature("physical", "land", "50m"))
+		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
+		ax.add_feature(
+			feature.NaturalEarthFeature("cultural", "admin_0_boundary_lines_land", "10m", facecolor='none'),
+			edgecolor='gray')
 
-
-
+		# limit to Finnish sea area
+		ax.set_extent([1800100,3400100, 7800100,9800100], crs=ccrs.Mercator())
+		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
+		#plt.axis([1800100,4300100, 7800100,10100100])
 
 		return plt
