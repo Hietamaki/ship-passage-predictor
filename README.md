@@ -8,6 +8,7 @@ Install packages with pip3.
 
 ### from default pypi repository
 - matplotlib
+- pyepsg
 - pyproj
 - scipy
 - shapely (only on Linux)

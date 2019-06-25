@@ -4,9 +4,9 @@ from datetime import datetime
 import cartopy.crs as ccrs
 
 def format_date(ts):
-	return datetime.fromtimestamp(int(ts)/1000).strftime('%Y-%m-%d %H:%M:%S')
+	return datetime.fromtimestamp(int(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
-LIMIT_TO_DATE = datetime(2018, 5, 3).timestamp() * 1000
+LIMIT_TO_DATE = datetime(2018, 5, 8).timestamp()
 
 map = Map()
 map.load_data("../ship-docs/AIS_2018-05_1.txt")#, LIMIT_TO_DATE)
@@ -27,13 +27,27 @@ x = []
 #	x.append(i[0])
 #	print (format_date(i[2]) +" // " +str(i[0:2]))
 
-ship = map.list_ships()[13]
-
+ships = map.list_ships()
 plt = map.draw_map()
-route = ship.get_route(0, LIMIT_TO_DATE)
-print(route["x"])
-map.plot_route(route["x"], route["y"])
 
+#ship = ships[13]
+#route = ship.get_route(datetime(2018, 5, 8).timestamp(), datetime(2018, 6, 8).timestamp())
+
+#map.plot_route(route["x"], route["y"])
+
+#print(route)
+
+count1 = 0
+count2 = 0
+for ship in ships:
+	route = ship.get_route(datetime(2018, 5, 2, 8).timestamp(), datetime(2018, 5, 2, 8, 30).timestamp())
+	if len(route['x']) > 0:
+		count1+=1
+	if ship.in_area(route, map.get_measurement_area()):
+		map.plot_route(ship.x, ship.y)
+		count2+=1
+
+print(f"Laivoja kaikkiaan {len(ships)}, klo 8:00-8:30 {count1}, mittausalueella {count2}")
 plt.show()
 
 

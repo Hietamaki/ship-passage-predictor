@@ -4,7 +4,7 @@ import cartopy.feature as feature
 import matplotlib.pyplot as plt
 from pyproj import Transformer, Proj
 from ship import Ship
-
+import pyepsg
 
 #from datetime import datetime
 
@@ -13,22 +13,29 @@ class Map:
 	def __init__(self):
 		self.ships = []
 
+		# default coordinate system is WSG 84
+		self.epsg = 4326;
+
 	# @.output	list of loaded ship ids
 	#
 	def list_ships(self):
 		return self.ships
 
-	# @.input	filename of file that holds AIS data
+	# @.input
+	#	filename of file that holds AIS data
+	#	epsg	coordiantes system to be used
+	#
 	# @.output	dictionary
 	#		{ ship_id: [
 	#			[unixtime, lat, lon], [unixtime, lat, lon], ...] } 
 	#
 
-	def load_data(self, filename, limit_to_date = 253385798400000):
+	def load_data(self, filename, epsg = 3067, limit_to_date = 253385798400000):
 
 		# data is in form:
 		# shipid (unixtime lat lon) (unixtime lat lon) (unixtime lat lon) ... \n
 		
+		transformer = self.get_transformer(epsg)
 
 		with open(filename) as file:
 
@@ -44,7 +51,8 @@ class Map:
 
 				for i in range(1, len(line), 3):
 
-					unixtime = int(line[i])
+					# ms to s
+					unixtime = int(line[i]) / 1000
 
 					if unixtime > limit_to_date:
 						break
@@ -55,17 +63,14 @@ class Map:
 					time.append(unixtime)
 
 				if x:
-					self.ships.append(Ship(ship_id, x, y, time))
+					tx, ty = transformer.transform(x, y)
+					self.ships.append(Ship(ship_id, tx, ty, time))
 
-	def transform(self, points):
+
+	def get_transformer(self, epsg=3067):
+
 		# projections from WSG 84 to TM35FIN(E,N)
-		trans = Transformer.from_proj(Proj(init="epsg:4326"), Proj(init="epsg:3067"))
-
-		res = []
-		for pt in trans.itransform(points, time_3rd = True):
-			res.append(pt)
-
-		return res
+		return Transformer.from_proj(Proj(init=f"epsg:{self.epsg}"), Proj(init=f"epsg:{epsg}"))
 
 	def draw_map(self):
 		
@@ -84,4 +89,8 @@ class Map:
 		return plt
 
 	def plot_route(self, x, y):
-		plt.plot(x, y, color='red', linewidth=1, transform=ccrs.Geodetic())
+		plt.plot(x, y, color='red', linewidth=1, transform=ccrs.epsg(3067))
+
+	def get_measurement_area(self):
+		#etrs xx yy
+		return [340000, 380000, 6620000, 6650000]
