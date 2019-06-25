@@ -1,3 +1,4 @@
+import random
 from map import Map
 from datetime import datetime
 
@@ -37,6 +38,9 @@ plt = map.draw_map()
 
 #print(route)
 
+def random_color():
+	return (random.random(),random.random(),random.random())
+
 count1 = 0
 count2 = 0
 for ship in ships:
@@ -44,7 +48,7 @@ for ship in ships:
 	if len(route['x']) > 0:
 		count1+=1
 	if ship.in_area(route, map.get_measurement_area()):
-		map.plot_route(ship.x, ship.y)
+		map.plot_route(ship.x, ship.y, random_color())
 		count2+=1
 
 print(f"Laivoja kaikkiaan {len(ships)}, klo 8:00-8:30 {count1}, mittausalueella {count2}")

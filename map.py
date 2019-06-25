@@ -88,8 +88,8 @@ class Map:
 
 		return plt
 
-	def plot_route(self, x, y):
-		plt.plot(x, y, color='red', linewidth=1, transform=ccrs.epsg(3067))
+	def plot_route(self, x, y, color='red'):
+		plt.plot(x, y, color=color, linewidth=1, transform=ccrs.epsg(3067))
 
 	def get_measurement_area(self):
 		#etrs xx yy
