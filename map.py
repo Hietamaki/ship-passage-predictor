@@ -1,10 +1,12 @@
 import sys
+
 import cartopy.crs as ccrs
 import cartopy.feature as feature
 import matplotlib.pyplot as plt
-from pyproj import Transformer, Proj
-from ship import Ship
 import pyepsg
+from pyproj import Transformer, Proj
+
+from ship import Ship
 
 #from datetime import datetime
 
