@@ -7,6 +7,49 @@ class Ship:
 		self.x = x
 		self.y = y
 		self.time = time
+		self.passages = []
+
+	# making data structure [passage: {x,y,time}]
+	def create_passages(self):
+
+		previous_beginning = 0
+
+		for beginning in self.detect_passages():
+			
+			passage = {
+				'x': self.x[previous_beginning:beginning],
+				'y': self.y[previous_beginning:beginning],
+				'time': self.time[previous_beginning:beginning]
+			}
+
+			self.passages.append(passage)
+			previous_beginning = beginning
+
+
+	# detecting start of passages to .passages[]
+	# speed < 22.2 km/h
+	# or
+	# time > 1h
+	def detect_passages(self):
+
+		# 1h
+		DT_LIMIT = 3600*2
+
+		# count dt to previous observation > speed
+		dt = []
+		beginnings = []
+
+		for i in range(1, len(self.x)):
+			dt.append(self.time[i] - self.time[i-1])
+			
+			if dt[-1] >= DT_LIMIT:
+				beginnings.append(i)
+				#print(dt[-1]//60//60)
+
+
+		beginnings.append(len(self.x)-1)
+		#print("dt",beginnings)
+		return beginnings
 
 
 	def get_route(self, start_time = 0, end_time = 253385798400000):

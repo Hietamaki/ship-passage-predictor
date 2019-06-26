@@ -54,7 +54,7 @@ class Map:
 				for i in range(1, len(line), 3):
 
 					# ms to s
-					unixtime = int(line[i]) / 1000
+					unixtime = int(line[i]) // 1000
 
 					if unixtime > limit_to_date:
 						break
@@ -66,7 +66,10 @@ class Map:
 
 				if x:
 					tx, ty = transformer.transform(x, y)
-					self.ships.append(Ship(ship_id, tx, ty, time))
+					s = Ship(ship_id, tx, ty, time)
+					self.ships.append(s)
+
+					s.create_passages()
 
 
 	def get_transformer(self, epsg=3067):
