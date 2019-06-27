@@ -4,27 +4,25 @@ Takes AIS geo data of ship movement and plots them on a map.
 
 Module requirements
 ------
-Install packages with pip3.
+On Windows use Anaconda. On Linux packages can be manually installed with pip3 if wanted.
 
-### from default pypi repository
+- cartopy (*)
+- feather-format
+- geopandas (really slow without)
 - matplotlib
 - pyepsg
 - pyproj
 - scipy
-- shapely (only on Linux)
 
-### on windows install wheels package: http://www.lfd.uci.edu/~gohlke/pythonlibs/
-- cartopy
-- shapely
+### if you are using manual installation on Linux
+(*) Cartopy in PyPi repository currently doesn't install. So it has to be installed from distro. With debian based:
 
-### on linux install from distro repository
-- cartopy
+    apt install cartopy
+    pip uninstall shapely
+    pip install --no-binary shapely shapely
 
-Also without 'geopandas' performance is really slow. For installation you need (use wheels)
-- GDAL 2.4 (3.0 not supported by Fiona)
-- fiona
-- rtree
+"The Shapely wheels on PyPI contain their own version of GEOS and you will need to avoid them by using pip's --no-binary option. This will install a shapely package which has extension modules linked against your system GEOS library." -- https://github.com/Toblerity/Shapely/issues/651#issuecomment-434818437
 
 Usage
 -----
-Running for the first time downloads natural earth map data which can take a few minutes.
+Running for the first time downloads natural earth map data which can take a minute.
