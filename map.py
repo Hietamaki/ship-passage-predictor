@@ -2,9 +2,10 @@ import sys
 
 import cartopy.crs as ccrs
 import cartopy.feature as feature
+import feather
 import matplotlib.pyplot as plt
 import pyepsg
-from pyproj import Transformer, Proj
+from pyproj import Proj, Transformer
 
 from ship import Ship
 
@@ -23,6 +24,8 @@ class Map:
 	def list_ships(self):
 		return self.ships
 
+	# pre-processing data
+	#
 	# @.input
 	#	filename of file that holds AIS data
 	#	epsg	coordiantes system to be used
@@ -87,7 +90,7 @@ class Map:
 			edgecolor='gray')
 
 		# limit to Finnish sea area
-		ax.set_extent([1800100,3400100, 7800100,9800100], crs=ccrs.Mercator())
+		ax.set_extent([1800100,3400100, 7800100,8800100], crs=ccrs.Mercator())
 		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
 		#plt.axis([1800100,4300100, 7800100,10100100])
 

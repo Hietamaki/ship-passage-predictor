@@ -1,8 +1,9 @@
+%matplotlib inline
 from datetime import datetime
 
 from map import Map
 import util
-
+%pylab inline
 #LIMIT_TO_DATE = datetime(2018, 5, 8).timestamp()
 
 map = Map()
