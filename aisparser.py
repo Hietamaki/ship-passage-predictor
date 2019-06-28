@@ -1,9 +1,13 @@
+import os
+
 import numpy as numpy
 import pandas as pd
 import pyepsg
 from pyproj import Proj, Transformer
 
 from ship import Ship
+
+AIS_DATA_PATH = "../ship-docs/"
 
 def get_transformer(source_epsg=4326, epsg=3067):
 
@@ -65,5 +69,10 @@ def load_data(filename, epsg = 3067, limit_to_date = 253385798400000):
 	df = pd.Series(ships)
 	df.to_hdf('ships.h5', 'df')
 
+def convert_all_data():
+	for r, d, f in os.walk(AIS_DATA_PATH):
+		for file in f:
+			if '.txt' in file:
+				load_data(os.path.join(r, file))
 
-load_data("../ship-docs/AIS_2018-05_1.txt")
+load_data(AIS_DATA_PATH+"AIS_2018-05_1.txt")

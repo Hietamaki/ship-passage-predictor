@@ -31,7 +31,7 @@ plt = map.draw_map()
 
 	#passage
 
-'''
+
 count1 = 0
 count2 = 0
 for ship in ships:
@@ -51,4 +51,3 @@ print(f"Laivoja kaikkiaan {len(ships)}, klo 8:00-8:30 {count1}, mittausalueella 
 
 plt.show()
 
-'''

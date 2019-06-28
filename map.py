@@ -2,6 +2,7 @@ import sys
 
 import cartopy.crs as ccrs
 import cartopy.feature as feature
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as numpy
 import pandas as pd
@@ -33,7 +34,7 @@ class Map:
 
 	def draw_map(self):
 		
-		ax = plt.axes(projection=ccrs.Mercator())
+		ax = plt.axes(projection=ccrs.epsg(3067))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
 		ax.add_feature(
@@ -45,10 +46,19 @@ class Map:
 		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
 		#plt.axis([1800100,4300100, 7800100,10100100])
 
+		self.draw_measurement_area(ax)
+		
 		return plt
 
 	def plot_route(self, x, y, color='red'):
 		plt.plot(x, y, color=color, linewidth=1, transform=ccrs.epsg(3067))
+
+	def draw_measurement_area(self, ax):
+		area = self.get_measurement_area()
+		ax.add_patch(
+			patches.Rectangle((area[0], area[2]), area[1]-area[0], area[3]-area[2],
+			fill=False, color='red', zorder=3, transform=ccrs.epsg(3067))
+		)
 
 	def get_measurement_area(self):
 		#etrs xx yy
