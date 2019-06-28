@@ -88,21 +88,3 @@ class Ship:
 				range_start = i
 
 		return [range_start, range_end]
-
-	def in_area(self, route, area):
-
-		if len(route['x']) == 0:
-			return False
-
-		#print("routessa pisteitä",len(route['x']))
-		#print(route['x'])
-		#print(route['y'])
-		#print(area)
-
-		for i in range(0, len(route['x'])-1):
-			if route['x'][i] > area[0] and route['x'][i] < area[1]:
-				if route['y'][i] > area[2] and route['y'][i] < area[3]:
-					return True
-
-		return False
-

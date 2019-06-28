@@ -2,8 +2,9 @@ import sys
 
 import cartopy.crs as ccrs
 import cartopy.feature as feature
-import feather
 import matplotlib.pyplot as plt
+import numpy as numpy
+import pandas as pd
 import pyepsg
 from pyproj import Proj, Transformer
 
@@ -16,64 +17,14 @@ class Map:
 	def __init__(self):
 		self.ships = []
 
-		# default coordinate system is WSG 84
-		self.epsg = 4326;
-
 	# @.output	list of loaded ship ids
 	#
 	def list_ships(self):
 		return self.ships
 
-	# pre-processing data
-	#
-	# @.input
-	#	filename of file that holds AIS data
-	#	epsg	coordiantes system to be used
-	#
-	# @.output	dictionary
-	#		{ ship_id: [
-	#			[unixtime, lat, lon], [unixtime, lat, lon], ...] } 
-	#
+	def load_ships(self):
 
-	def load_data(self, filename, epsg = 3067, limit_to_date = 253385798400000):
-
-		# data is in form:
-		# shipid (unixtime lat lon) (unixtime lat lon) (unixtime lat lon) ... \n
-		
-		transformer = self.get_transformer(epsg)
-
-		with open(filename) as file:
-
-			for raw_line in file.readlines():
-
-				line = raw_line.strip().split(' ')
-				ship_id = line[0]
-
-				#locations = []
-				x = []
-				y = []
-				time = []
-
-				for i in range(1, len(line), 3):
-
-					# ms to s
-					unixtime = int(line[i]) // 1000
-
-					if unixtime > limit_to_date:
-						break
-
-					#locations.append([float(line[x+1]), float(line[x+2]), unixtime])
-					x.append(float(line[i+1]))
-					y.append(float(line[i+2]))
-					time.append(unixtime)
-
-				if x:
-					tx, ty = transformer.transform(x, y)
-					s = Ship(ship_id, tx, ty, time)
-					self.ships.append(s)
-
-					s.create_passages()
-
+		self.ships = pd.read_hdf('ships.h5', 'df').values
 
 	def get_transformer(self, epsg=3067):
 
@@ -102,3 +53,21 @@ class Map:
 	def get_measurement_area(self):
 		#etrs xx yy
 		return [340000, 380000, 6620000, 6650000]
+
+	def route_in_area(self, route, area):
+
+		if len(route['x']) == 0:
+			return False
+
+		#print("routessa pisteitä",len(route['x']))
+		#print(route['x'])
+		#print(route['y'])
+		#print(area)
+
+		for i in range(0, len(route['x'])-1):
+			if route['x'][i] > area[0] and route['x'][i] < area[1]:
+				if route['y'][i] > area[2] and route['y'][i] < area[3]:
+					return True
+
+		return False
+

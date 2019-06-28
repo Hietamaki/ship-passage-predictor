@@ -1,13 +1,13 @@
-%matplotlib inline
+#%matplotlib inline
 from datetime import datetime
 
 from map import Map
 import util
-%pylab inline
+#%pylab inline
 #LIMIT_TO_DATE = datetime(2018, 5, 8).timestamp()
 
 map = Map()
-map.load_data("../ship-docs/AIS_2018-05_1.txt")#, LIMIT_TO_DATE)
+map.load_ships()
 
 # test case:
 
@@ -31,7 +31,7 @@ plt = map.draw_map()
 
 	#passage
 
-
+'''
 count1 = 0
 count2 = 0
 for ship in ships:
@@ -40,7 +40,8 @@ for ship in ships:
 		count1+=1
 
 	col = util.random_color()
-	if ship.in_area(route, map.get_measurement_area()):
+	
+	if map.route_in_area(route, map.get_measurement_area()):
 		for p in ship.passages:
 			map.plot_route(p['x'], p['y'], col)
 		#map.plot_route(ship.x, ship.y, util.random_color())
@@ -50,3 +51,4 @@ print(f"Laivoja kaikkiaan {len(ships)}, klo 8:00-8:30 {count1}, mittausalueella 
 
 plt.show()
 
+'''
