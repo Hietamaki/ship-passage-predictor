@@ -1,17 +1,10 @@
-import sys
-
 import cartopy.crs as ccrs
 import cartopy.feature as feature
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-import numpy as numpy
 import pandas as pd
-import pyepsg
 from pyproj import Proj, Transformer
 
-from ship import Ship
-
-#from datetime import datetime
 
 class Map:
 
@@ -33,7 +26,6 @@ class Map:
 		return Transformer.from_proj(Proj(init=f"epsg:{self.epsg}"), Proj(init=f"epsg:{epsg}"))
 
 	def draw_map(self):
-		
 		ax = plt.axes(projection=ccrs.epsg(3067))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
@@ -42,12 +34,9 @@ class Map:
 			edgecolor='gray')
 
 		# limit to Finnish sea area
-		ax.set_extent([1800100,3400100, 7800100,8800100], crs=ccrs.Mercator())
-		#ax.set_extent([18, 32, 58, 65], crs=ccrs.PlateCarree())
-		#plt.axis([1800100,4300100, 7800100,10100100])
+		ax.set_extent([1800100, 3400100, 7800100, 8800100], crs=ccrs.Mercator())
 
 		self.draw_measurement_area(ax)
-		
 		return plt
 
 	def plot_route(self, x, y, color='red'):
@@ -56,8 +45,9 @@ class Map:
 	def draw_measurement_area(self, ax):
 		area = self.get_measurement_area()
 		ax.add_patch(
-			patches.Rectangle((area[0], area[2]), area[1]-area[0], area[3]-area[2],
-			fill=False, color='red', zorder=3, transform=ccrs.epsg(3067))
+			patches.Rectangle(
+				(area[0], area[2]), area[1] - area[0], area[3] - area[2],
+				fill=False, color='red', zorder=3, transform=ccrs.epsg(3067))
 		)
 
 	def get_measurement_area(self):
@@ -74,10 +64,9 @@ class Map:
 		#print(route['y'])
 		#print(area)
 
-		for i in range(0, len(route['x'])-1):
+		for i in range(0, len(route['x']) - 1):
 			if route['x'][i] > area[0] and route['x'][i] < area[1]:
 				if route['y'][i] > area[2] and route['y'][i] < area[3]:
 					return True
 
 		return False
-

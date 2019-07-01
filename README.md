@@ -2,9 +2,11 @@
 
 Takes AIS geo data of ship movement and plots them on a map.
 
+PEP8 compliant, ignoring space identantion requirement (W191, E265).
+
 Module requirements
 ------
-On Windows use Anaconda. On Linux packages can be manually installed with pip3 if wanted.
+Use pip3 or Anaconda for packages management. Using pip on Windows use Gohlke's binary packages (https://www.lfd.uci.edu/~gohlke/pythonlibs/) if the PiP package isn't working.
 
 - cartopy (*)
 - feather-format
@@ -14,7 +16,7 @@ On Windows use Anaconda. On Linux packages can be manually installed with pip3 i
 - pyproj
 - scipy
 
-### if you are using manual installation on Linux
+### if you are using pip on Linux
 (*) Cartopy in PyPi repository currently doesn't install. So it has to be installed from distro. With debian based:
 
     apt install cartopy
