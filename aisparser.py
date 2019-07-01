@@ -6,7 +6,7 @@ from pyproj import Proj, Transformer
 from ship import Ship
 
 AIS_DATA_PATH = "../ship-docs/"
-
+SHIPS_FILE_NAME = 'ships.h5'
 
 def get_transformer(source_epsg=4326, epsg=3067):
 
@@ -67,7 +67,10 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 				s.create_passages()
 
 	df = pd.Series(ships)
-	df.to_hdf('ships.h5', 'df')
+
+	if (os.path.exists(SHIPS_FILE_NAME)):
+		os.remove(SHIPS_FILE_NAME)
+	df.to_hdf(SHIPS_FILE_NAME, 'df')
 
 
 def convert_all_data():

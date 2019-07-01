@@ -3,7 +3,6 @@ import cartopy.feature as feature
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pandas as pd
-from pyproj import Proj, Transformer
 
 
 class Map:
@@ -19,11 +18,6 @@ class Map:
 	def load_ships(self):
 
 		self.ships = pd.read_hdf('ships.h5', 'df').values
-
-	def get_transformer(self, epsg=3067):
-
-		# projections from WSG 84 to TM35FIN(E,N)
-		return Transformer.from_proj(Proj(init=f"epsg:{self.epsg}"), Proj(init=f"epsg:{epsg}"))
 
 	def draw_map(self):
 		ax = plt.axes(projection=ccrs.epsg(3067))
