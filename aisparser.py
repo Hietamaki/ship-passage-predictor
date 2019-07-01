@@ -61,6 +61,8 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 
 			if x:
 				tx, ty = transformer.transform(x, y)
+				tx = [int(x) for x in tx]
+				ty = [int(y) for y in ty]
 				s = Ship(ship_id, tx, ty, time)
 				ships.append(s)
 
