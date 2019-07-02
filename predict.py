@@ -1,7 +1,5 @@
 #%matplotlib inline
-from datetime import datetime
-import itertools
-from multiprocessing import Pool
+from datetime import datetime, timedelta
 
 from map import Map
 import util
@@ -43,44 +41,8 @@ for ship in ships:
 '''
 plt = map.draw_map()
 
-def draw_reach_area(day):
-	starting_points = []
-	count1 = 0
-	count2 = 0
-	for ship in ships:
-		route = ship.get_route(
-			datetime(2018, 5, 2 + day, 0).timestamp(),
-			datetime(2018, 5, 3 + day, 0).timestamp())
 
-		if len(route['x']) > 0:
-			count1 += 1
 
-		col = util.random_color()
+map.draw_reach_area("2018-05-01", "2018-05-20")
 
-		if map.route_in_area(route, map.get_measurement_area()):
-			starting_points.append([route['x'][0], route['y'][0]])
-			starting_points.append([route['x'][-1], route['y'][-1]])
-			#map.plot_route(route['x'], route['y'], col)
-			#for p in ship.passages:
-			#	map.plot_route(p['x'], p['y'], col)
-			#map.plot_route(ship.x, ship.y, util.random_color())
-			count2 += 1
-
-	
-	print(f"Laivoja kaikkiaan {len(ships)}, {day}. päivänä {count1}, mittausalueelle ehtii {count2}")
-
-	return starting_points
-
-pool = Pool()
-points = pool.map(draw_reach_area, [r for r in range(0, 29)])
-#points = ([draw_reach_area(r) for r in range(0, 29)])
-
-pool.close()
-pool.join()
-#points = draw_reach_area(range(0, 5))
-#points += draw_reach_area(range(5, 10))
-#points += draw_reach_area(range(10, 15))
-#points += draw_reach_area(range(15, 20))
-
-map.draw_concave_hull(list(itertools.chain.from_iterable(points)))
 plt.show()
