@@ -50,7 +50,9 @@ class Map:
 		#pts = [xy[vertice] for vertice in spatial.ConvexHull(xy).vertices]
 		#pts = [xy[vertice] for vertice in alphashape.alphashape(xy, 2).vertices]
 
-		pts = alphashape.alphashape(xy)
+		# alpha-parameter can be removed to reoptimize alpha
+		#pts = alphashape.optimizealpha(xy)
+		pts = alphashape.alphashape(xy, 1.9846167135906253e-05)
 
 		print(pts)
 		#pts = alphashape.alphashape(xy, 2)

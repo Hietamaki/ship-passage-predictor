@@ -8,13 +8,16 @@ Module requirements
 ------
 Use pip3 or Anaconda for packages management. Using pip on Windows use Gohlke's binary packages (https://www.lfd.uci.edu/~gohlke/pythonlibs/) if the PiP package isn't working.
 
+- alphashape
 - cartopy (*)
+- descartes
 - feather-format
 - geopandas (really slow without)
 - matplotlib
 - pyepsg
 - pyproj
 - scipy
+- (tables)
 
 ### if you are using pip on Linux
 (*) Cartopy in PyPi repository currently doesn't install. So it has to be installed from distro. With debian based:
