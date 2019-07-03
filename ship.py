@@ -23,6 +23,11 @@ class Ship:
 				self.time[previous_beginning:beginning]
 			)
 
+			if (len(passage.x) < 1):
+				continue
+
+			passage.interpolate()
+
 			self.passages.append(passage)
 			previous_beginning = beginning
 
