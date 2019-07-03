@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import itertools
 from multiprocessing import Pool
+import sys
 
 import alphashape
 import cartopy.crs as ccrs
@@ -9,8 +10,6 @@ from descartes import PolygonPatch
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pandas as pd
-
-import util
 
 
 class Map:
@@ -98,19 +97,21 @@ class Map:
 
 	@classmethod
 	def draw_reach_area(self, start_date, end_date):
-		
 		dates = [r for r in pd.date_range(start_date, end_date)]
 
-		with Pool() as pool:
-			points = pool.map(self.get_points_that_reach_measurement_area, dates)
-			#points = [self.get_points_that_reach_measurement_area(r) for r in pd.date_range(start_date, end_date)]
-			pool.close()
-			pool.join()
+		# parallel processing for unix
+		if sys.platform == 'posix':
+			with Pool() as pool:
+				points = pool.map(self.points_reaching_measurement_area, dates)
+				pool.close()
+				pool.join()
+		else:
+			points = [self.points_reaching_measurement_area(r) for r in dates]
 
-		self.draw_concave_hull(list(itertools.chain.from_iterable(points)))
+			self.draw_concave_hull(list(itertools.chain.from_iterable(points)))
 
 	@classmethod
-	def get_points_that_reach_measurement_area(map, date):
+	def points_reaching_measurement_area(map, date):
 		starting_points = []
 		count1 = 0
 		count2 = 0
@@ -123,13 +124,23 @@ class Map:
 			if len(route['x']) > 0:
 				count1 += 1
 
-			col = util.random_color()
+			#col = util.random_color()
 
 			if map.route_in_area(route, map.get_measurement_area()):
 				starting_points.append([route['x'][0], route['y'][0]])
 				starting_points.append([route['x'][-1], route['y'][-1]])
 				count2 += 1
-		
-		print(f"Laivoja kaikkiaan {len(map.ships)}, {date}. päivänä {count1}, mittausalueelle ehtii {count2}")
+
+		print(
+			f'Laivoja kaikkiaan {len(map.ships)}, {date}. päivänä {count1}, '
+			f'mittausalueelle ehtii {count2}')
 
 		return starting_points
+
+	def convert_to_df(cls):
+
+		df = newdf()
+
+		for ship in cls.ships:
+			ship.convert_to_df()
+			df.append(ship)
