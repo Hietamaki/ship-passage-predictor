@@ -1,3 +1,6 @@
+from passage import Passage
+
+
 class Ship:
 
 	def __init__(self, id, x, y, time):
@@ -14,11 +17,11 @@ class Ship:
 
 		for beginning in self.detect_passages():
 
-			passage = {
-				'x': self.x[previous_beginning:beginning],
-				'y': self.y[previous_beginning:beginning],
-				'time': self.time[previous_beginning:beginning]
-			}
+			passage = Passage(
+				self.x[previous_beginning:beginning],
+				self.y[previous_beginning:beginning],
+				self.time[previous_beginning:beginning]
+			)
 
 			self.passages.append(passage)
 			previous_beginning = beginning
