@@ -1,12 +1,12 @@
 # Ship Movement Predictor
 
-Takes AIS geo data of ship movement and plots them on a map.
+Uses historical AIS geodata of ship movement and builds a model based on knn method that can predict future ship movement.
 
-PEP8 compliant, ignoring space identantion requirement (W191, E265).
+PEP8 compliant, ignoring space identantion requirement (W191, E265). Also max line length is set to 99.
 
 Module requirements
 ------
-Use pip3 or Anaconda for packages management. Using pip on Windows use Gohlke's binary packages (https://www.lfd.uci.edu/~gohlke/pythonlibs/) if the PiP package isn't working.
+Use pip3 or Anaconda for packages management. If you are using pip on Windows, Gohlke's binary packages is required for uninstallable PyPi modules (https://www.lfd.uci.edu/~gohlke/pythonlibs/).
 
 - alphashape
 - cartopy (*)
@@ -23,11 +23,11 @@ Use pip3 or Anaconda for packages management. Using pip on Windows use Gohlke's 
 (*) Cartopy in PyPi repository currently doesn't install. So it has to be installed from distro. With debian based:
 
     apt install cartopy
-    pip uninstall shapely
-    pip install --no-binary shapely shapely
+    pip3 uninstall shapely
+    pip3 install --no-binary shapely shapely
 
 "The Shapely wheels on PyPI contain their own version of GEOS and you will need to avoid them by using pip's --no-binary option. This will install a shapely package which has extension modules linked against your system GEOS library." -- https://github.com/Toblerity/Shapely/issues/651#issuecomment-434818437
 
 Usage
 -----
-Running for the first time downloads natural earth map data which can take a minute.
+Running for the first time downloads natural earth map data which can take up to a minute.
