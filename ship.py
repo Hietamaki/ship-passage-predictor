@@ -13,22 +13,20 @@ class Ship:
 	# making data structure [passage: {x,y,time}]
 	def create_passages(self):
 
-		previous_beginning = 0
-
-		for beginning in self.detect_passages():
+		for passage_indices in self.detect_passages():
 
 			#more testing
-			if previous_beginning == beginning:
+			if passage_indices[0] + 1 >= passage_indices[1]:
+				print(passage_indices, " :error")
 				continue
 
 			passage = Passage(
-				self.x[previous_beginning:beginning],
-				self.y[previous_beginning:beginning],
-				self.time[previous_beginning:beginning]
+				self.x[passage_indices[0]:passage_indices[1]],
+				self.y[passage_indices[0]:passage_indices[1]],
+				self.time[passage_indices[0]:passage_indices[1]]
 			)
 
 			self.passages.append(passage)
-			previous_beginning = beginning
 
 	# detecting start of passages to .passages[]
 	# speed < 22.2 km/h
@@ -41,17 +39,19 @@ class Ship:
 
 		# count dt to previous observation > speed
 		dt = []
-		beginnings = []
+		passages = []
+		start_of_passage = 0
+		end_of_passage = 0
 
 		for i in range(1, len(self.x)):
 			dt.append(self.time[i] - self.time[i - 1])
 
 			if dt[-1] >= DT_LIMIT:
-				beginnings.append(i)
+				passages.append((start_of_passage, i))
+				start_of_passage = i+1
 				#print(dt[-1]//60//60)
 
-		beginnings.append(len(self.x) - 1)
-		return beginnings
+		return passages
 
 	def get_route(self, start_time=0, end_time=253385798400000):
 		range = self.get_range_by_time(start_time, end_time)

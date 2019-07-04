@@ -80,5 +80,8 @@ class Passage:
 
 		self.nodes = node_ids
 
+	def plot(self):
+		Map.plot_route(self.x, self.y)
+
 
 

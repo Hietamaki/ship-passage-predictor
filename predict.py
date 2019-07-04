@@ -14,6 +14,7 @@ map.load_ships()
 ships = map.list_ships()
 
 for p in ships[13].passages:
+	p.plot()
 	print(p.nodes)
 '''
 for i in ships[0].time:
