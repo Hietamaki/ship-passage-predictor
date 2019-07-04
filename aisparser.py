@@ -66,8 +66,6 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 				s = Ship(ship_id, tx, ty, time)
 				ships.append(s)
 
-				s.create_passages()
-
 	df = pd.Series(ships)
 
 	if (os.path.exists(SHIPS_FILE_NAME)):

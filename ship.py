@@ -9,6 +9,8 @@ class Ship:
 		self.y = y
 		self.time = time
 		self.passages = []
+		
+		self.create_passages()
 
 	# making data structure [passage: {x,y,time}]
 	def create_passages(self):
@@ -34,24 +36,35 @@ class Ship:
 	# time > 1h
 	def detect_passages(self):
 
-		# 1h
-		DT_LIMIT = 3600 * 2
+		# 2h
+		MAXIMUM_BLACKOUT = 3600 * 2
 
-		# count dt to previous observation > speed
-		dt = []
+		# count time_passed to previous observation > speed
+		time_passed = []
+
 		passages = []
 		start_of_passage = 0
-		end_of_passage = 0
 
 		for i in range(1, len(self.x)):
-			dt.append(self.time[i] - self.time[i - 1])
+			time_passed = self.time[i] - self.time[i - 1]
 
-			if dt[-1] >= DT_LIMIT:
-				passages.append((start_of_passage, i))
-				start_of_passage = i+1
-				#print(dt[-1]//60//60)
+			if start_of_passage >= 0:
+				# lopetetaan passage jos ehdot täyttyy
+				if time_passed >= MAXIMUM_BLACKOUT or self.get_speed(i) < 10:
+					passages.append((start_of_passage, i))
+					start_of_passage = -1
+			else:
+				# aloitetaan uusi passage jos ehdot täyttyy
+				if time_passed < MAXIMUM_BLACKOUT and self.get_speed(i) > 10:
+					start_of_passage = i
 
 		return passages
+
+	# @.output	speed in kmh
+	#
+	def get_speed(self, index):
+		#toteuta
+		return 40
 
 	def get_route(self, start_time=0, end_time=253385798400000):
 		range = self.get_range_by_time(start_time, end_time)
