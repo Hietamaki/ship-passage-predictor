@@ -13,7 +13,7 @@ import pandas as pd
 
 
 class Map:
-	ax = plt.axes(projection=ccrs.TransverseMercator())
+	ax = plt.axes(projection=ccrs.Mercator())
 	ships = []
 
 	# @.output	list of loaded ship ids
@@ -76,6 +76,11 @@ class Map:
 	def get_measurement_area(self):
 		#etrs xx yy
 		return [340000, 380000, 6620000, 6650000]
+
+	@classmethod
+	def get_area_boundaries(self):
+		#etrs xx yy
+		return [0, 700000, 6450000, 6750000]
 
 	@classmethod
 	def route_in_area(self, route, area):

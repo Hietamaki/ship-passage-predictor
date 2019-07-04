@@ -17,16 +17,15 @@ class Ship:
 
 		for beginning in self.detect_passages():
 
+			#more testing
+			if previous_beginning == beginning:
+				continue
+
 			passage = Passage(
 				self.x[previous_beginning:beginning],
 				self.y[previous_beginning:beginning],
 				self.time[previous_beginning:beginning]
 			)
-
-			if (len(passage.x) < 1):
-				continue
-
-			passage.interpolate()
 
 			self.passages.append(passage)
 			previous_beginning = beginning
@@ -89,3 +88,11 @@ class Ship:
 				range_start = i
 
 		return [range_start, range_end]
+
+	def get_node_index(self, time):
+
+		NODE_SPACING_M = 10000
+
+		#for passage.inpassag
+		
+		self.x / NODE_SPACING_M

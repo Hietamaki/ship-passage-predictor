@@ -13,9 +13,8 @@ map.load_ships()
 
 ships = map.list_ships()
 
-for p in ships[0].passages:
-	print(len(p.x))
-	p.interpolate()
+for p in ships[13].passages:
+	print(p.nodes)
 '''
 for i in ships[0].time:
 	print (util.format_date(i))
@@ -43,8 +42,8 @@ for ship in ships:
 	if len(r['x']) > 0:
 		starting_points.append([r['x'][0], r['y'][0]])
 '''
-#plt = map.draw_map()
+plt = map.draw_map()
 
-#map.draw_reach_area("2018-05-01", "2018-05-20")
+map.draw_reach_area("2018-05-01", "2018-05-20")
 
-#plt.show()
+plt.show()

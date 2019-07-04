@@ -1,9 +1,14 @@
+from map import Map
+
 class Passage:
 
 	def __init__(self, x, y, time):
 		self.x = x
 		self.y = y
 		self.time = time
+
+		self.interpolate()
+		self.save_node_indexes()
 
 	def interpolate(self, minutes_limit=10):
 
@@ -53,3 +58,27 @@ class Passage:
 			new_value = base_value + (distance * (i + 1))
 			#print(i, amount_of_points, new_value)
 			list.insert(index + i, new_value)
+
+	def save_node_indexes(self):
+
+		NODE_SPACING_M = 10000
+
+		area_boundaries = Map().get_area_boundaries()
+		x_maximum_cells = (area_boundaries[1] // NODE_SPACING_M)
+
+		node_ids = []
+
+		for i in range(0, len(self.x)):
+			node_x = self.x[i] // NODE_SPACING_M
+			node_y = (self.y[i] - area_boundaries[2]) // NODE_SPACING_M
+			node_id = node_x + (node_y * x_maximum_cells)
+
+			#print(node_x, node_y, node_id)
+
+			if node_id not in node_ids:
+				node_ids.append(node_id)
+
+		self.nodes = node_ids
+
+
+
