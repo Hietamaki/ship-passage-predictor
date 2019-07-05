@@ -52,21 +52,23 @@ class Ship:
 		for i in range(1, len(self.x)):
 			time_passed = self.time[i] - self.time[i - 1]
 
+			ship_still = time_passed >= MAXIMUM_BLACKOUT_S
+			lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
+
 			# check if passage is started
 			if start_of_passage >= 0:
 				# end passage
-				if time_passed >= MAXIMUM_BLACKOUT_S or self.get_speed(i) < MOVEMENT_DETECTION_MS:
+				if ship_still or lost_contact:
 					passages.append((start_of_passage, i))
 					start_of_passage = -1
 			else:
 				# start passage
-				if time_passed < MAXIMUM_BLACKOUT_S and self.get_speed(i) > MOVEMENT_DETECTION_MS:
+				if not ship_still and not lost_contact:
 					start_of_passage = i
 
 		# close if passage is started
 		if start_of_passage >= 0:
 			passages.append((start_of_passage, len(self.x)))
-
 
 		return passages
 
@@ -79,10 +81,10 @@ class Ship:
 		# euclidean distance, not geodesic calculation
 		# feels slow, but should be O(n)
 		point1 = geometry.Point(self.x[index], self.y[index])
-		point2 = geometry.Point(self.x[index-1], self.y[index-1])
+		point2 = geometry.Point(self.x[index - 1], self.y[index - 1])
 		dist = point1.distance(point2)
 
-		time_passed = self.time[index] - self.time[index-1]
+		time_passed = self.time[index] - self.time[index - 1]
 		m_s = dist / time_passed
 
 		return m_s
@@ -128,5 +130,4 @@ class Ship:
 		NODE_SPACING_M = 10000
 
 		#for passage.inpassag
-		
 		self.x / NODE_SPACING_M

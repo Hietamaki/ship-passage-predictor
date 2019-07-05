@@ -7,7 +7,7 @@ class Passage:
 		self.y = y
 		self.time = time
 
-		self.interpolate()
+		#self.interpolate()
 		self.save_node_indices()
 
 	def interpolate(self, minutes_limit=10):
@@ -54,7 +54,7 @@ class Passage:
 
 		for i in range(0, amount_of_points):
 			new_value = base_value + (distance * (i + 1))
-			list.insert(index + i, new_value)
+			list.insert(index, new_value)
 
 	def save_node_indices(self):
 

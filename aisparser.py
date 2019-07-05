@@ -8,10 +8,13 @@ from ship import Ship
 AIS_DATA_PATH = "../ship-docs/"
 SHIPS_FILE_NAME = 'ships.h5'
 
+
 def get_transformer(source_epsg=4326, epsg=3067):
 
 	# projections from WSG 84 to TM35FIN(E,N)
-	return Transformer.from_proj(Proj(init=f"epsg:{source_epsg}"), Proj(init=f"epsg:{epsg}"))
+	return Transformer.from_proj(
+		Proj(init=f"epsg:{source_epsg}"),
+		Proj(init=f"epsg:{epsg}"))
 
 # pre-processing data
 #
@@ -54,7 +57,6 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 				if unixtime > limit_to_date:
 					break
 
-				#locations.append([float(line[x+1]), float(line[x+2]), unixtime])
 				x.append(float(line[i + 1]))
 				y.append(float(line[i + 2]))
 				time.append(unixtime)

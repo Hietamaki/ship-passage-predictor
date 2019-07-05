@@ -33,7 +33,8 @@ class Map:
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
 		ax.add_feature(
-			feature.NaturalEarthFeature("cultural", "admin_0_boundary_lines_land", "10m", facecolor='none'),
+			feature.NaturalEarthFeature(
+				"cultural", "admin_0_boundary_lines_land", "10m", facecolor='none'),
 			edgecolor='gray')
 
 		# limit to Finnish sea area
