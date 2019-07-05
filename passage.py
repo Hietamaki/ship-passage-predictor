@@ -1,5 +1,6 @@
 from map import Map
 
+
 class Passage:
 
 	def __init__(self, x, y, time):
@@ -7,7 +8,7 @@ class Passage:
 		self.y = y
 		self.time = time
 
-		#self.interpolate()
+		self.interpolate()
 		self.save_node_indices()
 
 	def interpolate(self, minutes_limit=10):
@@ -79,6 +80,3 @@ class Passage:
 
 	def plot(self, color="red"):
 		Map.plot_route(self.x, self.y, color=color)
-
-
-

@@ -64,7 +64,6 @@ class Map:
 		#pts = alphashape.optimizealpha(xy)
 		pts = alphashape.alphashape(xy, 1.9846167135906253e-05)
 
-		print(pts)
 		#pts = alphashape.alphashape(xy, 2)
 
 		# add 10 km buffer zone for error
@@ -88,11 +87,6 @@ class Map:
 
 		if len(route['x']) == 0:
 			return False
-
-		#print("routessa pisteitä",len(route['x']))
-		#print(route['x'])
-		#print(route['y'])
-		#print(area)
 
 		for i in range(0, len(route['x']) - 1):
 			if route['x'][i] > area[0] and route['x'][i] < area[1]:
@@ -137,16 +131,8 @@ class Map:
 				starting_points.append([route['x'][-1], route['y'][-1]])
 				count2 += 1
 
-		print(
-			f'Laivoja kaikkiaan {len(map.ships)}, {date}. päivänä {count1}, '
-			f'mittausalueelle ehtii {count2}')
+		#print(
+		#	f'Laivoja kaikkiaan {len(map.ships)}, {date}. päivänä {count1}, '
+		#	f'mittausalueelle ehtii {count2}')
 
 		return starting_points
-
-	def convert_to_df(cls):
-
-		df = newdf()
-
-		for ship in cls.ships:
-			ship.convert_to_df()
-			df.append(ship)
