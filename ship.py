@@ -14,14 +14,13 @@ class Ship:
 
 		self.create_passages()
 
-	# making data structure [passage: {x,y,time}]
+	# detect and create Passage objects from timecoords
 	def create_passages(self):
 
 		for passage_indices in self.detect_passages():
 
-			#more testing
+			# discard passages that have less than 3 data points
 			if passage_indices[0] + 1 >= passage_indices[1]:
-				#print(passage_indices, " :error")
 				continue
 
 			passage = Passage(
@@ -32,10 +31,11 @@ class Ship:
 
 			self.passages.append(passage)
 
-	# detecting start of passages to .passages[]
-	# speed <  MOVEMENT_DETECTION_MS
-	# or
-	# time > MAXIMUM_BLACKOUT_S
+	# @. output
+	#	list of passage indexes in route
+	#		[(start, end)]
+	# 	start new passage if:
+	#		   ship stays still or previous contact is over MAXIMUM_BLACKOUT_S
 	def detect_passages(self):
 
 		# 2h
@@ -54,12 +54,12 @@ class Ship:
 
 			# check if passage is started
 			if start_of_passage >= 0:
-				# lopetetaan passage jos ehdot täyttyy
+				# end passage
 				if time_passed >= MAXIMUM_BLACKOUT_S or self.get_speed(i) < MOVEMENT_DETECTION_MS:
 					passages.append((start_of_passage, i))
 					start_of_passage = -1
 			else:
-				# aloitetaan uusi passage jos ehdot täyttyy
+				# start passage
 				if time_passed < MAXIMUM_BLACKOUT_S and self.get_speed(i) > MOVEMENT_DETECTION_MS:
 					start_of_passage = i
 
@@ -78,7 +78,10 @@ class Ship:
 
 		# euclidean distance, not geodesic calculation
 		# feels slow, but should be O(n)
-		dist = geometry.Point(self.x[index], self.y[index]).distance(geometry.Point(self.x[index-1], self.y[index-1]))
+		point1 = geometry.Point(self.x[index], self.y[index])
+		point2 = geometry.Point(self.x[index-1], self.y[index-1])
+		dist = point1.distance(point2)
+
 		time_passed = self.time[index] - self.time[index-1]
 		m_s = dist / time_passed
 
