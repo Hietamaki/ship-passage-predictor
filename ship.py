@@ -1,3 +1,5 @@
+from shapely import geometry
+
 from passage import Passage
 
 
@@ -9,7 +11,7 @@ class Ship:
 		self.y = y
 		self.time = time
 		self.passages = []
-		
+
 		self.create_passages()
 
 	# making data structure [passage: {x,y,time}]
@@ -19,7 +21,7 @@ class Ship:
 
 			#more testing
 			if passage_indices[0] + 1 >= passage_indices[1]:
-				print(passage_indices, " :error")
+				#print(passage_indices, " :error")
 				continue
 
 			passage = Passage(
@@ -31,13 +33,15 @@ class Ship:
 			self.passages.append(passage)
 
 	# detecting start of passages to .passages[]
-	# speed < 22.2 km/h
+	# speed <  MOVEMENT_DETECTION_MS
 	# or
-	# time > 1h
+	# time > MAXIMUM_BLACKOUT_S
 	def detect_passages(self):
 
 		# 2h
-		MAXIMUM_BLACKOUT = 3600 * 2
+		MAXIMUM_BLACKOUT_S = 3600 * 2
+		# 2 m/s = ~3.9 knots
+		MOVEMENT_DETECTION_MS = 2
 
 		# count time_passed to previous observation > speed
 		time_passed = []
@@ -48,23 +52,37 @@ class Ship:
 		for i in range(1, len(self.x)):
 			time_passed = self.time[i] - self.time[i - 1]
 
+			# check if passage is started
 			if start_of_passage >= 0:
 				# lopetetaan passage jos ehdot täyttyy
-				if time_passed >= MAXIMUM_BLACKOUT or self.get_speed(i) < 10:
+				if time_passed >= MAXIMUM_BLACKOUT_S or self.get_speed(i) < MOVEMENT_DETECTION_MS:
 					passages.append((start_of_passage, i))
 					start_of_passage = -1
 			else:
 				# aloitetaan uusi passage jos ehdot täyttyy
-				if time_passed < MAXIMUM_BLACKOUT and self.get_speed(i) > 10:
+				if time_passed < MAXIMUM_BLACKOUT_S and self.get_speed(i) > MOVEMENT_DETECTION_MS:
 					start_of_passage = i
+
+		# close if passage is started
+		if start_of_passage >= 0:
+			passages.append((start_of_passage, len(self.x)))
+
 
 		return passages
 
-	# @.output	speed in kmh
+	# @.input	self
+	#			index of timeloc for which to calculate speed
+	# @.output	speed in m/s
 	#
 	def get_speed(self, index):
-		#toteuta
-		return 40
+
+		# euclidean distance, not geodesic calculation
+		# feels slow, but should be O(n)
+		dist = geometry.Point(self.x[index], self.y[index]).distance(geometry.Point(self.x[index-1], self.y[index-1]))
+		time_passed = self.time[index] - self.time[index-1]
+		m_s = dist / time_passed
+
+		return m_s
 
 	def get_route(self, start_time=0, end_time=253385798400000):
 		range = self.get_range_by_time(start_time, end_time)
