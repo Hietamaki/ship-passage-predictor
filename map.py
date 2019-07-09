@@ -11,21 +11,11 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from ship import Ship
+
 
 class Map:
 	ax = plt.axes(projection=ccrs.Mercator())
-	ships = []
-
-	# @.output	list of loaded ship ids
-	#
-	@classmethod
-	def list_ships(self):
-		return self.ships
-
-	@classmethod
-	def load_ships(self):
-
-		self.ships = pd.read_hdf('ships.h5', 'df').values
 
 	@classmethod
 	def draw_map(self):
@@ -116,7 +106,7 @@ class Map:
 		count1 = 0
 		count2 = 0
 
-		for ship in map.ships:
+		for ship in Ship.list:
 			route = ship.get_route(
 				date.timestamp(),
 				(date + timedelta(days=1)).timestamp())
@@ -132,7 +122,7 @@ class Map:
 				count2 += 1
 
 		#print(
-		#	f'Laivoja kaikkiaan {len(map.ships)}, {date}. päivänä {count1}, '
+		#	f'Laivoja kaikkiaan {len(map.list)}, {date}. päivänä {count1}, '
 		#	f'mittausalueelle ehtii {count2}')
 
 		return starting_points

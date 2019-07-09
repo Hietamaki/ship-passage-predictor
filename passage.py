@@ -1,4 +1,4 @@
-from map import Map
+import map
 
 
 class Passage:
@@ -59,17 +59,15 @@ class Passage:
 
 	def save_node_indices(self):
 
-		NODE_SPACING_M = 10000
-
-		area_boundaries = Map().get_area_boundaries()
-		x_maximum_cells = (area_boundaries[1] // NODE_SPACING_M)
+		area_boundaries = map.Map.get_area_boundaries()
+		max_x = Nodes.maximum_nodes()
 
 		node_ids = []
 
 		for i in range(0, len(self.x)):
-			node_x = self.x[i] // NODE_SPACING_M
-			node_y = (self.y[i] - area_boundaries[2]) // NODE_SPACING_M
-			node_id = node_x + (node_y * x_maximum_cells)
+			node_x = self.x[i] // Nodes.SPACING_M
+			node_y = (self.y[i] - area_boundaries[2]) // Nodes.SPACING_M
+			node_id = node_x + (node_y * max_x)
 
 			#print(node_x, node_y, node_id)
 
@@ -79,4 +77,4 @@ class Passage:
 		self.nodes = node_ids
 
 	def plot(self, color="red"):
-		Map.plot_route(self.x, self.y, color=color)
+		map.Map.plot_route(self.x, self.y, color=color)

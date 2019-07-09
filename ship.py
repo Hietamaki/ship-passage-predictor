@@ -1,9 +1,17 @@
+import pandas as pd
 from shapely import geometry
 
-from passage import Passage
+import passage as psg
 
 
 class Ship:
+
+	list = []
+
+	@classmethod
+	def load(cls):
+
+		cls.list = pd.read_hdf('ships.h5', 'df').values
 
 	def __init__(self, id, x, y, time):
 		self.id = id
@@ -23,7 +31,7 @@ class Ship:
 			if passage_indices[0] + 1 >= passage_indices[1]:
 				continue
 
-			passage = Passage(
+			passage = psg.Passage(
 				self.x[passage_indices[0]:passage_indices[1]],
 				self.y[passage_indices[0]:passage_indices[1]],
 				self.time[passage_indices[0]:passage_indices[1]]
@@ -124,10 +132,3 @@ class Ship:
 				range_start = i
 
 		return [range_start, range_end]
-
-	def get_node_index(self, time):
-
-		NODE_SPACING_M = 10000
-
-		#for passage.inpassag
-		self.x / NODE_SPACING_M

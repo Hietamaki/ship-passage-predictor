@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta
 
 from map import Map
+from ship import Ship
+
 import util
 #%pylab inline
 #LIMIT_TO_DATE = datetime(2018, 5, 8).timestamp()
@@ -10,11 +12,9 @@ import util
 # test case:
 print("Loading test case...")
 map = Map()
-map.load_ships()
+Ship.load()
 
-ships = map.list_ships()
-
-for p in ships[0].passages:
+for p in Ship.list[0].passages:
 	p.plot(util.random_color())
 
 plt = map.draw_map()
