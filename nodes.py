@@ -1,12 +1,12 @@
-from map import Map
+import map
 
 
 class Nodes:
 	SPACING_M = 10000
 
 	@classmethod
-	def get_row_length(cls):
-		area_boundaries = Map.get_measurement_area()
+	def get_nodes_in_row(cls):
+		area_boundaries = map.Map.get_measurement_area()
 		return (area_boundaries[1] // cls.SPACING_M)
 
 	# @.output dictionary of nodes {id: [x, y]}

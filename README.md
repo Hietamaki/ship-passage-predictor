@@ -17,6 +17,7 @@ Use pip3 or Anaconda for packages management. If you are using pip on Windows, G
 - pyepsg
 - pyproj
 - scipy
+- sklearn
 - (tables)
 
 ### if you are using pip on Linux

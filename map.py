@@ -11,7 +11,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from ship import Ship
+import ship as sh
 
 
 class Map:
@@ -106,7 +106,7 @@ class Map:
 		count1 = 0
 		count2 = 0
 
-		for ship in Ship.list:
+		for ship in sh.Ship.list:
 			route = ship.get_route(
 				date.timestamp(),
 				(date + timedelta(days=1)).timestamp())

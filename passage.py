@@ -1,15 +1,24 @@
 import map
+from nodes import Nodes
 
 
 class Passage:
+
+	next_id = 0
 
 	def __init__(self, x, y, time):
 		self.x = x
 		self.y = y
 		self.time = time
+		self.id = self.get_id()
 
 		self.interpolate()
 		self.save_node_indices()
+
+	@classmethod
+	def get_id(cls):
+		cls.next_id += 1
+		return cls.next_id
 
 	def interpolate(self, minutes_limit=10):
 
@@ -60,7 +69,7 @@ class Passage:
 	def save_node_indices(self):
 
 		area_boundaries = map.Map.get_area_boundaries()
-		max_x = Nodes.maximum_nodes()
+		max_x = Nodes.get_nodes_in_row()
 
 		node_ids = []
 
