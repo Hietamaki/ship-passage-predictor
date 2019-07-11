@@ -78,8 +78,9 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 def convert_all_data():
 	for r, d, f in os.walk(AIS_DATA_PATH):
 		for file in f:
-			if '.txt' in file:
+			if 'AIS_' in file and '.txt' in file:
+				print("Loading file ", file)
 				load_data(os.path.join(r, file))
 
-
+#convert_all_data()
 load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")
