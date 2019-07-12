@@ -90,7 +90,7 @@ class Map:
 		dates = [r for r in pd.date_range(start_date, end_date)]
 
 		# parallel processing for unix
-		if sys.platform == 'posix':
+		if sys.platform == 'linux':
 			with Pool() as pool:
 				points = pool.map(self.points_reaching_measurement_area, dates)
 				pool.close()

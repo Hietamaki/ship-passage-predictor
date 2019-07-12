@@ -93,6 +93,11 @@ class Ship:
 		dist = point1.distance(point2)
 
 		time_passed = self.time[index] - self.time[index - 1]
+
+		if time_passed < 1:
+			print("get_speed(): trying to divide by", time_passed, "at index", index, "ship id", self.id)
+			time_passed = 1
+
 		m_s = dist / time_passed
 
 		return m_s
