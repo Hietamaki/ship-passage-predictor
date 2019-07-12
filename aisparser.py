@@ -73,13 +73,6 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 	return ships
 
 
-def save_to_file(ships):
-	print("Saving", len(ships), "ships to database.")
-	df = pd.Series(ships)
-
-	df.to_hdf(SHIPS_FILE_NAME, 'df', format='table', mode='a')
-
-
 def convert_all_data():
 
 	if (os.path.exists(SHIPS_FILE_NAME)):
@@ -109,9 +102,7 @@ def convert_all_data():
 			df = pd.Series(ships)
 			df.to_hdf(SHIPS_FILE_NAME, 'df', mode='a')
 
-	print(len(ships), "len ships")
-	save_to_file(ships)
-
+	print("Saving", len(ships), "ships to database.")
 
 convert_all_data()
 #load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")
