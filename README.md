@@ -6,7 +6,7 @@ PEP8 compliant, ignoring space identantion requirement (W191, E265). Also max li
 
 Module requirements
 ------
-Use pip3 or Anaconda for packages management. If you are using pip on Windows, Gohlke's binary packages is required for uninstallable PyPi modules (https://www.lfd.uci.edu/~gohlke/pythonlibs/).
+Use pip3 for packages management. You can try Anaconda if you want, but I had problems with cartopy pulling some old pyproj dependencies. If you are using pip on Windows, Gohlke's binary packages are required for uninstallable PyPi modules (https://www.lfd.uci.edu/~gohlke/pythonlibs/).
 
 - alphashape
 - cartopy (*)
@@ -32,3 +32,5 @@ Use pip3 or Anaconda for packages management. If you are using pip on Windows, G
 Usage
 -----
 Running for the first time downloads natural earth map data which can take up to a minute.
+
+Multi-threading only works on Linux for now, so txt parsing will usually take 4 times as long on Windows.

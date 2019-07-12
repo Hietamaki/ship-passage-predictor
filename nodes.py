@@ -21,3 +21,6 @@ class Nodes:
 
 		#for i in len()
 		# cl.SPACING_M
+
+	def find_optimal_k(node):
+		return 11

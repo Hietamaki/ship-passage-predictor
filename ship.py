@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from shapely import geometry
 
@@ -9,9 +10,30 @@ class Ship:
 	list = []
 
 	@classmethod
-	def load(cls):
+	def load_all(cls):
 
 		cls.list = pd.read_hdf('ships.h5', 'df').values
+
+	@classmethod
+	def get_all_as_table(cls):
+		attributes = []
+		labels = []
+		x = []
+		y = []
+
+		for ship in cls.list:
+			for passage in ship.passages:
+				#attributes.append([passage.x, passage.y])
+				x += passage.x
+				y += passage.y
+
+				labels += [passage.id] *  len(passage.x)
+
+		attributes = np.array([x,y])
+		attributes = np.reshape(attributes, (-1, 2))
+		labels = np.array(labels)
+
+		return attributes, labels
 
 	def __init__(self, id, x, y, time):
 		self.id = id
