@@ -73,14 +73,16 @@ class Map:
 		return [0, 700000, 6450000, 6750000]
 
 	@classmethod
-	def route_in_area(self, route, area):
+	def route_in_area(cls, x, y):
 
-		if len(route['x']) == 0:
+		area = cls.get_measurement_area()
+
+		if len(x) == 0:
 			return False
 
-		for i in range(0, len(route['x']) - 1):
-			if route['x'][i] > area[0] and route['x'][i] < area[1]:
-				if route['y'][i] > area[2] and route['y'][i] < area[3]:
+		for i in range(0, len(x) - 1):
+			if x[i] > area[0] and x[i] < area[1]:
+				if y[i] > area[2] and y[i] < area[3]:
 					return True
 
 		return False
@@ -116,7 +118,7 @@ class Map:
 
 			#col = util.random_color()
 
-			if map.route_in_area(route, map.get_measurement_area()):
+			if map.route_in_area(route['x'], route['y']):
 				starting_points.append([route['x'][0], route['y'][0]])
 				starting_points.append([route['x'][-1], route['y'][-1]])
 				count2 += 1

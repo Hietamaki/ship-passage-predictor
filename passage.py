@@ -11,6 +11,7 @@ class Passage:
 		self.y = y
 		self.time = time
 		self.id = self.get_id()
+		self.reaches = self.reaches_measurement_area()
 
 		self.interpolate()
 		self.save_node_indices()
@@ -65,6 +66,9 @@ class Passage:
 		for i in range(0, amount_of_points):
 			new_value = base_value + (distance * (i + 1))
 			list.insert(index, new_value)
+
+	def reaches_measurement_area(self):
+		return map.Map.route_in_area(self.x, self.y)
 
 	def save_node_indices(self):
 

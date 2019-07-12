@@ -15,7 +15,7 @@ class Ship:
 		cls.list = pd.read_hdf('ships.h5', 'df').values
 
 	@classmethod
-	def get_all_as_table(cls):
+	def get_passages_as_table(cls):
 		attributes = []
 		labels = []
 		x = []
@@ -27,9 +27,11 @@ class Ship:
 				x += passage.x
 				y += passage.y
 
-				labels += [passage.id] *  len(passage.x)
+				# repeating value reaches for every coordinate
+				labels += [passage.reaches] * len(passage.x)
+				#labels += [passage.id] * len(passage.x)
 
-		attributes = np.array([x,y])
+		attributes = np.array([x, y])
 		attributes = np.reshape(attributes, (-1, 2))
 		labels = np.array(labels)
 
