@@ -77,12 +77,14 @@ def save_to_file(ships):
 	print("Saving", len(ships), "ships to database.")
 	df = pd.Series(ships)
 
-	if (os.path.exists(SHIPS_FILE_NAME)):
-		os.remove(SHIPS_FILE_NAME)
-	df.to_hdf(SHIPS_FILE_NAME, 'df')
+	df.to_hdf(SHIPS_FILE_NAME, 'df', format='table', mode='a')
 
 
 def convert_all_data():
+
+	if (os.path.exists(SHIPS_FILE_NAME)):
+		os.remove(SHIPS_FILE_NAME)
+
 	files = []
 	ships = []
 	for r, d, f in os.walk(AIS_DATA_PATH):
@@ -96,10 +98,16 @@ def convert_all_data():
 			pool.close()
 			pool.join()
 		ships = list(chain.from_iterable(ships))
+
+		df = pd.Series(ships)
+		df.to_hdf(SHIPS_FILE_NAME, 'df', mode='w')
 	else:
 		print("Single threaded, performance is slow")
 		for f in files:
-			ships += load_data(f)
+			ships = load_data(f)
+
+			df = pd.Series(ships)
+			df.to_hdf(SHIPS_FILE_NAME, 'df', mode='a')
 
 	print(len(ships), "len ships")
 	save_to_file(ships)
