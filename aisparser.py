@@ -79,7 +79,6 @@ def convert_all_data():
 
 	if (os.path.exists(SHIPS_FILE_NAME)):
 		os.remove(SHIPS_FILE_NAME)
-		os.remove(NODES_FILE_NAME)
 
 	files = []
 	ships = []

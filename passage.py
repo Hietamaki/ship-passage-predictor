@@ -83,7 +83,7 @@ class Passage:
 			node_id = node_x + (node_y * max_x)
 
 			if (self.y[i] < area_boundaries[2]):
-				print("Discarding, y-coord out of bounds: ", self.y[i])
+				print("Discarding node, y-coord out of bounds: ", self.y[i])
 				continue
 
 			#print(node_x, node_y, node_id)
