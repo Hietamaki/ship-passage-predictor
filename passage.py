@@ -1,5 +1,5 @@
 import map
-from nodes import Nodes
+from node import Node
 
 
 class Passage:
@@ -73,21 +73,28 @@ class Passage:
 	def save_node_indices(self):
 
 		area_boundaries = map.Map.get_area_boundaries()
-		max_x = Nodes.get_nodes_in_row()
+		max_x = Node.get_nodes_in_row()
 
 		node_ids = []
 
 		for i in range(0, len(self.x)):
-			node_x = self.x[i] // Nodes.SPACING_M
-			node_y = (self.y[i] - area_boundaries[2]) // Nodes.SPACING_M
+			node_x = self.x[i] // Node.SPACING_M
+			node_y = (self.y[i] - area_boundaries[2]) // Node.SPACING_M
 			node_id = node_x + (node_y * max_x)
+
+			if (self.y[i] < area_boundaries[2]):
+				print("Discarding, y-coord out of bounds: ", self.y[i])
+				continue
 
 			#print(node_x, node_y, node_id)
 
 			if node_id not in node_ids:
+
+				Node.list[node_id].add_passage(self)
 				node_ids.append(node_id)
 
-		self.nodes = node_ids
+		# uncomment if needed
+		#self.nodes = node_ids
 
 	def plot(self, color="red"):
 		map.Map.plot_route(self.x, self.y, color=color)

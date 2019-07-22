@@ -23,7 +23,7 @@ def predict_path(x, y):
 	new_passage = np.array([x, y])
 	new_passage = np.reshape(new_passage, (-1, 2))
 
-	old_passages, labels = Ship.get_passages_as_table()
+	old_passages, labels, indices = Ship.get_passages_as_table()
 	x_train, x_test = normalize_features(old_passages, new_passage)
 	
 	print("# training and predictions")

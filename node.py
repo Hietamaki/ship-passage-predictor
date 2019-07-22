@@ -1,8 +1,10 @@
 import map
 
 
-class Nodes:
+class Node:
 	SPACING_M = 10000
+
+	list = []
 
 	@classmethod
 	def get_nodes_in_row(cls):
@@ -22,5 +24,19 @@ class Nodes:
 		#for i in len()
 		# cl.SPACING_M
 
+	def __init__(self, id):
+		self.id = id
+		self.list.append(self)
+		self.passages = []
+
 	def find_optimal_k(node):
 		return 11
+
+	def add_passage(self, passage):
+		if not self.list[self.id]:
+			self.list[self.id] = []
+
+		self.list[self.id].passages.append(passage)
+
+
+Node.list = [Node(x) for x in range(0, 5000)]
