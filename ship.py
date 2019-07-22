@@ -26,7 +26,6 @@ class Ship:
 
 		for ship in cls.list:
 			for passage in ship.passages:
-				#attributes.append([passage.x, passage.y])
 				x += passage.x
 				y += passage.y
 

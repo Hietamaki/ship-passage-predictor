@@ -53,7 +53,6 @@ def test_case():
 	print("# preprocess")
 
 	attributes, labels, indices = Ship.get_passages_as_table()
-	attributes, labels = Ship.get_passages_as_table()
 
 	print(attributes.shape)
 	print(len(attributes), len(labels))
