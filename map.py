@@ -70,7 +70,7 @@ class Map:
 	@classmethod
 	def get_area_boundaries(self):
 		#etrs xx yy
-		return [0, 700000, 6300000, 6750000]
+		return [0, 700000, 6200000, 6750000]
 		# spacepart.m boundaries
 		#return [0, 700000, 6450000, 6750000]
 

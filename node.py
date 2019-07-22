@@ -1,3 +1,5 @@
+import pandas as pd
+
 import map
 
 
@@ -5,6 +7,11 @@ class Node:
 	SPACING_M = 10000
 
 	list = []
+
+	@classmethod
+	def load_all(cls):
+
+		cls.list = pd.read_hdf('nodes.h5', 'df').values
 
 	@classmethod
 	def get_nodes_in_row(cls):
