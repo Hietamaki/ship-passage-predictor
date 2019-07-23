@@ -75,7 +75,7 @@ class Passage:
 		area_boundaries = map.Map.get_area_boundaries()
 		max_x = node.Node.get_nodes_in_row()
 
-		node_ids = []
+		node_ids = {}
 
 		for i in range(0, len(self.x)):
 			node_x = self.x[i] // node.Node.SPACING_M
@@ -87,11 +87,13 @@ class Passage:
 				continue
 
 			#print(node_x, node_y, node_id)
+			if not node_ids[node_id]:
+				node_ids[node_id] = []
 
-			if node_id not in node_ids:
+			node_ids[node_id].append(self)
 
-				node.Node.list[node_id].add_passage(self)
-				node_ids.append(node_id)
+		for key in node_ids:
+			node.Node.list[key].add_passage(node_ids[key])
 
 		# uncomment if needed
 		#self.nodes = node_ids

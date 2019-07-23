@@ -35,15 +35,23 @@ class Node:
 		self.id = id
 		self.list.append(self)
 		self.passages = []
+		self.cog = []
+		self.speed = []
+		self.label = []
 
 	def find_optimal_k(node):
 		return 11
 
 	def add_passage(self, passage):
+
 		if not self.list[self.id]:
 			self.list[self.id] = []
 
-		self.list[self.id].passages.append(passage)
+		#calculate speed from
+		#calculate cog from
+		#passage[0] passages[-1]
+
+		self.list[self.id].passages.append(passage[0])
 
 
 Node.list = [Node(x) for x in range(0, 5000)]
