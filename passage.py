@@ -78,7 +78,7 @@ class Passage:
 		node_ids = {}
 		prev_id = 0
 
-		for i in range(0, len(self.x)-1):
+		for i in range(0, len(self.x) - 1):
 			node_x = self.x[i] // node.Node.SPACING_M
 			node_y = (self.y[i] - area_boundaries[2]) // node.Node.SPACING_M
 			node_id = node_x + (node_y * max_x)
@@ -100,7 +100,7 @@ class Passage:
 			if prev_id != node_id:
 				#print("prev_id != node_id")
 				node_ids[prev_id].append((self.x[i], self.y[i], self.time[i]))
-			
+
 			if i == len(self.x) - 2:
 				#print("yolo")
 				node_ids[node_id].append((self.x[i+1], self.y[i+1], self.time[i+1]))

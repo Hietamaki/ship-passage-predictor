@@ -39,4 +39,7 @@ def get_velocity(start, end):
 
 	return m_s, course
 
-#print(get_velocity((0, 0, 9), (1, 1, 1)))
+for i in range(0, 50000):
+	get_velocity((0, 0, 9), (1, 1, 10))
+
+print("done")
