@@ -1,6 +1,7 @@
 import pandas as pd
 
 import map
+import util
 
 
 class Node:
@@ -42,16 +43,19 @@ class Node:
 	def find_optimal_k(node):
 		return 11
 
-	def add_passage(self, passage):
+	def add_passage(self, passage, id):
 
 		if not self.list[self.id]:
 			self.list[self.id] = []
 
 		#calculate speed from
+		#passage[0] passage[-1]
 		#calculate cog from
-		#passage[0] passages[-1]
-
-		self.list[self.id].passages.append(passage[0])
+		#print(passage)
+		speed, course = util.get_velocity(passage[0], passage[-1])
+		self.speed.append(speed)
+		self.cog.append(course)
+		self.passages.append(id)
 
 
 Node.list = [Node(x) for x in range(0, 5000)]

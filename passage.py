@@ -76,24 +76,39 @@ class Passage:
 		max_x = node.Node.get_nodes_in_row()
 
 		node_ids = {}
+		prev_id = 0
 
-		for i in range(0, len(self.x)):
+		for i in range(0, len(self.x)-1):
 			node_x = self.x[i] // node.Node.SPACING_M
 			node_y = (self.y[i] - area_boundaries[2]) // node.Node.SPACING_M
 			node_id = node_x + (node_y * max_x)
+
+			if prev_id == 0:
+				prev_id = node_id
 
 			if (self.y[i] < area_boundaries[2]):
 				print("Discarding node, y-coord out of bounds: ", self.y[i])
 				continue
 
 			#print(node_x, node_y, node_id)
-			if not node_ids[node_id]:
+			if node_id not in node_ids:
 				node_ids[node_id] = []
 
-			node_ids[node_id].append(self)
+			node_ids[node_id].append((self.x[i], self.y[i], self.time[i]))
+
+			# in case there is only datapoint in previous node, add the next one
+			if prev_id != node_id:
+				#print("prev_id != node_id")
+				node_ids[prev_id].append((self.x[i], self.y[i], self.time[i]))
+			
+			if i == len(self.x) - 2:
+				#print("yolo")
+				node_ids[node_id].append((self.x[i+1], self.y[i+1], self.time[i+1]))
+
+			prev_id = node_id
 
 		for key in node_ids:
-			node.Node.list[key].add_passage(node_ids[key])
+			node.Node.list[key].add_passage(node_ids[key], self.id)
 
 		# uncomment if needed
 		#self.nodes = node_ids
