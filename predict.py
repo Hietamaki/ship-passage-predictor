@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 from map import Map
 from ship import Ship
+from node import Node
 import util
 
 def normalize_features(train_data, test_data):
@@ -38,13 +39,13 @@ def predict_path(x, y):
 
 	#print(confusion_matrix(y_test, y_pred))
 	#print(classification_report(y_test, y_pred))
-print("Loading test case...")
-Ship.load_all()
+#print("Loading test case...")
+#Ship.load_all()
 
-test_ship = Ship.list[1]
-pas = test_ship.passages[0]
+#test_ship = Ship.list[1]
+#pas = test_ship.passages[0]
 
-predict_path(pas.x, pas.y)
+#predict_path(pas.x, pas.y)
 
 def test_case():
 	#map = Map()

@@ -2,9 +2,11 @@ from node import Node
 import node as nd
 import pandas as pd
 
-NODES_FILE_NAME = 'nodes.h5'
+import predict
 
-nd.generate_nodes()
-df = pd.Series(Node.list)
-df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
-print("Saving", len(Node.list), "nodes to database.")
+#nd.generate_nodes()
+Node.load_all()
+
+#print(Node.list[0].label)
+print("Testing..")
+

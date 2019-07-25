@@ -4,6 +4,8 @@ import map
 import ship
 import util
 
+NODES_FILE_NAME = 'nodes.h5'
+
 
 class Node:
 	SPACING_M = 10000
@@ -14,7 +16,7 @@ class Node:
 	def load_all(cls):
 
 		cls.list = pd.read_hdf('nodes.h5', 'df').values
-		print("Loaded nodes",len(cls.list))
+		print("Loaded nodes", len(cls.list))
 
 	@classmethod
 	def get_nodes_in_row(cls):
@@ -45,7 +47,7 @@ class Node:
 	def find_optimal_k(node):
 		return 11
 
-	def add_passage(self, passage, id):
+	def add_passage(self, passage, id, label):
 
 		#if not self.list[self.id]:
 		#	self.list[self.id] = []
@@ -58,6 +60,7 @@ class Node:
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(id)
+		self.label.append(label)
 		#print(Node.list[id].passages)
 
 	#@classmethod
@@ -112,7 +115,7 @@ class Node:
 			if key not in cls.list:
 				cls.list[key] = Node(key)
 
-			cls.list[key].add_passage(node_ids[key], passage.id)
+			cls.list[key].add_passage(node_ids[key], passage.id, passage.reaches)
 
 def generate_nodes():
 
@@ -120,3 +123,7 @@ def generate_nodes():
 	for shp in ship.Ship.list:
 		for passage in shp.passages:
 			Node.save_node_indices(passage)
+
+	df = pd.Series(Node.list)
+	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
+	print("Saving", len(Node.list), "nodes to database.")
