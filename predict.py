@@ -61,33 +61,36 @@ def test_case():
 	# preprocess
 	print("# preprocess")
 
-	attributes, labels, indices = Ship.get_passages_as_table()
+	for n in node.Node.list:
 
-	print(attributes.shape)
-	print(len(attributes), len(labels))
+		attributes = n.get_features()
+		labels = n.get_labels()
 
-	# train test split
-	print("# train test split")
+		print(attributes.shape)
+		print(len(attributes), len(labels))
 
-	x_train, x_test, y_train, y_test = train_test_split(
-		attributes, labels, test_size=0.2)
+		# train test split
+		print("# train test split")
 
-	print(x_train.shape)
+		x_train, x_test, y_train, y_test = train_test_split(
+			attributes, labels, test_size=0.2)
 
-	# feature scaling
-	print("# feature scaling")
-	x_train, x_test = normalize_features(x_train, x_test)
+		print(x_train.shape)
 
-	# training and predictions
-	print("# training and predictions")
-	classifier = KNeighborsClassifier(n_neighbors=11)
-	classifier.fit(x_train, y_train)
+		# feature scaling
+		print("# feature scaling")
+		x_train, x_test = normalize_features(x_train, x_test)
 
-	y_pred = classifier.predict(x_test)
+		# training and predictions
+		print("# training and predictions")
+		classifier = KNeighborsClassifier(n_neighbors=11)
+		classifier.fit(x_train, y_train)
 
-	# evaluating the algorithm
-	print("# evaluating the algorithm")
+		y_pred = classifier.predict(x_test)
 
-	print(confusion_matrix(y_test, y_pred))
-	print(classification_report(y_test, y_pred))
+		# evaluating the algorithm
+		print("# evaluating the algorithm")
+
+		print(confusion_matrix(y_test, y_pred))
+		print(classification_report(y_test, y_pred))
 

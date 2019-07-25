@@ -14,4 +14,5 @@ ship = Ship.list[13].passages[0]
 print("Testing..", ship.x)
 print("Testing..", ship.reaches)
 
-predict.predict_path(ship.x, ship.y)
+#predict.predict_path(ship.x, ship.y)
+predict.test_case()
