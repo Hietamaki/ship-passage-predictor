@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 import map
@@ -71,22 +72,14 @@ class Node:
 	@classmethod
 	def save_node_indices(cls, passage):
 
-		area_boundaries = map.get_area_boundaries()
-		max_x = cls.get_nodes_in_row()
-
 		node_ids = {}
-		prev_id = 0
+		prev_id = get_node_id(passage.x[0], passage.y[0])
 
 		for i in range(0, len(passage.x) - 1):
-			node_x = passage.x[i] // cls.SPACING_M
-			node_y = (passage.y[i] - area_boundaries[2]) // cls.SPACING_M
-			node_id = node_x + (node_y * max_x)
+			node_id = get_node_id(passage.x[i], passage.y[i])
 
-			if prev_id == 0:
-				prev_id = node_id
-
-			if (passage.y[i] < area_boundaries[2]):
-				#print("Discarding node, y-coord out of bounds: ", passage.y[i])
+			if (node_id < 0):
+				#print("Discarding node, node_id out of bounds: ", node_id)
 				continue
 
 			#print(node_x, node_y, node_id)
@@ -99,7 +92,7 @@ class Node:
 			if prev_id != node_id:
 
 				if prev_id not in node_ids:
-					print("Prev id missing",prev_id, node_id)
+					print("Prev id missing", prev_id, node_id)
 					node_ids[prev_id] = []
 
 				#print("prev_id != node_id")
@@ -117,6 +110,26 @@ class Node:
 
 			cls.list[key].add_passage(node_ids[key], passage.id, passage.reaches)
 
+	@classmethod
+	def get_node(cls, id):
+		for nod in cls.list:
+			if nod.id == id:
+				return nod
+
+	# convert to ndarray
+	def get_labels(self):
+		return np.array(self.label)
+
+	def get_features(self):
+		features = np.array((self.cog, self.speed))
+		features = np.reshape(features, (-1, 2))
+
+		return features
+
+	def get_passage_indices(self):
+		return np.array(self.indices)
+
+
 def generate_nodes():
 
 	ship.Ship.load_all()
@@ -127,3 +140,21 @@ def generate_nodes():
 	df = pd.Series(Node.list)
 	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
 	print("Saving", len(Node.list), "nodes to database.")
+
+
+# return node_id based on coordinates
+def get_node_id(x, y):
+
+	area_boundaries = map.get_area_boundaries()
+	max_x = Node.get_nodes_in_row()
+
+	node_x = x // Node.SPACING_M
+	node_y = (y - area_boundaries[2]) // Node.SPACING_M
+
+	if (y < area_boundaries[2]):
+		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
+		return -1
+
+	node_id = node_x + (node_y * max_x)
+
+	return node_id

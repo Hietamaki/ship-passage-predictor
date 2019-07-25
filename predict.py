@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 from map import Map
 from ship import Ship
-from node import Node
+import node
 import util
 
 def normalize_features(train_data, test_data):
@@ -21,15 +21,23 @@ def normalize_features(train_data, test_data):
 	return train_data, test_data
 
 def predict_path(x, y):
+
 	new_passage = np.array([x, y])
 	new_passage = np.reshape(new_passage, (-1, 2))
 
-	old_passages, labels, indices = Ship.get_passages_as_table()
-	x_train, x_test = normalize_features(old_passages, new_passage)
-	
+	# Node from start of path
+	node_id = node.get_node_id(x[0], y[0])
+	nod = node.Node.get_node(node_id)
+
+	if not nod:
+		print ("Node not found", node_id)
+		return
+
+	x_train, x_test = normalize_features(nod.get_features(), new_passage)
+
 	print("# training and predictions")
 	classifier = KNeighborsClassifier(n_neighbors=11)
-	classifier.fit(x_train, labels)
+	classifier.fit(x_train, nod.get_labels())
 
 	y_pred = classifier.predict(x_test)
 
