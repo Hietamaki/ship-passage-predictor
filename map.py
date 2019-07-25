@@ -62,71 +62,66 @@ class Map:
 				pts.buffer(10000),
 				color='green', alpha=0.2, zorder=3, transform=ccrs.epsg(3067)))
 
-	@classmethod
-	def get_measurement_area(self):
-		#etrs xx yy
-		return [340000, 380000, 6620000, 6650000]
+def get_measurement_area():
+	#etrs xx yy
+	return [340000, 380000, 6620000, 6650000]
 
-	@classmethod
-	def get_area_boundaries(self):
-		#etrs xx yy
-		return [0, 700000, 6200000, 6750000]
-		# spacepart.m boundaries
-		#return [0, 700000, 6450000, 6750000]
+def get_area_boundaries():
+	#etrs xx yy
+	return [0, 700000, 6100000, 6750000]
+	# spacepart.m boundaries
+	#return [0, 700000, 6450000, 6750000]
 
-	@classmethod
-	def route_in_area(cls, x, y):
+def route_in_area(x, y):
 
-		area = cls.get_measurement_area()
+	area = get_measurement_area()
 
-		if len(x) == 0:
-			return False
-
-		for i in range(0, len(x) - 1):
-			if x[i] > area[0] and x[i] < area[1]:
-				if y[i] > area[2] and y[i] < area[3]:
-					return True
-
+	if len(x) == 0:
 		return False
 
-	@classmethod
-	def draw_reach_area(self, start_date, end_date):
-		dates = [r for r in pd.date_range(start_date, end_date)]
+	for i in range(0, len(x) - 1):
+		if x[i] > area[0] and x[i] < area[1]:
+			if y[i] > area[2] and y[i] < area[3]:
+				return True
 
-		# parallel processing for unix
-		if sys.platform == 'linux':
-			with Pool() as pool:
-				points = pool.map(self.points_reaching_measurement_area, dates)
-				pool.close()
-				pool.join()
-		else:
-			points = [self.points_reaching_measurement_area(r) for r in dates]
+	return False
 
-			self.draw_concave_hull(list(itertools.chain.from_iterable(points)))
+def draw_reach_area(start_date, end_date):
+	dates = [r for r in pd.date_range(start_date, end_date)]
 
-	@classmethod
-	def points_reaching_measurement_area(map, date):
-		starting_points = []
-		count1 = 0
-		count2 = 0
+	# parallel processing for unix
+	if sys.platform == 'linux':
+		with Pool() as pool:
+			points = pool.map(points_reaching_measurement_area, dates)
+			pool.close()
+			pool.join()
+	else:
+		points = [points_reaching_measurement_area(r) for r in dates]
 
-		for ship in sh.Ship.list:
-			route = ship.get_route(
-				date.timestamp(),
-				(date + timedelta(days=1)).timestamp())
+		Map.draw_concave_hull(list(itertools.chain.from_iterable(points)))
 
-			if len(route['x']) > 0:
-				count1 += 1
+def points_reaching_measurement_area(date):
+	starting_points = []
+	count1 = 0
+	count2 = 0
 
-			#col = util.random_color()
+	for ship in sh.Ship.list:
+		route = ship.get_route(
+			date.timestamp(),
+			(date + timedelta(days=1)).timestamp())
 
-			if map.route_in_area(route['x'], route['y']):
-				starting_points.append([route['x'][0], route['y'][0]])
-				starting_points.append([route['x'][-1], route['y'][-1]])
-				count2 += 1
+		if len(route['x']) > 0:
+			count1 += 1
 
-		#print(
-		#	f'Laivoja kaikkiaan {len(map.list)}, {date}. päivänä {count1}, '
-		#	f'mittausalueelle ehtii {count2}')
+		#col = util.random_color()
 
-		return starting_points
+		if route_in_area(route['x'], route['y']):
+			starting_points.append([route['x'][0], route['y'][0]])
+			starting_points.append([route['x'][-1], route['y'][-1]])
+			count2 += 1
+
+	#print(
+	#	f'Laivoja kaikkiaan {len(map.list)}, {date}. päivänä {count1}, '
+	#	f'mittausalueelle ehtii {count2}')
+
+	return starting_points

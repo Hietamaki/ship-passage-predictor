@@ -11,7 +11,6 @@ from ship import Ship
 
 AIS_DATA_PATH = "../ship-docs/"
 SHIPS_FILE_NAME = 'ships.h5'
-NODES_FILE_NAME = 'nodes.h5'
 
 
 def get_transformer(source_epsg=4326, epsg=3067):
@@ -72,11 +71,11 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 				s = Ship(ship_id, tx, ty, time)
 				ships.append(s)
 
+	print(node.Node.list)
 	return ships
 
 
 def convert_all_data():
-
 	if (os.path.exists(SHIPS_FILE_NAME)):
 		os.remove(SHIPS_FILE_NAME)
 
@@ -105,10 +104,6 @@ def convert_all_data():
 			df.to_hdf(SHIPS_FILE_NAME, 'df', mode='a')
 
 	print("Saving", len(ships), "ships to database.")
-
-	df = pd.Series(node.Node.list)
-	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
-
 
 convert_all_data()
 #load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")

@@ -1,12 +1,10 @@
-import node
+from node import Node
+import node as nd
+import pandas as pd
 
-clsNode = node.Node
+NODES_FILE_NAME = 'nodes.h5'
 
-clsNode.load_all()
-
-for node in clsNode.list:
-
-	l = len(node.passages)
-
-	if l > 100:
-		print(node.id, l)
+nd.generate_nodes()
+df = pd.Series(Node.list)
+df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
+print("Saving", len(Node.list), "nodes to database.")
