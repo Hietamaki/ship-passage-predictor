@@ -77,7 +77,7 @@ def test_case():
 		print("# train test split")
 
 		x_train, x_test, y_train, y_test = train_test_split(
-			attributes, labels, test_size=0.2)
+			attributes, labels, test_size=0.2, stratify=labels)
 
 		print(x_train.shape)
 
@@ -87,15 +87,17 @@ def test_case():
 
 		# training and predictions
 		print("# training and predictions")
-		classifier = KNeighborsClassifier(n_neighbors=21)
+		knn = KNeighborsClassifier(n_neighbors=22)
 		param_grid = {'n_neighbors': np.arange(1, 25)}
-		knn_gscv = GridSearchCV(classifier, param_grid, cv=5)
-		knn_gscv.fit(x_train, y_train)
+		knn_gscv = GridSearchCV(knn, param_grid, cv=5)
+		knn_gscv.fit(attributes, labels)
 		print(knn_gscv.best_params_, knn_gscv.best_score_)
+		knn.fit(x_train, y_train)
+		print(knn.score(x_train, y_train))
 
-		classifier.fit(x_train, y_train)
 
-		y_pred = classifier.predict(x_test)
+		y_pred = knn.predict(x_test)
+		print(y_pred)
 
 		# evaluating the algorithm
 		print("# evaluating the algorithm")

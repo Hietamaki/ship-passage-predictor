@@ -20,6 +20,7 @@ def get_transformer(source_epsg=4326, epsg=3067):
 		Proj(init=f"epsg:{source_epsg}"),
 		Proj(init=f"epsg:{epsg}"))
 
+
 # pre-processing data
 #
 # @.input
@@ -29,8 +30,6 @@ def get_transformer(source_epsg=4326, epsg=3067):
 # @.output	dictionary
 #		{ ship_id: [
 #			[unixtime, lat, lon], [unixtime, lat, lon], ...] }
-
-
 def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 
 	# data is in form:
@@ -70,8 +69,6 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 				ty = [int(y) for y in ty]
 				s = Ship(ship_id, tx, ty, time)
 				ships.append(s)
-
-	print(node.Node.list)
 	return ships
 
 
