@@ -39,5 +39,6 @@ def get_velocity(start, end):
 
 	return m_s, course
 
-for i in range(0, 50000):
-	get_velocity((0, 0, 9), (1, 1, 10))
+# https://stackoverflow.com/questions/52436743/optimizing-numpy-euclidean-distance-and-direction-function
+#for i in range(0, 50000):
+#	get_velocity((0, 0, 9), (1, 1, 10))

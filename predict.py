@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 
 from map import Map
@@ -61,7 +62,10 @@ def test_case():
 	# preprocess
 	print("# preprocess")
 
-	for n in node.Node.list:
+	#for n in node.Node.list:
+	n = node.Node.get_node(2098)
+
+	if n:
 
 		attributes = n.get_features()
 		labels = n.get_labels()
@@ -83,7 +87,12 @@ def test_case():
 
 		# training and predictions
 		print("# training and predictions")
-		classifier = KNeighborsClassifier(n_neighbors=11)
+		classifier = KNeighborsClassifier(n_neighbors=21)
+		param_grid = {'n_neighbors': np.arange(1, 25)}
+		knn_gscv = GridSearchCV(classifier, param_grid, cv=5)
+		knn_gscv.fit(x_train, y_train)
+		print(knn_gscv.best_params_, knn_gscv.best_score_)
+
 		classifier.fit(x_train, y_train)
 
 		y_pred = classifier.predict(x_test)
