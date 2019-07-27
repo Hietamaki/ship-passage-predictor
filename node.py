@@ -4,6 +4,8 @@ import pandas as pd
 import map
 import ship
 import util
+import matplotlib.patches as patches
+import cartopy.crs as ccrs
 
 NODES_FILE_NAME = 'nodes.h5'
 
@@ -39,11 +41,10 @@ class Node:
 
 	def __init__(self, id):
 		self.id = id
-		self.passages = []
+		self.passage_ids = []
 		self.cog = []
 		self.speed = []
 		self.label = []
-		#self.list[id] = self
 
 	def find_optimal_k(node):
 		return 11
@@ -60,9 +61,11 @@ class Node:
 		speed, course = util.get_velocity(passage[0], passage[-1])
 		self.speed.append(speed)
 		self.cog.append(course)
-		self.passages.append(id)
+		self.passage_ids.append(id)
 		self.label.append(label)
-		#print(Node.list[id].passages)
+		self.x = passage[0][0]
+		self.y = passage[0][1]
+		#print(Node.list[id].passage_ids)
 
 	#@classmethod
 	#def initialize_all(cls):
@@ -129,6 +132,18 @@ class Node:
 	def get_passage_indices(self):
 		return np.array(self.indices)
 
+	def reach_percentage(self):
+		
+		k = 0
+
+		for i in self.label:
+			if i:
+				k += 1
+
+		return k / len(self.label)
+
+
+
 
 def generate_nodes():
 
@@ -158,3 +173,17 @@ def get_node_id(x, y):
 	node_id = node_x + (node_y * max_x)
 
 	return node_id
+
+def draw_reach_percentages():
+	Node.load_all()
+	m = map.Map.draw_map()
+
+	for i in Node.list:
+		if len(i.passage_ids) > 100:
+			#print(i.id, len(i.passage_ids), int(i.reach_percentage() * 100) , "%")
+			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())
+			print(c)
+			map.Map.ax.add_patch(patches.Circle((i.x, i.y), 5000, alpha=0.75, color=c, zorder=3, transform=ccrs.epsg(3067)))
+			i.reach_percentage()
+
+	m.show()

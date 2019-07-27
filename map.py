@@ -39,7 +39,7 @@ class Map:
 
 	@classmethod
 	def draw_measurement_area(self):
-		area = self.get_measurement_area()
+		area = get_measurement_area()
 		self.ax.add_patch(
 			patches.Rectangle(
 				(area[0], area[2]), area[1] - area[0], area[3] - area[2],

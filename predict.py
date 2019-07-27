@@ -56,17 +56,18 @@ def predict_path(x, y):
 
 #predict_path(pas.x, pas.y)
 
-def test_case():
+def test_case(node_id=-1):
 	#map = Map()
 
 	# preprocess
 	print("# preprocess")
 
-	#for n in node.Node.list:
-	n = node.Node.get_node(2098)
+	if node_id != -1:
+		nlist = [node.Node.get_node(node_id)]
+	else:
+		nlist = node.Node.list
 
-	if n:
-
+	for n in nlist:
 		attributes = n.get_features()
 		labels = n.get_labels()
 
@@ -87,17 +88,20 @@ def test_case():
 
 		# training and predictions
 		print("# training and predictions")
-		knn = KNeighborsClassifier(n_neighbors=22)
+		knn = KNeighborsClassifier( n_neighbors = 22)
 		param_grid = {'n_neighbors': np.arange(1, 25)}
 		knn_gscv = GridSearchCV(knn, param_grid, cv=5)
 		knn_gscv.fit(attributes, labels)
-		print(knn_gscv.best_params_, knn_gscv.best_score_)
+		print(knn.n_neighbors)
+		print("Setting KNN to ", knn_gscv.best_params_, knn_gscv.best_score_)
+		knn.n_neighbors = knn_gscv.best_params_['n_neighbors']
+		print(knn.n_neighbors)
 		knn.fit(x_train, y_train)
 		print(knn.score(x_train, y_train))
 
 
 		y_pred = knn.predict(x_test)
-		print(y_pred)
+		#print(y_pred)
 
 		# evaluating the algorithm
 		print("# evaluating the algorithm")
