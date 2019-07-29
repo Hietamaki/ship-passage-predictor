@@ -41,7 +41,7 @@ class Node:
 
 	def __init__(self, id):
 		self.id = id
-		self.passage_ids = []
+		self.passages = []
 		self.cog = []
 		self.speed = []
 		self.label = []
@@ -49,23 +49,28 @@ class Node:
 	def find_optimal_k(node):
 		return 11
 
-	def add_passage(self, passage, id, label):
+	def add_passage(self, route, passage):
 
-		#if not self.list[self.id]:
-		#	self.list[self.id] = []
+		#if not self.list[self.passage]:
+		#	self.list[self.passage] = []
 
 		#calculate speed from
-		#passage[0] passage[-1]
+		#route[0] route[-1]
 		#calculate cog from
-		#print(passage)
-		speed, course = util.get_velocity(passage[0], passage[-1])
+		#print(route)
+		speed, course = util.get_velocity(route[0], route[-1])
 		self.speed.append(speed)
 		self.cog.append(course)
-		self.passage_ids.append(id)
-		self.label.append(label)
-		self.x = passage[0][0]
-		self.y = passage[0][1]
-		#print(Node.list[id].passage_ids)
+		self.passages.append(passage)
+		self.label.append(passage.reaches)
+
+		# fix
+		self.x.append(route[0][0])
+		self.y.append(route[0][1])
+
+	def draw(self, color='red'):
+		map.Map.ax.add_patch(patches.Circle(
+			(self.x, self.y), 5000, color=color, alpha=0.8, zorder=3, transform=ccrs.epsg(3067)))
 
 	#@classmethod
 	#def initialize_all(cls):
@@ -73,7 +78,7 @@ class Node:
 #		print("Nodes initialized",len(Node.list))
 
 	@classmethod
-	def save_node_indices(cls, passage):
+	def create_nodes_from_passage(cls, passage):
 
 		node_ids = {}
 		prev_id = get_node_id(passage.x[0], passage.y[0])
@@ -111,7 +116,7 @@ class Node:
 			if key not in cls.list:
 				cls.list[key] = Node(key)
 
-			cls.list[key].add_passage(node_ids[key], passage.id, passage.reaches)
+			cls.list[key].add_passage(node_ids[key], passage)
 
 	@classmethod
 	def get_node(cls, id):
@@ -135,7 +140,6 @@ class Node:
 	def reach_percentage(self):
 		
 		k = 0
-
 		for i in self.label:
 			if i:
 				k += 1
@@ -143,18 +147,16 @@ class Node:
 		return k / len(self.label)
 
 
-
-
 def generate_nodes():
 
 	ship.Ship.load_all()
 	for shp in ship.Ship.list:
 		for passage in shp.passages:
-			Node.save_node_indices(passage)
+			Node.create_nodes_from_passage(passage)
 
+	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)
 	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
-	print("Saving", len(Node.list), "nodes to database.")
 
 
 # return node_id based on coordinates
@@ -177,13 +179,16 @@ def get_node_id(x, y):
 def draw_reach_percentages():
 	Node.load_all()
 	m = map.Map.draw_map()
-
 	for i in Node.list:
-		if len(i.passage_ids) > 100:
-			#print(i.id, len(i.passage_ids), int(i.reach_percentage() * 100) , "%")
+		if len(i.passages) > 100 and i.reach_percentage() > 0:
 			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())
-			print(c)
-			map.Map.ax.add_patch(patches.Circle((i.x, i.y), 5000, alpha=0.75, color=c, zorder=3, transform=ccrs.epsg(3067)))
-			i.reach_percentage()
+			for x in range(0, len(i.passages)):
+				if i.passages[x].x[0] > 430000 and i.passages[x].y[0] > 6750000:
+					print(i.x, i.y, i.id)
+					if i.label[x]:
+						i.passages[x].plot()
+					print(i.id, len(i.passages), (i.reach_percentage() * 100) , "%")
+					i.draw(c)
+					c = 'green'
 
 	m.show()
