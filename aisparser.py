@@ -73,8 +73,6 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 
 
 def convert_all_data():
-	if (os.path.exists(SHIPS_FILE_NAME)):
-		os.remove(SHIPS_FILE_NAME)
 
 	files = []
 	ships = []
@@ -93,6 +91,8 @@ def convert_all_data():
 		df = pd.Series(ships)
 		df.to_hdf(SHIPS_FILE_NAME, 'df', mode='w')
 	else:
+		if (os.path.exists(SHIPS_FILE_NAME)):
+			os.remove(SHIPS_FILE_NAME)
 		print("Single threaded, performance is slow")
 		for f in files:
 			ships = load_data(f)

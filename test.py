@@ -7,8 +7,8 @@ import matplotlib.patches as patches
 import predict
 import cartopy.crs as ccrs
 
-print(Node.get_nodes_in_row())
-nd.generate_nodes()
+
+#nd.generate_nodes()
 Node.load_all()
 #nd.draw_reach_percentages()
 
@@ -17,14 +17,20 @@ Node.load_all()
 #predict.predict_path(n)
 
 #pl = Node.list[0]
+k=0
 m = map.Map.draw_map()
 for n in Node.list:
 	rp = n.reach_percentage()
-	color = (rp, 0, 1 - rp)
-	if rp == 0:
-		color = (0, 1, 0)
-	print(n.x, n.y)
-	n.draw(color)
+	if rp > 0:
+		color = (rp, 0, 1 - rp)
+		#color = (0, 1, 0)
+		#n.draw(color)
+		print(n.x, n.y, rp)
+		k += 1
+	else:
+		print("Nou")
+
+print(k)
 m.show()
 #	if len(pl.passages) < len(n.passages):
 #		pl = n

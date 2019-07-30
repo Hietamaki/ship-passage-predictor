@@ -83,7 +83,7 @@ def route_in_area(x, y):
 	for i in range(0, len(x) - 1):
 		if x[i] > area[0] and x[i] < area[1]:
 			if y[i] > area[2] and y[i] < area[3]:
-				return True
+				return i
 
 	return False
 
@@ -116,7 +116,7 @@ def points_reaching_measurement_area(date):
 
 		#col = util.random_color()
 
-		if route_in_area(route['x'], route['y']):
+		if route_in_area(route['x'], route['y']) is True:
 			starting_points.append([route['x'][0], route['y'][0]])
 			starting_points.append([route['x'][-1], route['y'][-1]])
 			count2 += 1
