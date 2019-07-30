@@ -15,8 +15,8 @@ import ship as sh
 
 
 class Map:
-	#ax = plt.axes(projection=ccrs.Mercator())
-	ax = plt.axes(projection=ccrs.epsg(3067))
+	ax = plt.axes(projection=ccrs.Mercator())
+	#ax = plt.axes(projection=ccrs.epsg(3067))
 
 	@classmethod
 	def draw_map(self):

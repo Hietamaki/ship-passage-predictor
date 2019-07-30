@@ -23,7 +23,7 @@ class Node:
 
 	@classmethod
 	def get_nodes_in_row(cls):
-		area_boundaries = map.get_measurement_area()
+		area_boundaries = map.get_area_boundaries()
 		return (area_boundaries[1] // cls.SPACING_M)
 
 	# @.output dictionary of nodes {id: [x, y]}
@@ -46,6 +46,11 @@ class Node:
 		self.speed = []
 		self.label = []
 
+		max_x = Node.get_nodes_in_row()
+
+		self.x = id % max_x * Node.SPACING_M
+		self.y = (id // max_x) * Node.SPACING_M + 6100000
+
 	def find_optimal_k(node):
 		return 11
 
@@ -63,10 +68,6 @@ class Node:
 		self.cog.append(course)
 		self.passages.append(passage)
 		self.label.append(passage.reaches)
-
-		# fix
-		self.x.append(route[0][0])
-		self.y.append(route[0][1])
 
 	def draw(self, color='red'):
 		map.Map.ax.add_patch(patches.Circle(
@@ -183,10 +184,13 @@ def draw_reach_percentages():
 		if len(i.passages) > 100 and i.reach_percentage() > 0:
 			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())
 			for x in range(0, len(i.passages)):
-				if i.passages[x].x[0] > 430000 and i.passages[x].y[0] > 6750000:
+				psg = i.passages[x]
+				if psg.x[0] > 430000 and psg.y[0] > 6750000:
 					print(i.x, i.y, i.id)
+					print(psg.x[0], psg.y[0])
 					if i.label[x]:
-						i.passages[x].plot()
+						print("Juu", i.label[x])
+					psg.plot()
 					print(i.id, len(i.passages), (i.reach_percentage() * 100) , "%")
 					i.draw(c)
 					c = 'green'
