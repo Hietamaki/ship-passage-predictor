@@ -23,12 +23,18 @@ for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0:
 		color = (rp, 0, 1 - rp)
+		if n.y < 6300000:
+			for i in range(0, len(n.passages)):
+				if n.label[i]:
+					pas = n.passages[i]
+					pas.plot()
+					print(pas.ship.id)
 		#color = (0, 1, 0)
-		#n.draw(color)
-		print(n.x, n.y, rp)
-		k += 1
-	else:
-		print("Nou")
+			n.draw(color)
+			print(n.x, n.y, rp, n.id, n.speed[i])
+			k += 1
+	#else:
+	#	print("Nou")
 
 print(k)
 m.show()

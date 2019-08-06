@@ -60,7 +60,8 @@ class Ship:
 			passage = psg.Passage(
 				self.x[passage_indices[0]:passage_indices[1]],
 				self.y[passage_indices[0]:passage_indices[1]],
-				self.time[passage_indices[0]:passage_indices[1]]
+				self.time[passage_indices[0]:passage_indices[1]],
+				self
 			)
 
 			self.passages.append(passage)

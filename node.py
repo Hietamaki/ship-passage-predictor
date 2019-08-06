@@ -19,25 +19,60 @@ class Node:
 	def load_all(cls):
 
 		cls.list = pd.read_hdf('nodes.h5', 'df').values
-		print("Loaded nodes", len(cls.list))
+		print("Loaded", len(cls.list), "nodes")
 
 	@classmethod
 	def get_nodes_in_row(cls):
 		area_boundaries = map.get_area_boundaries()
 		return (area_boundaries[1] // cls.SPACING_M)
 
-	# @.output dictionary of nodes {id: [x, y]}
+	@classmethod
+	def add_info_from_passage(cls, passage):
+
+		node_ids = {}
+		prev_id = get_node_id(passage.x[0], passage.y[0])
+
+		# go through every xy coordinate in passage
+		for i in range(0, len(passage.x) - 1):
+			node_id = get_node_id(passage.x[i], passage.y[i])
+
+			if (node_id < 0):
+				#print("Discarding node, node_id out of bounds: ", node_id)
+				continue
+
+			#print(node_x, node_y, node_id)
+			if node_id not in node_ids:
+				node_ids[node_id] = []
+
+			node_ids[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
+
+			# in case there is only datapoint in previous node, add the next one
+			if prev_id != node_id and prev_id != -1:
+
+				if prev_id not in node_ids:
+					print("Prev id missing", prev_id, node_id)
+					node_ids[prev_id] = []
+
+				#print("prev_id != node_id")
+				node_ids[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
+
+			if i == len(passage.x) - 2:
+				#print("yolo")
+				node_ids[node_id].append((passage.x[i+1], passage.y[i+1], passage.time[i+1]))
+
+			prev_id = node_id
+
+		for key in node_ids:
+			if key not in cls.list:
+				cls.list[key] = Node(key)
+
+			cls.list[key].add_passage(node_ids[key], passage)
 
 	@classmethod
-	def get_nodes(cls):
-		return {
-			123: [1, 2],
-			345: [3, 4]}
-
-		#area = Map.get_measurement_area()
-
-		#for i in len()
-		# cl.SPACING_M
+	def get_node(cls, id):
+		for nod in cls.list:
+			if nod.id == id:
+				return nod
 
 	def __init__(self, id):
 		self.id = id
@@ -76,63 +111,9 @@ class Node:
 			# todo discard if already exited msrarae
 			self.label.append(abs(time_to_measurement) < (3600 * 8))
 
-
-
 	def draw(self, color='red'):
 		map.Map.ax.add_patch(patches.Circle(
 			(self.x, self.y), 5000, color=color, alpha=0.8, zorder=3, transform=ccrs.epsg(3067)))
-
-	#@classmethod
-	#def initialize_all(cls):
-#		cls.list = [Node(x) for x in range(0, 5000)]
-#		print("Nodes initialized",len(Node.list))
-
-	@classmethod
-	def create_nodes_from_passage(cls, passage):
-
-		node_ids = {}
-		prev_id = get_node_id(passage.x[0], passage.y[0])
-
-		for i in range(0, len(passage.x) - 1):
-			node_id = get_node_id(passage.x[i], passage.y[i])
-
-			if (node_id < 0):
-				#print("Discarding node, node_id out of bounds: ", node_id)
-				continue
-
-			#print(node_x, node_y, node_id)
-			if node_id not in node_ids:
-				node_ids[node_id] = []
-
-			node_ids[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-			# in case there is only datapoint in previous node, add the next one
-			if prev_id != node_id:
-
-				if prev_id not in node_ids:
-					print("Prev id missing", prev_id, node_id)
-					node_ids[prev_id] = []
-
-				#print("prev_id != node_id")
-				node_ids[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-			if i == len(passage.x) - 2:
-				#print("yolo")
-				node_ids[node_id].append((passage.x[i+1], passage.y[i+1], passage.time[i+1]))
-
-			prev_id = node_id
-
-		for key in node_ids:
-			if key not in cls.list:
-				cls.list[key] = Node(key)
-
-			cls.list[key].add_passage(node_ids[key], passage)
-
-	@classmethod
-	def get_node(cls, id):
-		for nod in cls.list:
-			if nod.id == id:
-				return nod
 
 	# convert to ndarray
 	def get_labels(self):
@@ -162,7 +143,7 @@ def generate_nodes():
 	ship.Ship.load_all()
 	for shp in ship.Ship.list:
 		for passage in shp.passages:
-			Node.create_nodes_from_passage(passage)
+			Node.add_info_from_passage(passage)
 
 	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)
@@ -175,12 +156,16 @@ def get_node_id(x, y):
 	area_boundaries = map.get_area_boundaries()
 	max_x = Node.get_nodes_in_row()
 
+	if x < 0:
+		return -1
+	
+	if y < area_boundaries[2]:
+		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
+		return -1
+
 	node_x = x // Node.SPACING_M
 	node_y = (y - area_boundaries[2]) // Node.SPACING_M
 
-	if (y < area_boundaries[2]):
-		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
-		return -1
 
 	node_id = node_x + (node_y * max_x)
 

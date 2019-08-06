@@ -6,11 +6,12 @@ class Passage:
 
 	next_id = 0
 
-	def __init__(self, x, y, time):
+	def __init__(self, x, y, time, ship):
 		self.x = x
 		self.y = y
 		self.time = time
 		self.id = self.get_id()
+		self.ship = ship
 		self.reaches = self.reaches_measurement_area()
 
 		self.interpolate()
