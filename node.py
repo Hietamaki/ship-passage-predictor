@@ -94,8 +94,8 @@ class Node:
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
 		if 35 > len(self.passages):
 			max_k = len(self.passages) // 5 * 4
-			print("Set Max K to", max_k)
-		print(len(self.passages))
+			#print("Set Max K to", max_k)
+		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 		knn_gscv = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
 
@@ -174,7 +174,7 @@ def generate_nodes():
 	removed_nodes = []
 	for key, val in Node.list.items():
 		if len(val.passages) < 10:
-			print("Del", key, len(val.passages))
+			#print("Del", key, len(val.passages))
 			removed_nodes.append(key)
 
 	for key in removed_nodes:
@@ -230,3 +230,16 @@ def draw_reach_percentages():
 					c = 'green'
 
 	m.show()
+
+
+def get_closest_node(x, y):
+
+	closest_dist = 9999999999999999
+	closest_node = -1
+
+	for node in Node.list:
+		if closest_dist > util.get_distance(x, y, node.x, node.y):
+			closest_dist = util.get_distance(x, y, node.x, node.y)
+			closest_node = node
+
+	return closest_node

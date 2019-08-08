@@ -9,8 +9,13 @@ import predict
 import cartopy.crs as ccrs
 
 
-nd.generate_nodes()
+#nd.generate_nodes()
 Node.load_all()
+cn = nd.get_closest_node(320000,6620000)
+
+print(cn, cn.x, cn.y)
+cn.draw('white')
+
 #nd.draw_reach_percentages()
 
 #n = Node.get_node(2013)

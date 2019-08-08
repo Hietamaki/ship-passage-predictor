@@ -4,12 +4,14 @@ import random
 import numpy as np
 from shapely.geometry import Point
 
+
 def format_date(ts):
 	return datetime.fromtimestamp(int(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def random_color():
 	return (random.random(), random.random(), random.random())
+
 
 # @.input	self
 #			start timeloc
@@ -42,3 +44,7 @@ def get_velocity(start, end):
 # https://stackoverflow.com/questions/52436743/optimizing-numpy-euclidean-distance-and-direction-function
 #for i in range(0, 50000):
 #	get_velocity((0, 0, 9), (1, 1, 10))
+
+
+def get_distance(x1, y1, x2, y2):
+	return Point(x1, y1).distance(Point(x2, y2))
