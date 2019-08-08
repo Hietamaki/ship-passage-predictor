@@ -1,4 +1,5 @@
 import map
+import util
 from node import Node
 from ship import Ship
 import node as nd
@@ -8,7 +9,7 @@ import predict
 import cartopy.crs as ccrs
 
 
-#nd.generate_nodes()
+nd.generate_nodes()
 Node.load_all()
 #nd.draw_reach_percentages()
 
@@ -23,12 +24,15 @@ for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0:
 		color = (rp, 0, 1 - rp)
-		if n.y < 6300000:
+		if n.y < 6340000:
+			print("Node:",n.x, n.y)
 			for i in range(0, len(n.passages)):
 				if n.label[i]:
 					pas = n.passages[i]
 					pas.plot()
-					print(pas.ship.id)
+					print(pas.ship.id, len(pas.x))
+					for i in range(0, len(pas.time)):
+						print(util.format_date(pas.time[i]), pas.x[i], pas.y[i])
 		#color = (0, 1, 0)
 			n.draw(color)
 			print(n.x, n.y, rp, n.id, n.speed[i])

@@ -108,8 +108,11 @@ class Node:
 		else:
 			time_to_measurement = passage.time[passage.reaches] - route[0][2]
 			#print(abs(time_to_measurement) < (3600 * 8))
-			# todo discard if already exited msrarae
-			self.label.append(abs(time_to_measurement) < (3600 * 8))
+			# todo discard if already exited measure area
+			if time_to_measurement < 0:
+				self.label.append(False)
+			else:
+				self.label.append((time_to_measurement) < (3600 * 8))
 
 	def draw(self, color='red'):
 		map.Map.ax.add_patch(patches.Circle(
