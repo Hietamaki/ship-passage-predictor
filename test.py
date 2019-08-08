@@ -24,7 +24,7 @@ for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0:
 		color = (rp, 0, 1 - rp)
-		if n.y < 6340000:
+		if n.y < 6350000:
 			print("Node:",n.x, n.y)
 			for i in range(0, len(n.passages)):
 				if n.label[i]:

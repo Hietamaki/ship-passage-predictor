@@ -4,6 +4,7 @@ import matplotlib.patches as patches
 import cartopy.crs as ccrs
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 
 import map
 import ship
@@ -88,11 +89,25 @@ class Node:
 		self.x = id % max_x * Node.SPACING_M
 		self.y = (id // max_x) * Node.SPACING_M + 6100000
 
-	def find_optimal_k(node):
-		param_grid = {'n_neighbors': np.arange(1, 25)}
+	def find_optimal_k(self, scale=True):
+		max_k = 25
+		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
+		if 35 > len(self.passages):
+			max_k = len(self.passages) // 5 * 4
+			print("Set Max K to", max_k)
+		print(len(self.passages))
+		param_grid = {'n_neighbors': np.arange(1, max_k)}
 		knn_gscv = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
-		knn_gscv.fit(attributes, labels)
-		#print("Setting KNN to ", knn_gscv.best_params_, knn_gscv.best_score_)
+
+		features = self.get_features()
+
+		if scale:
+			scaler = StandardScaler()
+			scaler.fit(features)
+			features = scaler.transform(features)
+
+		knn_gscv.fit(features, self.get_labels())
+		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
 		return knn_gscv.best_params_['n_neighbors']
 
 	def add_passage(self, route, passage):
@@ -147,6 +162,7 @@ class Node:
 		return k / len(self.label)
 
 
+# Generate nodes and find optimal k value for each
 def generate_nodes():
 
 	ship.Ship.load_all()
@@ -154,8 +170,20 @@ def generate_nodes():
 		for passage in shp.passages:
 			Node.add_info_from_passage(passage)
 
-	for n in Nodes.list:
-		n.optimal_k = n.find_optimal_k()
+	# Remove if node has fewer than x samples
+	removed_nodes = []
+	for key, val in Node.list.items():
+		if len(val.passages) < 10:
+			print("Del", key, len(val.passages))
+			removed_nodes.append(key)
+
+	for key in removed_nodes:
+		del Node.list[key]
+
+	# Optimize K
+	for n in Node.list.values():
+		n.optimal_k = n.find_optimal_k(True)
+		#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)
