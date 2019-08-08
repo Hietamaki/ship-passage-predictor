@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
+import matplotlib.patches as patches
+import cartopy.crs as ccrs
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import GridSearchCV
 
 import map
 import ship
 import util
-import matplotlib.patches as patches
-import cartopy.crs as ccrs
 
 NODES_FILE_NAME = 'nodes.h5'
 
@@ -87,7 +89,11 @@ class Node:
 		self.y = (id // max_x) * Node.SPACING_M + 6100000
 
 	def find_optimal_k(node):
-		return 11
+		param_grid = {'n_neighbors': np.arange(1, 25)}
+		knn_gscv = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
+		knn_gscv.fit(attributes, labels)
+		#print("Setting KNN to ", knn_gscv.best_params_, knn_gscv.best_score_)
+		return knn_gscv.best_params_['n_neighbors']
 
 	def add_passage(self, route, passage):
 
@@ -147,6 +153,9 @@ def generate_nodes():
 	for shp in ship.Ship.list:
 		for passage in shp.passages:
 			Node.add_info_from_passage(passage)
+
+	for n in Nodes.list:
+		n.optimal_k = n.find_optimal_k()
 
 	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)
