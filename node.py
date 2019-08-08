@@ -61,7 +61,8 @@ class Node:
 
 			if i == len(passage.x) - 2:
 				#print("yolo")
-				node_ids[node_id].append((passage.x[i+1], passage.y[i+1], passage.time[i+1]))
+				node_ids[node_id].append(
+					(passage.x[i + 1], passage.y[i + 1], passage.time[i + 1]))
 
 			prev_id = node_id
 
@@ -137,7 +138,8 @@ class Node:
 
 	def draw(self, color='red'):
 		map.Map.ax.add_patch(patches.Circle(
-			(self.x, self.y), 5000, color=color, alpha=0.8, zorder=3, transform=ccrs.epsg(3067)))
+			(self.x, self.y), self.SPACING_M // 2,
+			color=color, alpha=0.8, zorder=3, transform=ccrs.epsg(3067)))
 
 	# convert to ndarray
 	def get_labels(self):
@@ -153,7 +155,6 @@ class Node:
 		return np.array(self.indices)
 
 	def reach_percentage(self):
-		
 		k = 0
 		for i in self.label:
 			if i:
@@ -198,7 +199,7 @@ def get_node_id(x, y):
 
 	if x < 0:
 		return -1
-	
+
 	if y < area_boundaries[2]:
 		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
 		return -1
@@ -206,10 +207,10 @@ def get_node_id(x, y):
 	node_x = x // Node.SPACING_M
 	node_y = (y - area_boundaries[2]) // Node.SPACING_M
 
-
 	node_id = node_x + (node_y * max_x)
 
 	return node_id
+
 
 def draw_reach_percentages():
 	Node.load_all()
@@ -225,7 +226,7 @@ def draw_reach_percentages():
 					if i.label[x]:
 						print("Juu", i.label[x])
 					psg.plot()
-					print(i.id, len(i.passages), (i.reach_percentage() * 100) , "%")
+					print(i.id, len(i.passages), (i.reach_percentage() * 100), "%")
 					i.draw(c)
 					c = 'green'
 

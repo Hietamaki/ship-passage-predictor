@@ -71,6 +71,5 @@ class Passage:
 		# todo if start of passage over 8h from reaching area, return false
 		return map.route_in_area(self.x, self.y)
 
-
 	def plot(self, color="red"):
 		map.Map.plot_route(self.x, self.y, color=color)

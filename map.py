@@ -63,15 +63,18 @@ class Map:
 				pts.buffer(10000),
 				color='green', alpha=0.2, zorder=3, transform=ccrs.epsg(3067)))
 
+
 def get_measurement_area():
 	#etrs xx yy
 	return [340000, 380000, 6620000, 6650000]
+
 
 def get_area_boundaries():
 	#etrs xx yy
 	return [0, 700000, 6100000, 6750000]
 	# spacepart.m boundaries
 	#return [0, 700000, 6450000, 6750000]
+
 
 def route_in_area(x, y):
 
@@ -87,6 +90,7 @@ def route_in_area(x, y):
 
 	return False
 
+
 def draw_reach_area(start_date, end_date):
 	dates = [r for r in pd.date_range(start_date, end_date)]
 
@@ -100,6 +104,7 @@ def draw_reach_area(start_date, end_date):
 		points = [points_reaching_measurement_area(r) for r in dates]
 
 		Map.draw_concave_hull(list(itertools.chain.from_iterable(points)))
+
 
 def points_reaching_measurement_area(date):
 	starting_points = []

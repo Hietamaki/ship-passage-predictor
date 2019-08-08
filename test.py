@@ -11,7 +11,7 @@ import cartopy.crs as ccrs
 
 #nd.generate_nodes()
 Node.load_all()
-cn = nd.get_closest_node(320000,6620000)
+cn = nd.get_closest_node(320000, 6620000)
 
 print(cn, cn.x, cn.y)
 cn.draw('white')
@@ -23,14 +23,14 @@ cn.draw('white')
 #predict.predict_path(n)
 
 #pl = Node.list[0]
-k=0
+k = 0
 m = map.Map.draw_map()
 for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0:
 		color = (rp, 0, 1 - rp)
 		if n.y < 6350000:
-			print("Node:",n.x, n.y)
+			print("Node:", n.x, n.y)
 			for i in range(0, len(n.passages)):
 				if n.label[i]:
 					pas = n.passages[i]
