@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from shapely import geometry
+from util import distance
 
 import passage as psg
 
@@ -88,7 +88,9 @@ class Ship:
 			time_passed = self.time[i] - self.time[i - 1]
 
 			ship_still = time_passed >= MAXIMUM_BLACKOUT_S
-			lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
+			speed = get_speed(i)
+			lost_contact = speed < MOVEMENT_DETECTION_MS
+			#lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
 
 			# check if passage is started
 			if start_of_passage >= 0:
@@ -113,11 +115,9 @@ class Ship:
 	#
 	def get_speed(self, index):
 
-		# euclidean distance, not geodesic calculation
-		# feels slow, but should be O(n)
-		point1 = geometry.Point(self.x[index], self.y[index])
-		point2 = geometry.Point(self.x[index - 1], self.y[index - 1])
-		dist = point1.distance(point2)
+		dist = distance(
+			(self.x[index - 1], self.y[index - 1]),
+			(self.x[index], self.y[index]))
 
 		time_passed = self.time[index] - self.time[index - 1]
 

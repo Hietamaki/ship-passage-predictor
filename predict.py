@@ -49,6 +49,7 @@ def predict_path(x, y):
 	# evaluating the algorithm
 	print("# evaluating the algorithm")
 	print(y_pred)
+	return y_pred
 
 	#print(confusion_matrix(y_test, y_pred))
 	#print(classification_report(y_test, y_pred))

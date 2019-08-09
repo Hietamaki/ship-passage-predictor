@@ -21,11 +21,8 @@ def random_color():
 def get_velocity(start, end):
 
 	# euclidean distance, not geodesic calculation
-	# feels slow, but should be O(n)
-	point1 = Point(start[0], start[1])
-	point2 = Point(end[0], end[1])
 
-	dist = point1.distance(point2)
+	dist = distance(start, end)
 
 	time_passed = end[2] - start[2]
 
@@ -33,18 +30,32 @@ def get_velocity(start, end):
 		print("Start is end")
 		time_passed = 1
 	elif time_passed < 1:
-		print("get_speed(): trying to divide by", time_passed, "distance")
+		print("get_velocity(): trying to divide by", time_passed, "seconds")
 		time_passed = 1
 
 	m_s = dist / time_passed
-	course = np.arctan2(point2.x - point1.x, point2.y - point1.y)
+	course = np.arctan2(end[0] - start[0], end[1] - start[1])
 
 	return m_s, course
 
+
+# 14.0s
+# 32s
+def get_distance(start, end):
+	return Point(start[0], start[1]).distance(Point(end[0], end[1]))
+
+
+# 3.8s
+# 10s
+def distance(instance1, instance2):
+    # just in case, if the instances are lists or tuples:
+    instance1 = np.array(instance1[0:2]) 
+    instance2 = np.array(instance2[0:2])
+
+    return np.linalg.norm(instance1 - instance2)
+
 # https://stackoverflow.com/questions/52436743/optimizing-numpy-euclidean-distance-and-direction-function
-#for i in range(0, 50000):
+#for i in range(0, 1000000):
 #	get_velocity((0, 0, 9), (1, 1, 10))
-
-
-def get_distance(x1, y1, x2, y2):
-	return Point(x1, y1).distance(Point(x2, y2))
+	#get_distance(10, 20, 30, 40)
+	#distance((10, 20), (30, 40))

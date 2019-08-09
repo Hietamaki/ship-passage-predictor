@@ -11,7 +11,11 @@ import cartopy.crs as ccrs
 
 #nd.generate_nodes()
 Node.load_all()
-cn = nd.get_closest_node(320000, 6620000)
+xx = (58846, 61861, 64138)
+yy = (6408117, 6411361, 6413779)
+predict.predict_path(xx, yy)
+
+cn = nd.get_closest_node(58846, 6408117)
 
 print(cn, cn.x, cn.y)
 cn.draw('white')
@@ -23,6 +27,7 @@ cn.draw('white')
 #predict.predict_path(n)
 
 #pl = Node.list[0]
+
 k = 0
 m = map.Map.draw_map()
 for n in Node.list:
@@ -47,6 +52,7 @@ for n in Node.list:
 
 print(k)
 m.show()
+
 #	if len(pl.passages) < len(n.passages):
 #		pl = n
 
