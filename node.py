@@ -131,7 +131,7 @@ class Node:
 			time_to_measurement = passage.time[passage.reaches] - route[0][2]
 			#print(abs(time_to_measurement) < (3600 * 8))
 			# todo discard if already exited measure area
-			if time_to_measurement < 0:
+			if time_to_measurement < -1:
 				self.label.append(False)
 			else:
 				self.label.append(time_to_measurement < (3600 * 8))
@@ -164,7 +164,7 @@ class Node:
 
 
 # Generate nodes and find optimal k value for each
-def generate_nodes(optimeze_k=True):
+def generate_nodes(optimize_k=True):
 
 	ship.Ship.load_all()
 	for shp in ship.Ship.list:

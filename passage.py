@@ -70,6 +70,7 @@ class Passage:
 
 	def reaches_measurement_area(self):
 		# todo if start of passage over 8h from reaching area, return false
+		# check also if time is between 8.00-16.00
 		return map.route_in_area(self.x, self.y)
 
 	def plot(self, color="red"):
