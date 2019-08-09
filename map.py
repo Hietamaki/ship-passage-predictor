@@ -13,6 +13,7 @@ import pandas as pd
 
 import ship as sh
 
+MEASUREMENT_AREA = [340000, 380000, 6620000, 6650000]
 
 class Map:
 	ax = plt.axes(projection=ccrs.Mercator())
@@ -78,7 +79,7 @@ def get_area_boundaries():
 
 def route_in_area(x, y):
 
-	area = get_measurement_area()
+	area = MEASUREMENT_AREA
 
 	if len(x) == 0:
 		return False
@@ -89,6 +90,11 @@ def route_in_area(x, y):
 				return i
 
 	return False
+
+
+def is_in_area(x, y):
+	area = MEASUREMENT_AREA
+	return x > area[0] and x < area[1] and y > area[2] and y < area[3]
 
 
 def draw_reach_area(start_date, end_date):

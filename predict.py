@@ -69,7 +69,7 @@ def test_case(node_id=-1):
 	print("# preprocess")
 
 	if node_id != -1:
-		nlist = [node.Node.get_node(node_id)]
+		nlist = [node_id]
 	else:
 		nlist = node.Node.list
 
@@ -84,7 +84,7 @@ def test_case(node_id=-1):
 		print("# train test split")
 
 		x_train, x_test, y_train, y_test = train_test_split(
-			attributes, labels, test_size=0.2, stratify=labels)
+			attributes, labels, test_size=0.2)
 
 		print(x_train.shape)
 
@@ -94,13 +94,7 @@ def test_case(node_id=-1):
 
 		# training and predictions
 		print("# training and predictions")
-		knn = KNeighborsClassifier(n_neighbors=22)
-		param_grid = {'n_neighbors': np.arange(1, 25)}
-		knn_gscv = GridSearchCV(knn, param_grid, cv=5)
-		knn_gscv.fit(attributes, labels)
-		print(knn.n_neighbors)
-		print("Setting KNN to ", knn_gscv.best_params_, knn_gscv.best_score_)
-		knn.n_neighbors = knn_gscv.best_params_['n_neighbors']
+		knn = KNeighborsClassifier(n_neighbors=n.optimal_k)
 		print(knn.n_neighbors)
 		knn.fit(x_train, y_train)
 		print(knn.score(x_train, y_train))

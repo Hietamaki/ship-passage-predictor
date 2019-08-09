@@ -11,9 +11,13 @@ import cartopy.crs as ccrs
 
 #nd.generate_nodes()
 Node.load_all()
+noude = nd.get_closest_node(200846, 6558117)
+noude.draw()
+print(len(noude.passages))
+#predict.test_case(noude)
 xx = (58846, 61861, 64138)
 yy = (6408117, 6411361, 6413779)
-predict.predict_path(xx, yy)
+#predict.predict_path(xx, yy)
 
 cn = nd.get_closest_node(58846, 6408117)
 
@@ -40,9 +44,26 @@ for n in Node.list:
 				if n.label[i]:
 					pas = n.passages[i]
 					pas.plot()
-					print(pas.ship.id, len(pas.x))
-					for i in range(0, len(pas.time)):
-						print(util.format_date(pas.time[i]), pas.x[i], pas.y[i])
+					passed = False
+					print("New Passage", pas.ship.id, len(pas.x))
+					for i in range(1, len(pas.time)):
+						start = (pas.x[i - 1], pas.y[i - 1], pas.time[i - 1])
+						end = (pas.x[i], pas.y[i], pas.time[i])
+
+						info_str = ""
+
+						if map.is_in_area(end[0], end[1]):
+							info_str = "<-- IN AREA"
+
+						if not passed:
+							if (end[0] > n.x and end[1] > n.y):
+								passed = True
+								info_str = "<-- Node is HERE"
+
+						#if info_str:
+						print(util.format_date(pas.time[i]), pas.x[i], pas.y[i], util.get_velocity(start, end), info_str)
+
+						info_str = ""
 		#color = (0, 1, 0)
 			n.draw(color)
 			print(n.x, n.y, rp, n.id, n.speed[i])

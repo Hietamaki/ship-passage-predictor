@@ -239,8 +239,8 @@ def get_closest_node(x, y):
 	closest_node = -1
 
 	for node in Node.list:
-		if closest_dist > util.get_distance(x, y, node.x, node.y):
-			closest_dist = util.get_distance(x, y, node.x, node.y)
+		if closest_dist > util.distance((x, y), (node.x, node.y)):
+			closest_dist = util.distance((x, y), (node.x, node.y))
 			closest_node = node
 
 	return closest_node

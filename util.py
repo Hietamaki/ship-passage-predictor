@@ -2,7 +2,6 @@ from datetime import datetime
 import random
 
 import numpy as np
-from shapely.geometry import Point
 
 
 def format_date(ts):
@@ -39,12 +38,6 @@ def get_velocity(start, end):
 	return m_s, course
 
 
-# 14.0s
-# 32s
-def get_distance(start, end):
-	return Point(start[0], start[1]).distance(Point(end[0], end[1]))
-
-
 # 3.8s
 # 10s
 def distance(instance1, instance2):
@@ -56,6 +49,5 @@ def distance(instance1, instance2):
 
 # https://stackoverflow.com/questions/52436743/optimizing-numpy-euclidean-distance-and-direction-function
 #for i in range(0, 1000000):
-#	get_velocity((0, 0, 9), (1, 1, 10))
-	#get_distance(10, 20, 30, 40)
+	#get_velocity((0, 0, 9), (1, 1, 10))
 	#distance((10, 20), (30, 40))

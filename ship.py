@@ -88,9 +88,7 @@ class Ship:
 			time_passed = self.time[i] - self.time[i - 1]
 
 			ship_still = time_passed >= MAXIMUM_BLACKOUT_S
-			speed = get_speed(i)
-			lost_contact = speed < MOVEMENT_DETECTION_MS
-			#lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
+			lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
 
 			# check if passage is started
 			if start_of_passage >= 0:
