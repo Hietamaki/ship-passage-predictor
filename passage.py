@@ -12,9 +12,10 @@ class Passage:
 		self.time = time
 		self.id = self.get_id()
 		self.ship = ship
-		self.reaches = self.reaches_measurement_area()
-
 		self.interpolate()
+
+		# saves index of when reaches. temporary
+		self.reaches = self.reaches_measurement_area()
 
 	@classmethod
 	def get_id(cls):

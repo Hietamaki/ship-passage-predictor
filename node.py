@@ -134,7 +134,7 @@ class Node:
 			if time_to_measurement < 0:
 				self.label.append(False)
 			else:
-				self.label.append((time_to_measurement) < (3600 * 8))
+				self.label.append(time_to_measurement < (3600 * 8))
 
 	def draw(self, color='red'):
 		map.Map.ax.add_patch(patches.Circle(
@@ -164,7 +164,7 @@ class Node:
 
 
 # Generate nodes and find optimal k value for each
-def generate_nodes():
+def generate_nodes(optimeze_k=True):
 
 	ship.Ship.load_all()
 	for shp in ship.Ship.list:
@@ -182,9 +182,10 @@ def generate_nodes():
 		del Node.list[key]
 
 	# Optimize K
-	for n in Node.list.values():
-		n.optimal_k = n.find_optimal_k(True)
-		#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
+	if optimize_k:
+		for n in Node.list.values():
+			n.optimal_k = n.find_optimal_k(True)
+			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)

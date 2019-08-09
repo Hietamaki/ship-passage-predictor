@@ -9,7 +9,7 @@ import predict
 import cartopy.crs as ccrs
 
 
-#nd.generate_nodes()
+#nd.generate_nodes(False)
 Node.load_all()
 noude = nd.get_closest_node(200846, 6558117)
 noude.draw()
@@ -31,21 +31,23 @@ cn.draw('white')
 #predict.predict_path(n)
 
 #pl = Node.list[0]
-
 k = 0
 m = map.Map.draw_map()
 for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0:
 		color = (rp, 0, 1 - rp)
-		if n.y < 6350000:
+		if n.y < 6431000:
 			print("Node:", n.x, n.y)
 			for i in range(0, len(n.passages)):
-				if n.label[i]:
+				if not n.label[i]:
+					continue
+				if n.label[i] < (3600 * 8):
 					pas = n.passages[i]
 					pas.plot()
 					passed = False
-					print("New Passage", pas.ship.id, len(pas.x))
+					print(map.route_in_area(pas.x, pas.y), "route_in_area")
+					print("New Passage", pas.ship.id, len(pas.x), (n.label[i]//60/60), pas.reaches, util.format_date(pas.time[pas.reaches]))
 					for i in range(1, len(pas.time)):
 						start = (pas.x[i - 1], pas.y[i - 1], pas.time[i - 1])
 						end = (pas.x[i], pas.y[i], pas.time[i])
@@ -61,12 +63,11 @@ for n in Node.list:
 								info_str = "<-- Node is HERE"
 
 						#if info_str:
-						print(util.format_date(pas.time[i]), pas.x[i], pas.y[i], util.get_velocity(start, end), info_str)
+						print(i, util.format_date(pas.time[i]), pas.x[i], pas.y[i], util.get_velocity(start, end), info_str)
 
 						info_str = ""
 		#color = (0, 1, 0)
 			n.draw(color)
-			print(n.x, n.y, rp, n.id, n.speed[i])
 			k += 1
 	#else:
 	#	print("Nou")
