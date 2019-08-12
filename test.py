@@ -14,15 +14,17 @@ x2 = (348298, 6620462, 1530070027)
 #print(util.get_velocity(x1, x2))
 #nd.generate_nodes()
 Node.load_all()
-noude = nd.get_closest_node(200846, 6558117)
-noude.draw('green')
 #print(len(noude.passages))
-predict.test_case(noude)
-x1 = (200846, 6558117, 0)
-x2 = (210846, 6562117, 1000)
+x1 = (210846, 6598117, 0)
+x2 = (215846, 6642117, 100)
 pas = predict.predict_path(x1, x2)
 
+noude = nd.get_closest_node(x1[0], x1[1])
+predict.test_case(noude)
+noude.draw('green')
 pas.plot()
+
+pas.reaches_measurement_area()
 
 #cn = nd.get_closest_node(58846, 6408117)
 

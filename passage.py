@@ -1,6 +1,9 @@
 import map
-import node
+from datetime import datetime
 
+
+MEASUREMENT_START_HOUR = 8
+MEASURMENT_END_HOUR = 17
 
 class Passage:
 
@@ -69,9 +72,25 @@ class Passage:
 			list.insert(index, new_value)
 
 	def reaches_measurement_area(self):
-		# todo if start of passage over 8h from reaching area, return false
+		# if start of passage over 8h from reaching area, return false
 		# check also if time is between 8.00-16.00
-		return map.route_in_area(self.x, self.y)
+		in_area = map.route_in_area(self.x, self.y)
+		#time_window = False
+
+		#if in_area is not False:
+		#	for i in range(in_area[0], in_area[1]):
+		#		ts = self.time[i]
+		#		hour = datetime.fromtimestamp(int(ts)).hour
+		#		if hour >= MEASUREMENT_START_HOUR and hour < MEASURMENT_END_HOUR:
+		#			time_window = True
+
+		#if time_window:
+		#	return in_area
+		#else:
+		#	return False
+
+		return in_area
+
 
 	def plot(self, color="red"):
 		map.Map.plot_route(self.x, self.y, color=color)

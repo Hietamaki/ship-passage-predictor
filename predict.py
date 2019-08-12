@@ -1,9 +1,6 @@
-# - k-optimization: suunnanmuunnos ennen vertailua
-# - ennustaja: palauta lähin route
 # - reach measurement area:
-#	- todeksi ainoastaan jos päivällä
-#	- todeksi jos alkaa alueen sisältä, aloitus ja lopetus
-
+#	- (index laajemmaksi länteen?)
+# - time of day featureksi
 from datetime import datetime, timedelta
 import numpy as np
 from sklearn.model_selection import train_test_split
