@@ -147,8 +147,9 @@ class Node:
 		return np.array(self.label)
 
 	def get_features(self):
-		features = np.array((self.cog, self.speed))
-		features = np.reshape(features, (-1, 2))
+
+		features = np.array((np.sin(self.cog), np.cos(self.cog), self.speed))
+		features = np.reshape(features, (-1, 3))
 
 		return features
 

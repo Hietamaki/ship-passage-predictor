@@ -13,12 +13,12 @@ x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
 print(util.distance(x1, x2))
-#nd.generate_nodes(False)
+nd.generate_nodes()
 Node.load_all()
 noude = nd.get_closest_node(200846, 6558117)
-noude.draw()
+noude.draw('green')
 #print(len(noude.passages))
-#predict.test_case(noude)
+predict.test_case(noude)
 #xx = (58846, 61861, 64138)
 #yy = (6408117, 6411361, 6413779)
 #predict.predict_path(xx, yy)
@@ -80,7 +80,7 @@ for n in Node.list:
 					'''
 	#color = (0, 1, 0)
 
-		n.draw(color)
+		#n.draw(color)
 		k += 1
 	#else:
 	#	print("Nou")
