@@ -30,7 +30,7 @@ class Map:
 			edgecolor='gray')
 
 		# limit to Finnish sea area
-		ax.set_extent([1800100, 3400100, 7800100, 8800100], crs=ccrs.Mercator())
+		ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
 
 		self.draw_measurement_area()
 		return plt
@@ -77,19 +77,26 @@ def get_area_boundaries():
 	#return [0, 700000, 6450000, 6750000]
 
 
+# return enters_i and end_i when in area or False if doesn't cross area
 def route_in_area(x, y):
 
 	area = MEASUREMENT_AREA
+	enters_i = False
 
 	if len(x) == 0:
 		return False
 
 	for i in range(0, len(x) - 1):
-		if x[i] > area[0] and x[i] < area[1]:
-			if y[i] > area[2] and y[i] < area[3]:
-				return i
+		if x[i] > area[0] and x[i] < area[1] and y[i] > area[2] and y[i] < area[3]:
+			if enters_i is False:
+				enters_i = i
+		elif enters_i:
+			return enters_i, i
 
-	return False
+	if enters_i is not False:
+		return enters_i, len(x) - 1
+	else:
+		return False
 
 
 def is_in_area(x, y):
@@ -127,7 +134,7 @@ def points_reaching_measurement_area(date):
 
 		#col = util.random_color()
 
-		if route_in_area(route['x'], route['y']) is True:
+		if route_in_area(route['x'], route['y']) is not False:
 			starting_points.append([route['x'][0], route['y'][0]])
 			starting_points.append([route['x'][-1], route['y'][-1]])
 			count2 += 1

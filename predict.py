@@ -1,6 +1,8 @@
 # - k-optimization: suunnanmuunnos ennen vertailua
 # - ennustaja: palauta lähin route
-# - reach measurement area: todeksi ainoastaan jos päivällä
+# - reach measurement area:
+#	- todeksi ainoastaan jos päivällä
+#	- todeksi jos alkaa alueen sisältä, aloitus ja lopetus
 
 from datetime import datetime, timedelta
 import numpy as np

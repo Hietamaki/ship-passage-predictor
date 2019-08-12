@@ -128,11 +128,12 @@ class Node:
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
-			time_to_measurement = passage.time[passage.reaches] - route[0][2]
+			time_to_measurement = passage.time[passage.reaches[0]] - route[0][2]
 			#print(abs(time_to_measurement) < (3600 * 8))
 			# todo discard if already exited measure area
-			if time_to_measurement < -1:
-				self.label.append(False)
+			if time_to_measurement < 0:
+				# if has exited measurement area
+				self.label.append(route[0][2] < passage.time[passage.reaches[1]])
 			else:
 				self.label.append(time_to_measurement < (3600 * 8))
 
