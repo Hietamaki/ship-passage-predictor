@@ -29,13 +29,18 @@ def normalize_features(train_data, test_data):
 	return train_data, test_data
 
 
-def predict_path(x, y):
+#
+# returns most likely passage
 
-	new_passage = np.array([x, y])
-	new_passage = np.reshape(new_passage, (-1, 2))
+def predict_path(start, end):
+
+	m_s, cog = util.get_velocity(start, end)
+	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
+	new_passage = np.reshape(new_passage, (-1, 3))
+	print(new_passage)
 
 	# Node from start of path
-	nod = node.get_closest_node(x[0], y[0])
+	nod = node.get_closest_node(start[0], start[1])
 
 	if not nod:
 		print("Node not found?")
@@ -49,14 +54,16 @@ def predict_path(x, y):
 	classifier.fit(x_train, nod.get_labels())
 
 	# calculate mean from:
-	print(classifier.kneighbors())
+	#print(classifier.kneighbors())
 
 	y_pred = classifier.predict(x_test)
 
 	# evaluating the algorithm
 	print("# evaluating the algorithm")
 	print(y_pred)
-	return y_pred
+	dists, neighbors_id = classifier.kneighbors(new_passage)
+
+	return nod.passages[neighbors_id[0][0]] 
 
 	#print(confusion_matrix(y_test, y_pred))
 	#print(classification_report(y_test, y_pred))

@@ -12,16 +12,17 @@ x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
-print(util.distance(x1, x2))
-nd.generate_nodes()
+#nd.generate_nodes()
 Node.load_all()
 noude = nd.get_closest_node(200846, 6558117)
 noude.draw('green')
 #print(len(noude.passages))
 predict.test_case(noude)
-#xx = (58846, 61861, 64138)
-#yy = (6408117, 6411361, 6413779)
-#predict.predict_path(xx, yy)
+x1 = (200846, 6558117, 0)
+x2 = (210846, 6562117, 1000)
+pas = predict.predict_path(x1, x2)
+
+pas.plot()
 
 #cn = nd.get_closest_node(58846, 6408117)
 
