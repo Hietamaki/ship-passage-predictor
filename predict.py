@@ -1,3 +1,7 @@
+# - k-optimization: suunnanmuunnos ennen vertailua
+# - ennustaja: palauta lähin route
+# - reach measurement area: todeksi ainoastaan jos päivällä
+
 from datetime import datetime, timedelta
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -36,6 +40,7 @@ def predict_path(x, y):
 		return
 
 	x_train, x_test = normalize_features(nod.get_features(), new_passage)
+	# tähän cog muunnos ennen vertailua
 
 	print("# training and predictions")
 	classifier = KNeighborsClassifier(n_neighbors=nod.optimal_k)
