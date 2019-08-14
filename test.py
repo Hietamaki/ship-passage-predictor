@@ -22,9 +22,10 @@ pas = predict.predict_path(x1, x2)
 noude = nd.get_closest_node(x1[0], x1[1])
 predict.test_case(noude)
 noude.draw('green')
-pas.plot()
+for p in pas:
+	p.plot()
 
-pas.reaches_measurement_area()
+#pas.reaches_measurement_area()
 
 #cn = nd.get_closest_node(58846, 6408117)
 
@@ -42,8 +43,11 @@ k = 0
 m = map.Map.draw_map()
 for n in Node.list:
 	rp = n.reach_percentage()
-	if rp > 0:
+	if rp > 0.5:
 		color = (rp, 0, 1 - rp)
+		n.draw(color)
+		k += 1
+		
 		#if map.is_in_area(n.x, n.y):# < 9996431000:
 		#print("Node:", n.x, n.y, len(n.passages), rp)
 
@@ -81,12 +85,6 @@ for n in Node.list:
 
 					info_str = ""
 					'''
-	#color = (0, 1, 0)
-
-		#n.draw(color)
-		k += 1
-	#else:
-	#	print("Nou")
 
 print(k)
 m.show()

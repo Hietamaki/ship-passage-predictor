@@ -27,7 +27,7 @@ def normalize_features(train_data, test_data):
 
 
 #
-# returns most likely passage
+# returns most likely passage and likelihood of reaching area
 
 def predict_path(start, end):
 
@@ -44,7 +44,6 @@ def predict_path(start, end):
 		return
 
 	x_train, x_test = normalize_features(nod.get_features(), new_passage)
-	# tähän cog muunnos ennen vertailua
 
 	print("# training and predictions")
 	classifier = KNeighborsClassifier(n_neighbors=nod.optimal_k)
@@ -60,7 +59,11 @@ def predict_path(start, end):
 	print(y_pred)
 	dists, neighbors_id = classifier.kneighbors(new_passage)
 
-	return nod.passages[neighbors_id[0][0]] 
+	passes = []
+	for p_id in neighbors_id[0]:
+		passes.append(nod.passages[p_id])
+
+	return passes
 
 	#print(confusion_matrix(y_test, y_pred))
 	#print(classification_report(y_test, y_pred))

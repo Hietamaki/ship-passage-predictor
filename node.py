@@ -98,7 +98,9 @@ class Node:
 			#print("Set Max K to", max_k)
 		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
-		knn_gscv = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
+		knn_gscv = GridSearchCV(
+			KNeighborsClassifier(), param_grid,
+			cv=5, n_jobs=-1)
 
 		features = self.get_features()
 
