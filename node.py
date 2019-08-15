@@ -111,7 +111,7 @@ class Node:
 
 		knn_gscv.fit(features, self.get_labels())
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		return knn_gscv.best_params_['n_neighbors']
+		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
 
 	def add_passage(self, route, passage):
 
@@ -188,7 +188,7 @@ def generate_nodes(optimize_k=True):
 	# Optimize K
 	if optimize_k:
 		for n in Node.list.values():
-			n.optimal_k = n.find_optimal_k(True)
+			n.optimal_k, n.accuracy_score = n.find_optimal_k()
 			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(Node.list), "nodes to local disk...")
