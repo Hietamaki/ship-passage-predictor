@@ -76,6 +76,12 @@ def predict_path(start, end):
 #predict_path(pas.x, pas.y)
 
 
+def calculate_mean_route(routes):
+
+	route = []
+
+	return route
+
 def test_case(node_id=-1):
 	#map = Map()
 

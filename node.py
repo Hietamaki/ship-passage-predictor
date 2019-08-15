@@ -87,8 +87,8 @@ class Node:
 
 		max_x = Node.get_nodes_in_row()
 
-		self.x = id % max_x * Node.SPACING_M
-		self.y = (id // max_x) * Node.SPACING_M + 6100000
+		self.x = id % max_x * Node.SPACING_M + (Node.SPACING_M / 2)
+		self.y = (id // max_x) * Node.SPACING_M + 6100000 + (Node.SPACING_M / 2)
 
 	def find_optimal_k(self, scale=True):
 		max_k = 25
