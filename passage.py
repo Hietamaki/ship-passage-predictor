@@ -94,3 +94,8 @@ class Passage:
 
 	def plot(self, color="red"):
 		map.Map.plot_route(self.x, self.y, color=color)
+
+
+	# return the part of route that is in measurement area
+	def route_in_meas_area():
+		return self.x, self.y, self.time
