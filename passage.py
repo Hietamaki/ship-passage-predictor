@@ -1,4 +1,6 @@
-import map
+from map import Map
+from route import route_in_area
+
 from datetime import datetime
 
 
@@ -74,7 +76,7 @@ class Passage:
 	def reaches_measurement_area(self):
 		# if start of passage over 8h from reaching area, return false
 		# check also if time is between 8.00-16.00
-		in_area = map.route_in_area(self.x, self.y)
+		in_area = route_in_area(self.x, self.y)
 		#time_window = False
 
 		#if in_area is not False:
@@ -93,7 +95,7 @@ class Passage:
 
 
 	def plot(self, color="red"):
-		map.Map.plot_route(self.x, self.y, color=color)
+		Map.plot_route(self.x, self.y, color=color)
 
 
 	# return the part of route that is in measurement area

@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-import matplotlib.patches as patches
-import cartopy.crs as ccrs
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
-import map
+from route import AREA_BOUNDARIES
+from map import Map
 import ship
 import util
 
@@ -21,13 +20,13 @@ class Node:
 	@classmethod
 	def load_all(cls):
 
+		# this could be abstracted
 		cls.list = pd.read_hdf('nodes.h5', 'df').values
 		print("Loaded", len(cls.list), "nodes")
 
 	@classmethod
 	def get_nodes_in_row(cls):
-		area_boundaries = map.get_area_boundaries()
-		return (area_boundaries[1] // cls.SPACING_M)
+		return (AREA_BOUNDARIES[1] // cls.SPACING_M)
 
 	@classmethod
 	def add_info_from_passage(cls, passage):
@@ -140,9 +139,7 @@ class Node:
 				self.label.append(time_to_measurement < (3600 * 8))
 
 	def draw(self, color='red'):
-		map.Map.ax.add_patch(patches.Circle(
-			(self.x, self.y), self.SPACING_M // 2,
-			color=color, alpha=0.8, zorder=3, transform=ccrs.epsg(3067)))
+		Map.draw_circle(self.x, self.y, self.SPACING_M // 2, color)
 
 	# convert to ndarray
 	def get_labels(self):
@@ -154,9 +151,6 @@ class Node:
 		features = np.reshape(features, (-1, 3))
 
 		return features
-
-	def get_passage_indices(self):
-		return np.array(self.indices)
 
 	def reach_percentage(self):
 		k = 0
@@ -199,18 +193,17 @@ def generate_nodes(optimize_k=True):
 # return node_id based on coordinates
 def get_node_id(x, y):
 
-	area_boundaries = map.get_area_boundaries()
 	max_x = Node.get_nodes_in_row()
 
 	if x < 0:
 		return -1
 
-	if y < area_boundaries[2]:
+	if y < AREA_BOUNDARIES[2]:
 		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
 		return -1
 
 	node_x = x // Node.SPACING_M
-	node_y = (y - area_boundaries[2]) // Node.SPACING_M
+	node_y = (y - AREA_BOUNDARIES[2]) // Node.SPACING_M
 
 	node_id = node_x + (node_y * max_x)
 
@@ -219,7 +212,7 @@ def get_node_id(x, y):
 
 def draw_reach_percentages():
 	Node.load_all()
-	m = map.Map.draw_map()
+	m = Map.draw_map()
 	for i in Node.list:
 		if len(i.passages) > 100 and i.reach_percentage() > 0:
 			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())

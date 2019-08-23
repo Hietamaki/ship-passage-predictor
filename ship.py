@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from util import distance
 
-import passage as psg
+from passage import Passage
 
 
 class Ship:
@@ -57,7 +57,7 @@ class Ship:
 			if passage_indices[0] + 1 >= passage_indices[1]:
 				continue
 
-			passage = psg.Passage(
+			passage = Passage(
 				self.x[passage_indices[0]:passage_indices[1]],
 				self.y[passage_indices[0]:passage_indices[1]],
 				self.time[passage_indices[0]:passage_indices[1]],
