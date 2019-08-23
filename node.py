@@ -100,7 +100,7 @@ class Node:
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 		knn_gscv = GridSearchCV(
 			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1)
+			cv=5, n_jobs=-1, stratify=1)
 
 		features = self.get_features()
 
@@ -178,7 +178,7 @@ def generate_nodes(optimize_k=True):
 	# Remove if node has fewer than x samples
 	removed_nodes = []
 	for key, val in Node.list.items():
-		if len(val.passages) < 10:
+		if len(val.passages) < 20:
 			#print("Del", key, len(val.passages))
 			removed_nodes.append(key)
 
