@@ -101,7 +101,7 @@ class Passage:
 	# return the part of route that is in measurement area
 	def route_in_meas_area():
 
-		for i in range(0,len(self.x)):
+		#for i in range(0,len(self.x)):
 
 			
 		return self.x, self.y, self.time

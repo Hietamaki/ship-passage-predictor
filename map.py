@@ -24,7 +24,7 @@ class Map:
 		# limit to Finnish sea area
 		ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
 
-		cls.draw_area(MEAS_AREA)
+		cls.draw_area(MEAS_AREA, 'green')
 		return plt
 
 	@classmethod
@@ -32,11 +32,11 @@ class Map:
 		plt.plot(x, y, color=color, linewidth=1, transform=ccrs.epsg(3067))
 
 	@classmethod
-	def draw_area(cls, area):
+	def draw_area(cls, area, color='red'):
 		cls.ax.add_patch(
 			patches.Rectangle(
 				(area[0], area[2]), area[1] - area[0], area[3] - area[2],
-				alpha=0.3, color='red', zorder=3, transform=ccrs.epsg(3067)))
+				alpha=0.3, color=color, zorder=3, transform=ccrs.epsg(3067)))
 
 	@classmethod
 	def draw_circle(cls, x, y, radius, color):

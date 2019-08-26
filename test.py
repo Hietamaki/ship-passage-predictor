@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.patches as patches
 import predict
 import cartopy.crs as ccrs
+import numpy as np
 
 x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
@@ -41,16 +42,21 @@ print(noude.accuracy_score, noude.optimal_k)
 #print(n.x)
 #predict.predict_path(n)
 
+scores = nd.draw_reach_percentages(True)
+
+print("avg:",np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
-k = 0
-m = map.Map.draw_map()
+#k = 0
+#m = map.Map.draw_map()
+'''
 for n in Node.list:
 	rp = n.reach_percentage()
 	if rp > 0.0:
-		color = (rp, 0, 1 - rp)
-		n.draw(color)
-		k += 1
-		
+
+#		color = (rp, 0, 1 - rp)
+#		n.draw(color)
+#		k += 1
+
 		#if map.is_in_area(n.x, n.y):# < 9996431000:
 		#print("Node:", n.x, n.y, len(n.passages), rp)
 
@@ -59,7 +65,7 @@ for n in Node.list:
 
 		#		n.passages[i].plot(util.random_color())
 		#		print(map.route_in_area(n.passages[i].x, n.passages[i].y))
-		'''
+
 			#if n.label[i] > 0:
 			#	continue
 			#if n.label[i] < (3600 * 8):
@@ -89,8 +95,8 @@ for n in Node.list:
 					info_str = ""
 					'''
 
-print(k)
-m.show()
+#print(k)
+#m.show()
 
 #	if len(pl.passages) < len(n.passages):
 #		pl = n
