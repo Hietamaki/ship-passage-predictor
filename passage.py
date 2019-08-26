@@ -15,17 +15,11 @@ class Passage:
 		self.x = x
 		self.y = y
 		self.time = time
-		self.id = self.get_id()
 		self.ship = ship
 		self.interpolate()
 
 		# saves index of when reaches. temporary
 		self.reaches = self.reaches_measurement_area()
-
-	@classmethod
-	def get_id(cls):
-		cls.next_id += 1
-		return cls.next_id
 
 	def interpolate(self, minutes_limit=10):
 
