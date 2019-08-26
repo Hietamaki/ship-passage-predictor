@@ -99,7 +99,7 @@ class Node:
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 		knn_gscv = GridSearchCV(
 			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1, stratify=1)
+			cv=5, n_jobs=-1)
 
 		features = self.get_features()
 
@@ -210,25 +210,36 @@ def get_node_id(x, y):
 	return node_id
 
 
-def draw_reach_percentages():
+def draw_reach_percentages(type_accuracy=False, limit=0):
 	Node.load_all()
-	m = Map.draw_map()
-	for i in Node.list:
-		if len(i.passages) > 100 and i.reach_percentage() > 0:
-			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())
-			for x in range(0, len(i.passages)):
-				psg = i.passages[x]
-				if psg.x[0] > 430000 and psg.y[0] > 6750000:
-					print(i.x, i.y, i.id)
-					print(psg.x[0], psg.y[0])
-					if i.label[x]:
-						print("Juu", i.label[x])
-					psg.plot()
-					print(i.id, len(i.passages), (i.reach_percentage() * 100), "%")
-					i.draw(c)
-					c = 'green'
+	scores = []
 
+	m = Map.draw_map()
+	for n in Node.list:
+
+		if type_accuracy:
+			rp = 1 - n.accuracy_score
+
+			if rp == 0:
+				continue
+
+			scores.append(n.accuracy_score)
+		else:
+			rp = n.reach_percentage()
+
+			if rp > limit:
+				continue
+
+			scores.append(rp)
+
+		if len(n.passages) < 50:
+			continue
+
+		
+		color = (rp, 0, 1 - rp)
+		n.draw(color)
 	m.show()
+	return scores
 
 
 def get_closest_node(x, y):
