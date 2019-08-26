@@ -12,7 +12,7 @@ x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
-nd.generate_nodes()
+#nd.generate_nodes()
 Node.load_all()
 #print(len(noude.passages))
 x1 = (210846, 6598117, 0)
@@ -21,12 +21,12 @@ pas = predict.predict_path(x1, x2)
 
 noude = nd.get_closest_node(x1[0], x1[1])
 predict.test_case(noude)
-noude.draw('green')
+#noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
-for p in noude.passages:
-	p.plot('orange')
-for p in pas:
-	p.plot()
+#for p in noude.passages:
+#	p.plot('orange')
+#for p in pas:
+#	p.plot()
 
 #pas.reaches_measurement_area()
 
@@ -46,7 +46,7 @@ k = 0
 m = map.Map.draw_map()
 for n in Node.list:
 	rp = n.reach_percentage()
-	if rp > 0.5:
+	if rp > 0.0:
 		color = (rp, 0, 1 - rp)
 		n.draw(color)
 		k += 1

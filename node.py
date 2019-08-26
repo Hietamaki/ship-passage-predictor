@@ -217,23 +217,14 @@ def get_node_id(x, y):
 	return node_id
 
 
-def draw_reach_percentages():
+def draw_reach_percentages(rp_limit=0):
 	Node.load_all()
 	m = map.Map.draw_map()
-	for i in Node.list:
-		if len(i.passages) > 100 and i.reach_percentage() > 0:
-			c = (i.reach_percentage(), 0, 1 - i.reach_percentage())
-			for x in range(0, len(i.passages)):
-				psg = i.passages[x]
-				if psg.x[0] > 430000 and psg.y[0] > 6750000:
-					print(i.x, i.y, i.id)
-					print(psg.x[0], psg.y[0])
-					if i.label[x]:
-						print("Juu", i.label[x])
-					psg.plot()
-					print(i.id, len(i.passages), (i.reach_percentage() * 100), "%")
-					i.draw(c)
-					c = 'green'
+	for n in Node.list:
+		rp = n.reach_percentage()
+		if rp >= rp_limit:
+			color = (rp, 0, 1 - rp)
+			n.draw(color)
 
 	m.show()
 
