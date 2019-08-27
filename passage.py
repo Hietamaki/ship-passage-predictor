@@ -15,17 +15,11 @@ class Passage:
 		self.x = x
 		self.y = y
 		self.time = time
-		self.id = self.get_id()
 		self.ship = ship
 		self.interpolate()
 
 		# saves index of when reaches. temporary
 		self.reaches = self.reaches_measurement_area()
-
-	@classmethod
-	def get_id(cls):
-		cls.next_id += 1
-		return cls.next_id
 
 	def interpolate(self, minutes_limit=10):
 
@@ -100,4 +94,8 @@ class Passage:
 
 	# return the part of route that is in measurement area
 	def route_in_meas_area():
+
+		#for i in range(0,len(self.x)):
+
+			
 		return self.x, self.y, self.time
