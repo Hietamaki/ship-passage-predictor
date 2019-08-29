@@ -82,9 +82,28 @@ def calculate_mean_route(passages):
 
 	for passage in passages:
 		# get part of routes in area
-		route = passage.route_in_meas_area()
+		rx, ry, rt = passage.route_in_meas_area()
+		nx, ny, nt = []
+		reminder = 0
+
 		# interpolate every 1 min
-		for i in range(0, len(route.x)):
+		for i in range(1, len(rx)):
+
+			dx = rx[i] - rx[i-1]
+			dy = ry[i] - ry[i-1]
+			dt = rt[i] - rt[i-1]
+
+			jotain = 60//(dt + reminder)
+
+
+			for i2 in range(0, jotain):
+				nx.append(dx * jotain)
+				ny.append(dy * jotain)
+				nt.append(dt * jotain)
+
+			reminder %= 60
+
+
 
 			#(xy1 - xy2) * (60/(t+reminder))
 

@@ -22,12 +22,16 @@ pas = predict.predict_path(x1, x2)
 
 noude = nd.get_closest_node(x1[0], x1[1])
 predict.test_case(noude)
-#noude.draw('green')
+noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
-#for p in noude.passages:
-#	p.plot('orange')
-#for p in pas:
-#	p.plot()
+for p in noude.passages:
+	p.plot('orange')
+for p in pas:
+	x2=0
+	for t in p.time:
+		print((x2 - t) / 60)
+		x2 = t
+	p.plot()
 
 #pas.reaches_measurement_area()
 
