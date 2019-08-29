@@ -76,7 +76,19 @@ def predict_path(start, end):
 #predict_path(pas.x, pas.y)
 
 
-def calculate_mean_route(routes):
+
+def calculate_mean_route(passages):
+
+
+	for passage in passages:
+		# get part of routes in area
+		route = passage.route_in_meas_area()
+		# interpolate every 1 min
+		for i in range(0, len(route.x)):
+
+			#(xy1 - xy2) * (60/(t+reminder))
+
+	# calculate mean
 
 	route = []
 

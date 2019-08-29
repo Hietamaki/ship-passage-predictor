@@ -1,11 +1,9 @@
 from map import Map
 from route import route_in_area
 
-from datetime import datetime
+#MEASUREMENT_START_HOUR = 8
+#MEASURMENT_END_HOUR = 17
 
-
-MEASUREMENT_START_HOUR = 8
-MEASURMENT_END_HOUR = 17
 
 class Passage:
 
@@ -87,15 +85,25 @@ class Passage:
 
 		return in_area
 
-
 	def plot(self, color="red"):
 		Map.plot_route(self.x, self.y, color=color)
 
-
 	# return the part of route that is in measurement area
-	def route_in_meas_area():
+	#	+1 timecoord in each direction
+	def route_in_meas_area(self):
 
 		#for i in range(0,len(self.x)):
 
-			
-		return self.x, self.y, self.time
+		start, end = route_in_area(self.x, self.y)
+
+		if start > 0:
+			start -= 1
+
+		if end < len(self.x):
+			end += 1
+
+		if start:
+			return (
+				self.x[start:end],
+				self.y[start:end],
+				self.time[start:end])
