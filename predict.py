@@ -75,48 +75,53 @@ def predict_path(start, end):
 
 #predict_path(pas.x, pas.y)
 
-'''
 
 def calculate_mean_route(passages):
 
+	routes = []
+	max_size = 0
 
 	for passage in passages:
+
+		if passage.reaches is False:
+			continue
+
 		# get part of routes in area
+		routes.append(passage.route_in_meas_area())
+		'''
 		rx, ry, rt = passage.route_in_meas_area()
-		nx, ny, nt = []
-		reminder = 0
 
-		# interpolate every 1 min
-		np.interp2d(1min, aika, x, y)
+		# interpolation to 1 min spacing
+		nt = np.arange(rt[0], rt[-1], 60)
+		nx = np.interp(nt, rt, rx).astype(np.int32)
+		ny = np.interp(nt, rt, ry).astype(np.int32)
 
+		routes.append((nx, ny, nt))
+		'''
+		rx_len = len(routes[-1][0])
 
+		if max_size < rx_len:
+			max_size = rx_len
 
-		for i in range(1, len(rx)):
+	# interpolate arrays to same size
+	x_coords = np.arange(0, max_size+1)
 
-			dx = rx[i] - rx[i-1]
-			dy = ry[i] - ry[i-1]
-			dt = rt[i] - rt[i-1]
+	standardized_routes = []
 
-			jotain = 60//(dt + reminder)
-
-
-			for i2 in range(0, jotain):
-				nx.append(dx * jotain)
-				ny.append(dy * jotain)
-				nt.append(dt * jotain)
-
-			reminder %= 60
-
-
-
-			#(xy1 - xy2) * (60/(t+reminder))
+	for r in routes:
+		print(max_size, np.linspace(0, max_size, len(r[0])))
+		standardized_routes.append((
+			np.interp(x_coords, np.linspace(0, max_size, len(r[0])), r[0]).astype(np.int32),
+			np.interp(x_coords, np.linspace(0, max_size, len(r[1])), r[1]).astype(np.int32),
+			np.interp(x_coords, np.linspace(0, max_size, len(r[2])), r[2]).astype(np.int32)))
+		print(r[0], "vs")
+		print(standardized_routes[-1][0])
 
 	# calculate mean
+	route = np.array(standardized_routes)
 
-	route = []
+	return np.mean(route, axis=0)
 
-	return route
-'''
 def test_case(node_id=-1):
 	#map = Map()
 

@@ -26,23 +26,27 @@ print(noude.accuracy_score, noude.optimal_k)
 #for p in noude.passages:
 #	p.plot('orange')
 
-for p in pas:
-	x2 = 0
-	print("Passage:")
-	print(p.time, p.x)
-	interped = np.arange(p.time[0], p.time[-1], 60)
-	x3 = np.interp(interped, p.time, p.x).astype(np.int32)
-	y3 = np.interp(interped, p.time, p.y).astype(np.int32)
-	print(len(x3), len(p.x))
-	print(x3, len(p.x))
+p = predict.calculate_mean_route(pas)
 
-	map.Map.plot_route(x3, y3, "pink")
-	print(p.reaches)
-	#for t in p.time:
-	#	print((x2 - t) / 60)
-	#	x2 = t
+px = p[0]
+py = p[1]
+ptime = p[2]
 
-	#p.plot()
+print("Passage:")
+print(px, py, ptime)
+#print(ptime, px)
+#interped = np.arange(ptime[0], ptime[-1], 60)
+#x3 = np.interp(interped, ptime, px).astype(np.int32)
+#y3 = np.interp(interped, ptime, py).astype(np.int32)
+#print(len(x3), len(px))
+#print(x3, len(px))
+
+map.Map.plot_route(px, py, "pink")
+#for t in p.time:
+#	print((x2 - t) / 60)
+#	x2 = t
+
+#p.plot()
 
 #m = map.Map.draw_map()
 #m.show()
@@ -59,9 +63,9 @@ for p in pas:
 #print(n.x)
 #predict.predict_path(n)
 
-scores = nd.draw_reach_percentages(limit=0.01)
+#scores = nd.draw_reach_percentages(limit=0.01)
 
-print("avg:", np.mean(scores), np.median(scores), np.std(scores))
+#print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
 #k = 0
 m = map.Map.draw_map()
