@@ -103,6 +103,6 @@ def convert_all_data():
 	print("Saving", len(ships), "ships to database.")
 
 
-#convert_all_data()
+convert_all_data()
 node.generate_nodes()
 #load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")

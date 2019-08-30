@@ -75,7 +75,7 @@ def predict_path(start, end):
 
 #predict_path(pas.x, pas.y)
 
-
+'''
 
 def calculate_mean_route(passages):
 
@@ -87,6 +87,10 @@ def calculate_mean_route(passages):
 		reminder = 0
 
 		# interpolate every 1 min
+		np.interp2d(1min, aika, x, y)
+
+
+
 		for i in range(1, len(rx)):
 
 			dx = rx[i] - rx[i-1]
@@ -112,7 +116,7 @@ def calculate_mean_route(passages):
 	route = []
 
 	return route
-
+'''
 def test_case(node_id=-1):
 	#map = Map()
 

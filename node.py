@@ -214,10 +214,8 @@ def get_node_id(x, y):
 
 
 def draw_reach_percentages(type_accuracy=False, limit=0):
-	Node.load_all()
 	scores = []
 
-	m = Map.draw_map()
 	for n in Node.list:
 
 		if type_accuracy:
@@ -230,18 +228,17 @@ def draw_reach_percentages(type_accuracy=False, limit=0):
 		else:
 			rp = n.reach_percentage()
 
-			if rp > limit:
+			if rp < limit:
 				continue
 
 			scores.append(rp)
 
-		if len(n.passages) < 50:
+		if len(n.passages) < 20:
 			continue
 
-		
 		color = (rp, 0, 1 - rp)
 		n.draw(color)
-	m.show()
+
 	return scores
 
 

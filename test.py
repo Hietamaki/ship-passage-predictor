@@ -3,17 +3,15 @@ import util
 from node import Node
 from ship import Ship
 import node as nd
+
 import pandas as pd
-import matplotlib.patches as patches
 import predict
-import cartopy.crs as ccrs
 import numpy as np
 
 x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
-#nd.generate_nodes()
 Node.load_all()
 #print(len(noude.passages))
 x1 = (210846, 6598117, 0)
@@ -24,15 +22,30 @@ noude = nd.get_closest_node(x1[0], x1[1])
 predict.test_case(noude)
 noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
-for p in noude.passages:
-	p.plot('orange')
-for p in pas:
-	x2=0
-	for t in p.time:
-		print((x2 - t) / 60)
-		x2 = t
-	p.plot()
 
+#for p in noude.passages:
+#	p.plot('orange')
+
+for p in pas:
+	x2 = 0
+	print("Passage:")
+	print(p.time, p.x)
+	interped = np.arange(p.time[0], p.time[-1], 60)
+	x3 = np.interp(interped, p.time, p.x).astype(np.int32)
+	y3 = np.interp(interped, p.time, p.y).astype(np.int32)
+	print(len(x3), len(p.x))
+	print(x3, len(p.x))
+
+	map.Map.plot_route(x3, y3, "pink")
+	print(p.reaches)
+	#for t in p.time:
+	#	print((x2 - t) / 60)
+	#	x2 = t
+
+	#p.plot()
+
+#m = map.Map.draw_map()
+#m.show()
 #pas.reaches_measurement_area()
 
 #cn = nd.get_closest_node(58846, 6408117)
@@ -46,12 +59,13 @@ for p in pas:
 #print(n.x)
 #predict.predict_path(n)
 
-scores = nd.draw_reach_percentages(True)
+scores = nd.draw_reach_percentages(limit=0.01)
 
-print("avg:",np.mean(scores), np.median(scores), np.std(scores))
+print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
 #k = 0
-#m = map.Map.draw_map()
+m = map.Map.draw_map()
+m.show()
 '''
 for n in Node.list:
 	rp = n.reach_percentage()
