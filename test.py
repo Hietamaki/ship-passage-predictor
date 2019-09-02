@@ -19,7 +19,7 @@ x2 = (215846, 6642117, 100)
 pas = predict.predict_path(x1, x2)
 
 noude = nd.get_closest_node(x1[0], x1[1])
-predict.test_case(noude)
+#predict.test_case(noude)
 noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
 
@@ -42,8 +42,8 @@ px = p[0]
 py = p[1]
 ptime = p[2]
 
-print("Passage:")
-print(px, py, ptime)
+#print("Passage:")
+#print(px, py, ptime)
 #print(ptime, px)
 #interped = np.arange(ptime[0], ptime[-1], 60)
 #x3 = np.interp(interped, ptime, px).astype(np.int32)

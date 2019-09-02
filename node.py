@@ -60,11 +60,6 @@ class Node:
 		node_enter_point = route[0]
 		node_exit_point = route[-1]
 
-		speed, course = util.get_velocity(node_enter_point, node_exit_point)
-		self.speed.append(speed)
-		self.cog.append(course)
-		self.passages.append(passage)
-
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
@@ -73,10 +68,16 @@ class Node:
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
 				# false if already exited measurement area
-				self.label.append(node_enter_point[2] < passage.time[passage.reaches[1]])
+				self.label.append(False)
+				#self.label.append(node_enter_point[2] < passage.time[passage.reaches[1]])
 			else:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
+
+		speed, course = util.get_velocity(node_enter_point, node_exit_point)
+		self.speed.append(speed)
+		self.cog.append(course)
+		self.passages.append(passage)
 
 	def draw(self, color='red'):
 		Map.draw_circle(self.x, self.y, self.SPACING_M // 2, color)
@@ -92,6 +93,31 @@ class Node:
 		features = np.reshape(features, (-1, 3))
 
 		return features
+
+	def get_passages_reaching_meas_area(self):
+
+		passages = []
+
+		for i in range(0, len(self.label)):
+			if self.label[i] is not False:
+				passages.append(self.passages[i])
+
+		return passages
+
+	def get_features_reaching_meas_area(self):
+
+		cogs = []
+		speeds = []
+
+		for i in range(0, len(self.label)):
+			if self.label[i] is not False:
+				speeds.append(self.speed[i])
+				cogs.append(self.cog[i])
+
+		routes = np.array((np.sin(cogs), np.cos(cogs), speeds))
+		routes = np.reshape(routes, (-1, 3))
+
+		return routes
 
 	def reach_percentage(self):
 		k = 0

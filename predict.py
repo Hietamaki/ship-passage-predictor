@@ -1,16 +1,12 @@
 # - reach measurement area:
 #	- (index laajemmaksi länteen?)
 # - time of day featureksi
-from datetime import datetime, timedelta
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
-from map import Map
-from ship import Ship
 import node
 import util
 
@@ -43,25 +39,18 @@ def predict_path(start, end):
 		print("Node not found?")
 		return
 
-	x_train, x_test = normalize_features(nod.get_features(), new_passage)
+	x_train, x_test = normalize_features(nod.get_features_reaching_meas_area(), new_passage)
 
 	print("# training and predictions")
-	classifier = KNeighborsClassifier(n_neighbors=nod.optimal_k)
-	classifier.fit(x_train, nod.get_labels())
+	nearest = NearestNeighbors(n_neighbors=nod.optimal_k)
+	nearest.fit(x_train)
 
 	# calculate mean from:
-	#print(classifier.kneighbors())
-
-	y_pred = classifier.predict(x_test)
-
-	# evaluating the algorithm
-	print("# evaluating the algorithm")
-	print(y_pred)
-	dists, neighbors_id = classifier.kneighbors(new_passage)
+	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
 	for p_id in neighbors_id[0]:
-		passes.append(nod.passages[p_id])
+		passes.append(nod.get_passages_reaching_meas_area()[p_id])
 
 	return passes
 
@@ -109,13 +98,13 @@ def calculate_mean_route(passages):
 	standardized_routes = []
 
 	for r in routes:
-		print(max_size, np.linspace(0, max_size, len(r[0])))
+		#print(max_size, np.linspace(0, max_size, len(r[0])))
 		standardized_routes.append((
 			np.interp(x_coords, np.linspace(0, max_size, len(r[0])), r[0]).astype(np.int32),
 			np.interp(x_coords, np.linspace(0, max_size, len(r[1])), r[1]).astype(np.int32),
 			np.interp(x_coords, np.linspace(0, max_size, len(r[2])), r[2]).astype(np.int32)))
-		print(r[0], "vs")
-		print(standardized_routes[-1][0])
+		#print(r[0], "vs")
+		#print(standardized_routes[-1][0])
 
 	# calculate mean
 	route = np.array(standardized_routes)
