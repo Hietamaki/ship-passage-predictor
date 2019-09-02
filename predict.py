@@ -64,6 +64,9 @@ def predict_path(start, end):
 
 #predict_path(pas.x, pas.y)
 
+def calculate_enter_time(passages):
+	times = [p.enters_measurement_area() for p in passages]
+	return np.average(times)
 
 def calculate_mean_route(passages):
 

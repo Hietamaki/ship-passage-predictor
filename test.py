@@ -14,8 +14,8 @@ x2 = (348298, 6620462, 1530070027)
 #print(util.get_velocity(x1, x2))
 Node.load_all()
 #print(len(noude.passages))
-x1 = (210846, 6598117, 0)
-x2 = (215846, 6642117, 100)
+x1 = (230846, 6598117, 0)
+x2 = (235846, 6642117, 100)
 pas = predict.predict_path(x1, x2)
 
 noude = nd.get_closest_node(x1[0], x1[1])
@@ -38,20 +38,20 @@ for p in pas:
 
 p = predict.calculate_mean_route(pas)
 
+p1 = noude.get_passages_reaching_meas_area()
+p2 = noude.get_exit_times()
+times = []
+for i in range(0, len(p1)):
+	td = p1[i].enters_measurement_area() - p2[i]
+	times.append(td)
+
+print("Enters in: ",np.average(times) / 60 / 60, "h")
+
 px = p[0]
 py = p[1]
 ptime = p[2]
 
-#print("Passage:")
-#print(px, py, ptime)
-#print(ptime, px)
-#interped = np.arange(ptime[0], ptime[-1], 60)
-#x3 = np.interp(interped, ptime, px).astype(np.int32)
-#y3 = np.interp(interped, ptime, py).astype(np.int32)
-#print(len(x3), len(px))
-#print(x3, len(px))
-
-map.Map.plot_route(px, py, "pink")
+map.Map.plot_route(px, py, "red")
 #for t in p.time:
 #	print((x2 - t) / 60)
 #	x2 = t

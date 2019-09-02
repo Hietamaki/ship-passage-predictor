@@ -43,6 +43,7 @@ class Node:
 		self.cog = []
 		self.speed = []
 		self.label = []
+		self.exits_node = []
 
 		max_x = Node.get_nodes_in_row()
 
@@ -57,24 +58,25 @@ class Node:
 	#		[(x, y, t), (x, y, t)]
 	def add_passage(self, passage, route):
 
-		node_enter_point = route[0]
-		node_exit_point = route[-1]
+		enter_point = route[0]
+		exit_point = route[-1]
 
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
-			time_to_measurement = passage.time[passage.reaches[0]] - node_enter_point[2]
+			time_to_measurement = passage.time[passage.reaches[0]] - enter_point[2]
 
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
 				# false if already exited measurement area
 				self.label.append(False)
-				#self.label.append(node_enter_point[2] < passage.time[passage.reaches[1]])
+				#self.label.append(enter_point[2] < passage.time[passage.reaches[1]])
 			else:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
 
-		speed, course = util.get_velocity(node_enter_point, node_exit_point)
+		speed, course = util.get_velocity(enter_point, exit_point)
+		self.exits_node.append(exit_point[2]) # change to more exact later
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
@@ -93,6 +95,16 @@ class Node:
 		features = np.reshape(features, (-1, 3))
 
 		return features
+
+	def get_exit_times(self):
+
+		times = []
+
+		for i in range(0, len(self.label)):
+			if self.label[i] is not False:
+				times.append(self.exits_node[i])
+
+		return times
 
 	def get_passages_reaching_meas_area(self):
 
