@@ -52,9 +52,14 @@ class Passage:
 	#	+1 timecoord in each direction
 	def route_in_meas_area(self):
 
-		#for i in range(0,len(self.x)):
+		route = route_in_area(self.x, self.y)
 
-		start, end = route_in_area(self.x, self.y)
+		# if route is not in measurement area
+		if route is False:
+			return ([], [], [])
+
+		start = route[0]
+		end = route[1]
 
 		if start > 0:
 			start -= 1

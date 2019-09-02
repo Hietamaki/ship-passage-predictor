@@ -23,8 +23,18 @@ predict.test_case(noude)
 noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
 
-#for p in noude.passages:
-#	p.plot('orange')
+for p in pas:
+	px, py, pt = p.route_in_meas_area()
+
+	if len(px) == 0:
+		continue
+
+	c = "orange"
+
+	if px[0] > px[-1]:
+		c = "purple"
+	#map.Map.plot_route(px, py, c)
+	p.plot(c)
 
 p = predict.calculate_mean_route(pas)
 

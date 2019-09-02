@@ -32,49 +32,6 @@ class Node:
 		return (AREA_BOUNDARIES[1] // cls.SPACING_M)
 
 	@classmethod
-	def add_info_from_passage(cls, passage):
-
-		node_ids = {}
-		prev_id = get_node_id(passage.x[0], passage.y[0])
-
-		# go through every xy coordinate in passage
-		for i in range(0, len(passage.x) - 1):
-			node_id = get_node_id(passage.x[i], passage.y[i])
-
-			if (node_id < 0):
-				#print("Discarding node, node_id out of bounds: ", node_id)
-				continue
-
-			#print(node_x, node_y, node_id)
-			if node_id not in node_ids:
-				node_ids[node_id] = []
-
-			node_ids[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-			# in case there is only datapoint in previous node, add the next one
-			if prev_id != node_id and prev_id != -1:
-
-				if prev_id not in node_ids:
-					print("Prev id missing", prev_id, node_id)
-					node_ids[prev_id] = []
-
-				#print("prev_id != node_id")
-				node_ids[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-			if i == len(passage.x) - 2:
-				#print("yolo")
-				node_ids[node_id].append(
-					(passage.x[i + 1], passage.y[i + 1], passage.time[i + 1]))
-
-			prev_id = node_id
-
-		for key in node_ids:
-			if key not in cls.list:
-				cls.list[key] = Node(key)
-
-			cls.list[key].add_passage(node_ids[key], passage)
-
-	@classmethod
 	def get_node(cls, id):
 		for nod in cls.list:
 			if nod.id == id:
@@ -91,6 +48,58 @@ class Node:
 
 		self.x = id % max_x * Node.SPACING_M + (Node.SPACING_M / 2)
 		self.y = (id // max_x) * Node.SPACING_M + 6100000 + (Node.SPACING_M / 2)
+
+	# add passage to node and calculate speed and course inside node
+	# @.in
+	#	self
+	#	passage
+	#	part of passage (timecoords) that is in node
+	#		[(x, y, t), (x, y, t)]
+	def add_passage(self, passage, route):
+
+		node_enter_point = route[0]
+		node_exit_point = route[-1]
+
+		speed, course = util.get_velocity(node_enter_point, node_exit_point)
+		self.speed.append(speed)
+		self.cog.append(course)
+		self.passages.append(passage)
+
+		if passage.reaches is False:
+			self.label.append(False)
+		else:
+			time_to_measurement = passage.time[passage.reaches[0]] - node_enter_point[2]
+
+			# is passage going to measurement area or coming from measurement area?
+			if time_to_measurement < 0:
+				# false if already exited measurement area
+				self.label.append(node_enter_point[2] < passage.time[passage.reaches[1]])
+			else:
+				# false if over 8 hours to measurement area
+				self.label.append(time_to_measurement < (3600 * 8))
+
+	def draw(self, color='red'):
+		Map.draw_circle(self.x, self.y, self.SPACING_M // 2, color)
+
+	# convert to ndarray
+	def get_labels(self):
+		return np.array(self.label)
+
+	def get_features(self):
+
+		# break course to x, y components
+		features = np.array((np.sin(self.cog), np.cos(self.cog), self.speed))
+		features = np.reshape(features, (-1, 3))
+
+		return features
+
+	def reach_percentage(self):
+		k = 0
+		for i in self.label:
+			if i:
+				k += 1
+
+		return k / len(self.label)
 
 	def find_optimal_k(self, scale=True):
 		max_k = 25
@@ -115,54 +124,6 @@ class Node:
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
 		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
 
-	def add_passage(self, route, passage):
-
-		#if not self.list[self.passage]:
-		#	self.list[self.passage] = []
-
-		#calculate speed from
-		#route[0] route[-1]
-		#calculate cog from
-		#print(route)
-		speed, course = util.get_velocity(route[0], route[-1])
-		self.speed.append(speed)
-		self.cog.append(course)
-		self.passages.append(passage)
-
-		if passage.reaches is False:
-			self.label.append(False)
-		else:
-			time_to_measurement = passage.time[passage.reaches[0]] - route[0][2]
-			#print(abs(time_to_measurement) < (3600 * 8))
-			# todo discard if already exited measure area
-			if time_to_measurement < 0:
-				# if has exited measurement area
-				self.label.append(route[0][2] < passage.time[passage.reaches[1]])
-			else:
-				self.label.append(time_to_measurement < (3600 * 8))
-
-	def draw(self, color='red'):
-		Map.draw_circle(self.x, self.y, self.SPACING_M // 2, color)
-
-	# convert to ndarray
-	def get_labels(self):
-		return np.array(self.label)
-
-	def get_features(self):
-
-		features = np.array((np.sin(self.cog), np.cos(self.cog), self.speed))
-		features = np.reshape(features, (-1, 3))
-
-		return features
-
-	def reach_percentage(self):
-		k = 0
-		for i in self.label:
-			if i:
-				k += 1
-
-		return k / len(self.label)
-
 
 # Generate nodes and find optimal k value for each
 def generate_nodes(optimize_k=True):
@@ -170,7 +131,7 @@ def generate_nodes(optimize_k=True):
 	ship.Ship.load_all()
 	for shp in ship.Ship.list:
 		for passage in shp.passages:
-			Node.add_info_from_passage(passage)
+			extract_passage_to_nodes(passage)
 
 	# Remove if node has fewer than x samples
 	removed_nodes = []
@@ -191,6 +152,50 @@ def generate_nodes(optimize_k=True):
 	print("Saving", len(Node.list), "nodes to local disk...")
 	df = pd.Series(Node.list)
 	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
+
+
+def extract_passage_to_nodes(passage):
+
+	nodes = {}
+	prev_id = get_node_id(passage.x[0], passage.y[0])
+
+	# associate every xy coordinate in passage to correct node
+	for i in range(0, len(passage.x) - 1):
+		node_id = get_node_id(passage.x[i], passage.y[i])
+
+		if (node_id < 0):
+			#print("Discarding node, node_id out of bounds: ", node_id)
+			continue
+
+		if node_id not in nodes:
+			nodes[node_id] = []
+
+		# add timecoord to specific node
+		nodes[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
+
+		# in case there is only datapoint in previous node, add the next one
+		if prev_id != node_id and prev_id != -1:
+
+			if prev_id not in nodes:
+				print("Prev id missing", prev_id, node_id)
+				nodes[prev_id] = []
+
+			# add timecoord to specific node
+			nodes[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
+
+		# if second last, add the last one
+		if i == len(passage.x) - 2:
+			nodes[node_id].append(
+				(passage.x[i + 1], passage.y[i + 1], passage.time[i + 1]))
+
+		prev_id = node_id
+
+	# add passages to nodes
+	for key in nodes:
+		if key not in Node.list:
+			Node.list[key] = Node(key)
+
+		Node.list[key].add_passage(passage, nodes[key])
 
 
 # return node_id based on coordinates
