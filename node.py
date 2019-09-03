@@ -7,35 +7,21 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
-from route import AREA_BOUNDARIES
 from map import Map
-import ship
 import util
 
-NODES_FILE_NAME = 'nodes.h5'
+from constants import NODES_FILE_NAME, SPACING_M, NODES_IN_ROW
 
 
 class Node:
-	SPACING_M = 10000
-
 	list = {}
 
 	@classmethod
 	def load_all(cls):
 
 		# this could be abstracted
-		cls.list = pd.read_hdf('nodes.h5', 'df').values
+		cls.list = pd.read_hdf(NODES_FILE_NAME, 'df').values
 		print("Loaded", len(cls.list), "nodes")
-
-	@classmethod
-	def get_nodes_in_row(cls):
-		return (AREA_BOUNDARIES[1] // cls.SPACING_M)
-
-	@classmethod
-	def get_node(cls, id):
-		for nod in cls.list:
-			if nod.id == id:
-				return nod
 
 	def __init__(self, id):
 		self.id = id
@@ -45,10 +31,8 @@ class Node:
 		self.label = []
 		self.exits_node = []
 
-		max_x = Node.get_nodes_in_row()
-
-		self.x = id % max_x * Node.SPACING_M + (Node.SPACING_M / 2)
-		self.y = (id // max_x) * Node.SPACING_M + 6100000 + (Node.SPACING_M / 2)
+		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
+		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
 
 	# add passage to node and calculate speed and course inside node
 	# @.in
@@ -76,13 +60,13 @@ class Node:
 				self.label.append(time_to_measurement < (3600 * 8))
 
 		speed, course = util.get_velocity(enter_point, exit_point)
-		self.exits_node.append(exit_point[2]) # change to more exact later
+		self.exits_node.append(exit_point[2])  # change to more exact later
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
 
 	def draw(self, color='red'):
-		Map.draw_circle(self.x, self.y, self.SPACING_M // 2, color)
+		Map.draw_circle(self.x, self.y, SPACING_M // 2, color)
 
 	# convert to ndarray
 	def get_labels(self):
@@ -161,99 +145,6 @@ class Node:
 		knn_gscv.fit(features, self.get_labels())
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
 		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
-
-
-# Generate nodes and find optimal k value for each
-def generate_nodes(optimize_k=True):
-
-	ship.Ship.load_all()
-	for shp in ship.Ship.list:
-		for passage in shp.passages:
-			extract_passage_to_nodes(passage)
-
-	# Remove if node has fewer than x samples
-	removed_nodes = []
-	for key, val in Node.list.items():
-		if len(val.passages) < 20:
-			#print("Del", key, len(val.passages))
-			removed_nodes.append(key)
-
-	for key in removed_nodes:
-		del Node.list[key]
-
-	# Optimize K
-	if optimize_k:
-		for n in Node.list.values():
-			n.optimal_k, n.accuracy_score = n.find_optimal_k()
-			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
-
-	print("Saving", len(Node.list), "nodes to local disk...")
-	df = pd.Series(Node.list)
-	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
-
-
-def extract_passage_to_nodes(passage):
-
-	nodes = {}
-	prev_id = get_node_id(passage.x[0], passage.y[0])
-
-	# associate every xy coordinate in passage to correct node
-	for i in range(0, len(passage.x) - 1):
-		node_id = get_node_id(passage.x[i], passage.y[i])
-
-		if (node_id < 0):
-			#print("Discarding node, node_id out of bounds: ", node_id)
-			continue
-
-		if node_id not in nodes:
-			nodes[node_id] = []
-
-		# add timecoord to specific node
-		nodes[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-		# in case there is only datapoint in previous node, add the next one
-		if prev_id != node_id and prev_id != -1:
-
-			if prev_id not in nodes:
-				print("Prev id missing", prev_id, node_id)
-				nodes[prev_id] = []
-
-			# add timecoord to specific node
-			nodes[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
-
-		# if second last, add the last one
-		if i == len(passage.x) - 2:
-			nodes[node_id].append(
-				(passage.x[i + 1], passage.y[i + 1], passage.time[i + 1]))
-
-		prev_id = node_id
-
-	# add passages to nodes
-	for key in nodes:
-		if key not in Node.list:
-			Node.list[key] = Node(key)
-
-		Node.list[key].add_passage(passage, nodes[key])
-
-
-# return node_id based on coordinates
-def get_node_id(x, y):
-
-	max_x = Node.get_nodes_in_row()
-
-	if x < 0:
-		return -1
-
-	if y < AREA_BOUNDARIES[2]:
-		#print("Discarding node, y-coord out of bounds: ", passage.y[i])
-		return -1
-
-	node_x = x // Node.SPACING_M
-	node_y = (y - AREA_BOUNDARIES[2]) // Node.SPACING_M
-
-	node_id = node_x + (node_y * max_x)
-
-	return node_id
 
 
 def draw_reach_percentages(type_accuracy=False, limit=0):

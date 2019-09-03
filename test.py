@@ -3,6 +3,7 @@ import util
 from node import Node
 from ship import Ship
 import node as nd
+import route
 
 import pandas as pd
 import predict
@@ -36,7 +37,7 @@ for p in pas:
 	#map.Map.plot_route(px, py, c)
 	p.plot(c)
 
-p = predict.calculate_mean_route(pas)
+p = route.calculate_mean_route(pas)
 
 p1 = noude.get_passages_reaching_meas_area()
 p2 = noude.get_exit_times()
@@ -45,6 +46,7 @@ for i in range(0, len(p1)):
 	td = p1[i].enters_measurement_area() - p2[i]
 	times.append(td)
 
+# next only calculate from nearest neighbours
 print("Enters in: ",np.average(times) / 60 / 60, "h")
 
 px = p[0]

@@ -1,17 +1,25 @@
 # helper functions to handle routes
 # uses np.array(x, y, time)
 
-#etrs xx yy
-MEAS_AREA = [340000, 380000, 6620000, 6650000]
-AREA_BOUNDARIES = [0, 700000, 6100000, 6750000] # 6450, 6750
+import numpy as np
+
+from constants import MEAS_AREA
+
 
 # interpolates entered route to minute intervals
-# move to seperate route.py?
 def get_minute_interpolation():
+	'''
+	rx, ry, rt = passage.route_in_meas_area()
 
-	start, end = route_in_area(self.x, self.y)
-	
-	return self.x[start:end], self.y[start:end], self.time[start:end]
+	# interpolation to 1 min spacing
+	nt = np.arange(rt[0], rt[-1], 60)
+	nx = np.interp(nt, rt, rx).astype(np.int32)
+	ny = np.interp(nt, rt, ry).astype(np.int32)
+
+	routes.append((nx, ny, nt))
+	'''
+	return
+
 
 # return enters_i and end_i when in area or False if doesn't cross area
 def route_in_area(x, y):
@@ -36,8 +44,46 @@ def route_in_area(x, y):
 	else:
 		return False
 
+
 def is_in_area(x, y):
 	return (
 		x > MEAS_AREA[0] and x < MEAS_AREA[1] and
 		y > MEAS_AREA[2] and y < MEAS_AREA[3])
 
+
+def calculate_mean_route(passages):
+
+	routes = []
+	max_size = 0
+
+	for passage in passages:
+
+		if passage.reaches is False:
+			continue
+
+		# get part of routes in area
+		routes.append(passage.route_in_meas_area())
+		
+		rx_len = len(routes[-1][0])
+
+		if max_size < rx_len:
+			max_size = rx_len
+
+	# interpolate arrays to same size
+	x_coords = np.arange(0, max_size+1)
+
+	standardized_routes = []
+
+	for r in routes:
+		#print(max_size, np.linspace(0, max_size, len(r[0])))
+		standardized_routes.append((
+			np.interp(x_coords, np.linspace(0, max_size, len(r[0])), r[0]).astype(np.int32),
+			np.interp(x_coords, np.linspace(0, max_size, len(r[1])), r[1]).astype(np.int32),
+			np.interp(x_coords, np.linspace(0, max_size, len(r[2])), r[2]).astype(np.int32)))
+		#print(r[0], "vs")
+		#print(standardized_routes[-1][0])
+
+	# calculate mean
+	route = np.array(standardized_routes)
+
+	return np.mean(route, axis=0)

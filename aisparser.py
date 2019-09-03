@@ -6,11 +6,10 @@ import sys
 import pandas as pd
 from pyproj import Proj, Transformer
 
-import node
+from nodegeneration import generate_nodes
 from ship import Ship
 
-AIS_DATA_PATH = "../ship-docs/"
-SHIPS_FILE_NAME = 'ships.h5'
+from constants import AIS_DATA_PATH, SHIPS_FILE_NAME
 
 
 def get_transformer(source_epsg=4326, epsg=3067):
@@ -101,8 +100,3 @@ def convert_all_data():
 			df.to_hdf(SHIPS_FILE_NAME, 'df', mode='a')
 
 	print("Saving", len(ships), "ships to database.")
-
-
-#convert_all_data()
-node.generate_nodes()
-#load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")
