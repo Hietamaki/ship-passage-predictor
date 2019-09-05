@@ -80,6 +80,17 @@ class Node:
 
 		return features
 
+	def passages_reaching_area(self, what):
+
+		attrs = []
+
+		for i in range(0, len(self.label)):
+			if self.label[i] is not False:
+				attr = getattr(self, what)
+				attrs.append(attr[i])
+
+		return attrs
+
 	def get_exit_times(self):
 
 		times = []
