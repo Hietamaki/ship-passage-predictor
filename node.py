@@ -43,8 +43,8 @@ class Node:
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
 				# false if already exited measurement area
-				self.label.append(False)
-				#self.label.append(enter_point[2] < passage.time[passage.reaches[1]])
+				# converting to bool from numpy.bool
+				self.label.append(bool(enter_point[2] <= passage.time[passage.reaches[1]]))
 			else:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
@@ -114,12 +114,13 @@ class Node:
 		return np.average(times)
 
 	def find_optimal_k(self, scale=True):
+		#return 5, 1 # debug option
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
 		if 35 > len(self.passages):
 			max_k = len(self.passages) // 5 * 4
 			#print("Set Max K to", max_k)
-		#print(len(self.passages))
+
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 		knn_gscv = GridSearchCV(
 			KNeighborsClassifier(), param_grid,

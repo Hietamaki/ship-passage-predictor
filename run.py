@@ -15,16 +15,20 @@ job = ""
 if len(sys.argv) > 1:
 	job = sys.argv[1]
 
-if job == "convert":
+if job == "ships":
 	print("Pre-processing train data from", AIS_DATA_PATH)
-
-	#convert_all_data(AIS_DATA_PATH, SHIPS_FILENAME)
+	convert_all_data(AIS_DATA_PATH, SHIPS_FILENAME)
 	generate_nodes(SHIPS_FILENAME, NODES_FILENAME)
 
-	#load_data(AIS_DATA_PATH + "AIS_2018-05_1.txt")
-elif job == "testdata":
+elif job == "nodes":
+	generate_nodes(SHIPS_FILENAME, NODES_FILENAME)
+
+elif job == "testships":
 	print("Pre-processing test data from", TEST_DATA_PATH)
 	convert_all_data(TEST_DATA_PATH, TEST_SHIPS_FILENAME)
+	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME)
+
+elif job == "testnodes":
 	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME)
 else:
 	print("Available commands: convert, testdata")
