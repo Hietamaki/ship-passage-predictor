@@ -1,40 +1,46 @@
 from node import Node
-import ship
-import pandas as pd
 
-from constants import NODES_FILE_NAME, AREA_BOUNDARIES, NODES_IN_ROW, SPACING_M
+from constants import AREA_BOUNDARIES, NODES_IN_ROW, SPACING_M
+from database import load_list, save_list
 
 
 # Generate nodes and find optimal k value for each
-def generate_nodes(optimize_k=True):
+def generate_nodes(filename, nodes_filename, optimize_k=True):
 
-	ship.Ship.load_all()
-	for shp in ship.Ship.list:
+	print("Generating nodes to", nodes_filename)
+	node_list = {}
+
+	for shp in load_list(filename):
 		for passage in shp.passages:
-			extract_passage_to_nodes(passage)
+
+			# add passages to nodes
+			for key, value in extract_passages(passage).items():
+				if key not in node_list:
+					node_list[key] = Node(key)
+
+				node_list[key].add_passage(passage, value)
 
 	# Remove if node has fewer than x samples
 	removed_nodes = []
-	for key, val in Node.list.items():
+	for key, val in node_list.items():
 		if len(val.passages) < 20:
 			#print("Del", key, len(val.passages))
 			removed_nodes.append(key)
 
 	for key in removed_nodes:
-		del Node.list[key]
+		del node_list[key]
 
 	# Optimize K
 	if optimize_k:
-		for n in Node.list.values():
+		for n in node_list.values():
 			n.optimal_k, n.accuracy_score = n.find_optimal_k()
 			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
-	print("Saving", len(Node.list), "nodes to local disk...")
-	df = pd.Series(Node.list)
-	df.to_hdf(NODES_FILE_NAME, 'df', mode='w')
+	print("Saving", len(node_list), "nodes to local disk...")
+	save_list(nodes_filename, node_list, 'w')
 
 
-def extract_passage_to_nodes(passage):
+def extract_passages(passage):
 
 	nodes = {}
 	prev_id = get_node_id(passage.x[0], passage.y[0])
@@ -70,12 +76,7 @@ def extract_passage_to_nodes(passage):
 
 		prev_id = node_id
 
-	# add passages to nodes
-	for key in nodes:
-		if key not in Node.list:
-			Node.list[key] = Node(key)
-
-		Node.list[key].add_passage(passage, nodes[key])
+	return nodes
 
 
 # return node_id based on coordinates

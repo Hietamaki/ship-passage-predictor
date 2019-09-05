@@ -3,13 +3,10 @@ from multiprocessing import Pool
 import os
 import sys
 
-import pandas as pd
 from pyproj import Proj, Transformer
 
-from nodegeneration import generate_nodes
+from database import save_list
 from ship import Ship
-
-from constants import AIS_DATA_PATH, SHIPS_FILE_NAME
 
 
 def get_transformer(source_epsg=4326, epsg=3067):
@@ -71,11 +68,11 @@ def load_data(filename, epsg=3067, limit_to_date=253385798400000):
 	return ships
 
 
-def convert_all_data():
+def convert_all_data(path, destination_file):
 
 	files = []
 	ships = []
-	for r, d, f in os.walk(AIS_DATA_PATH):
+	for r, d, f in os.walk(path):
 		for file in f:
 			if 'AIS_' in file and '.txt' in file:
 				files.append(os.path.join(r, file))
@@ -87,16 +84,14 @@ def convert_all_data():
 			pool.join()
 		ships = list(chain.from_iterable(ships))
 
-		df = pd.Series(ships)
-		df.to_hdf(SHIPS_FILE_NAME, 'df', mode='w')
+		save_list(destination_file, ships, 'w')
 	else:
-		if (os.path.exists(SHIPS_FILE_NAME)):
-			os.remove(SHIPS_FILE_NAME)
+		if (os.path.exists(destination_file)):
+			os.remove(destination_file)
 		print("Single threaded, performance is slow")
 		for f in files:
 			ships = load_data(f)
 
-			df = pd.Series(ships)
-			df.to_hdf(SHIPS_FILE_NAME, 'df', mode='a')
+			save_list(destination_file, ships, 'a')
 
 	print("Saving", len(ships), "ships to database.")

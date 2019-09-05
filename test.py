@@ -1,7 +1,6 @@
 import map
-import util
-from node import Node
-from ship import Ship
+from database import load_list
+
 import node as nd
 import route
 
@@ -9,18 +8,22 @@ import pandas as pd
 import predict
 import numpy as np
 
+from constants import NODES_FILENAME, TEST_NODES_FILENAME
+
+nodes = load_list(NODES_FILENAME)
+
 x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
-Node.load_all()
+
 #print(len(noude.passages))
 x1 = (230846, 6598117, 0)
 x2 = (235846, 6642117, 100)
-pas, exits = predict.predict_path(x1, x2)
-print("Arrives in", predict.calculate_enter_time(pas, exits), "h")
+pas, exits = predict.predict_path(nodes, x1, x2)
+print("Arrives in", exits, "h")
 
-noude = nd.get_closest_node(x1[0], x1[1])
+noude = nd.get_closest_node(nodes, x1[0], x1[1])
 #predict.test_case(noude)
 noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
@@ -39,39 +42,11 @@ for p in pas:
 	p.plot(c)
 
 p = route.calculate_mean_route(pas)
-print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
+map.Map.plot_route(p[0], p[1], "red")
 
+#print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
 
-# next set start point close to test data
-
-
-px = p[0]
-py = p[1]
-ptime = p[2]
-
-map.Map.plot_route(px, py, "red")
-#for t in p.time:
-#	print((x2 - t) / 60)
-#	x2 = t
-
-#p.plot()
-
-#m = map.Map.draw_map()
-#m.show()
-#pas.reaches_measurement_area()
-
-#cn = nd.get_closest_node(58846, 6408117)
-
-#print(cn, cn.x, cn.y)
-#cn.draw('white')
-
-#nd.draw_reach_percentages()
-
-#n = Node.get_node(2013)
-#print(n.x)
-#predict.predict_path(n)
-
-#scores = nd.draw_reach_percentages(limit=0.01)
+scores = nd.draw_reach_percentages(nodes, limit=0.01)
 
 #print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
@@ -126,18 +101,3 @@ for n in Node.list:
 					'''
 
 #print(k)
-#m.show()
-
-#	if len(pl.passages) < len(n.passages):
-#		pl = n
-
-#print(pl.id, len(pl.passages))
-#Ship.load_all()
-#ship = Ship.list[13].passages[0]
-
-#print(Node.list[0].label)
-#print("Testing..", ship.x)
-#print("Testing..", ship.reaches)
-
-#predict.predict_path(ship.x, ship.y)
-#predict.test_case(951)

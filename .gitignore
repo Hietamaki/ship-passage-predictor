@@ -1,2 +1,3 @@
 __pycache__
-ships.h5
+*.h5
+data

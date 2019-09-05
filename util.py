@@ -26,7 +26,7 @@ def get_velocity(start, end):
 	time_passed = end[2] - start[2]
 
 	if start == end:
-		print("Start is end")
+		#print("Start is end")
 		time_passed = 1
 	elif time_passed < 1:
 		print("get_velocity(): trying to divide by", time_passed, "seconds")

@@ -2,7 +2,6 @@
 #
 
 import numpy as np
-import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -10,19 +9,10 @@ from sklearn.preprocessing import StandardScaler
 from map import Map
 import util
 
-from constants import NODES_FILE_NAME, SPACING_M, NODES_IN_ROW
+from constants import SPACING_M, NODES_IN_ROW
 
 
 class Node:
-	list = {}
-
-	@classmethod
-	def load_all(cls):
-
-		# this could be abstracted
-		cls.list = pd.read_hdf(NODES_FILE_NAME, 'df').values
-		print("Loaded", len(cls.list), "nodes")
-
 	def __init__(self, id):
 		self.id = id
 		self.passages = []
@@ -147,10 +137,10 @@ class Node:
 		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
 
 
-def draw_reach_percentages(type_accuracy=False, limit=0):
+def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 	scores = []
 
-	for n in Node.list:
+	for n in node_list:
 
 		if type_accuracy:
 			rp = 1 - n.accuracy_score
@@ -176,12 +166,12 @@ def draw_reach_percentages(type_accuracy=False, limit=0):
 	return scores
 
 
-def get_closest_node(x, y):
+def get_closest_node(node_list, x, y):
 
 	closest_dist = 9999999999999999
 	closest_node = -1
 
-	for node in Node.list:
+	for node in node_list:
 		if closest_dist > util.distance((x, y), (node.x, node.y)):
 			closest_dist = util.distance((x, y), (node.x, node.y))
 			closest_node = node

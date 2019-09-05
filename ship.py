@@ -1,43 +1,9 @@
-import numpy as np
-import pandas as pd
 from util import distance
 
 from passage import Passage
 
 
 class Ship:
-
-	list = []
-
-	@classmethod
-	def load_all(cls):
-
-		cls.list = pd.read_hdf('ships.h5', 'df').values
-
-	# @.output attributes, labels and indices of passages
-
-	@classmethod
-	def get_passages_as_table(cls):
-		attributes = []
-		labels = []
-		indices = []
-		x = []
-		y = []
-
-		for ship in cls.list:
-			for passage in ship.passages:
-				x += passage.x
-				y += passage.y
-
-				# repeating value reaches for every coordinate
-				labels += [passage.reaches] * len(passage.x)
-				indices += [passage.id] * len(passage.x)
-
-		attributes = np.array([x, y])
-		attributes = np.reshape(attributes, (-1, 2))
-		labels = np.array(labels)
-
-		return attributes, labels, indices
 
 	def __init__(self, id, x, y, time):
 		self.id = id

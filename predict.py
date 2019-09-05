@@ -23,9 +23,11 @@ def normalize_features(train_data, test_data):
 
 
 #
-# returns most likely passage and likelihood of reaching area
+# returns
+#	most likely passages
+#	how long it will take to arrive in h
 
-def predict_path(start, end):
+def predict_path(nodes, start, end):
 
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
@@ -33,7 +35,7 @@ def predict_path(start, end):
 	print(new_passage)
 
 	# Node from start of path
-	nod = node.get_closest_node(start[0], start[1])
+	nod = node.get_closest_node(nodes, start[0], start[1])
 
 	if not nod:
 		print("Node not found?")
@@ -55,10 +57,12 @@ def predict_path(start, end):
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
 		exits.append(exits_node[p_id])
-	return passes, exits
+	return passes, calculate_arrival(passes, exits)
 
 
-def calculate_enter_time(pas, exits):
+#calculate average arrival time from passages and their start times from node
+# return in h
+def calculate_arrival(pas, exits):
 	times = []
 
 	for i in range(0, len(pas)):
