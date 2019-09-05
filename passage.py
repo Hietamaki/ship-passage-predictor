@@ -1,71 +1,32 @@
+import numpy as np
+
 from map import Map
 from route import route_in_area
 
-from datetime import datetime
+#MEASUREMENT_START_HOUR = 8
+#MEASURMENT_END_HOUR = 17
 
-
-MEASUREMENT_START_HOUR = 8
-MEASURMENT_END_HOUR = 17
 
 class Passage:
 
 	next_id = 0
 
 	def __init__(self, x, y, time, ship):
-		self.x = x
-		self.y = y
-		self.time = time
 		self.ship = ship
-		self.interpolate()
+		self.interpolate(x, y, time)
 
 		# saves index of when reaches. temporary
 		self.reaches = self.reaches_measurement_area()
 
-	def interpolate(self, minutes_limit=10):
+	def enters_measurement_area(self):
+		return self.time[self.reaches[0]]
 
-		previous_time = self.time[0]
-		INTERPOLATION_LIMIT = 60 * minutes_limit
+	def interpolate(self, x, y, time):
 
-		indices = []
-
-		#find out indices
-		for i in range(0, len(self.time)):
-			time_difference = self.time[i] - previous_time
-			if time_difference > INTERPOLATION_LIMIT:
-				amount_to_interpolate = (time_difference // INTERPOLATION_LIMIT)
-				indices.append((i, amount_to_interpolate, time_difference))
-
-			previous_time = self.time[i]
-
-		index_offset = 0
-
-		# inserting entries to list
-		for i in indices:
-			index = i[0] + index_offset
-			amount_to_interpolate = i[1]
-			index_offset += amount_to_interpolate
-
-			self.interpolate_coords(index, amount_to_interpolate)
-
-	# interpolates at coords at index and previous index
-	# by amount_of_points
-	#
-	def interpolate_coords(self, index, amount_of_points):
-
-		if index < 1:
-			print("Error, index too small", index)
-
-		self.interpolate_list(self.x, index, amount_of_points)
-		self.interpolate_list(self.y, index, amount_of_points)
-		self.interpolate_list(self.time, index, amount_of_points)
-
-	def interpolate_list(self, list, index, amount_of_points):
-		base_value = list[index]
-		distance = (list[index - 1] - base_value) // (amount_of_points + 1)
-
-		for i in range(0, amount_of_points):
-			new_value = base_value + (distance * (i + 1))
-			list.insert(index, new_value)
+		# interpolate with 10 minute interval
+		self.time = np.arange(time[0], time[-1], 600)
+		self.x = np.interp(self.time, time, x).astype(np.int32)
+		self.y = np.interp(self.time, time, y).astype(np.int32)
 
 	def reaches_measurement_area(self):
 		# if start of passage over 8h from reaching area, return false
@@ -87,15 +48,30 @@ class Passage:
 
 		return in_area
 
-
 	def plot(self, color="red"):
 		Map.plot_route(self.x, self.y, color=color)
 
-
 	# return the part of route that is in measurement area
-	def route_in_meas_area():
+	#	+1 timecoord in each direction
+	def route_in_meas_area(self):
 
-		#for i in range(0,len(self.x)):
+		route = route_in_area(self.x, self.y)
 
-			
-		return self.x, self.y, self.time
+		# if route is not in measurement area
+		if route is False:
+			return ([], [], [])
+
+		start = route[0]
+		end = route[1]
+
+		if start > 0:
+			start -= 1
+
+		if end < len(self.x):
+			end += 1
+
+		if start:
+			return (
+				self.x[start:end],
+				self.y[start:end],
+				self.time[start:end])

@@ -3,32 +3,65 @@ import util
 from node import Node
 from ship import Ship
 import node as nd
+import route
+
 import pandas as pd
-import matplotlib.patches as patches
 import predict
-import cartopy.crs as ccrs
 import numpy as np
 
 x1 = (79323, 6431055, 1530041717)
 x2 = (348298, 6620462, 1530070027)
 
 #print(util.get_velocity(x1, x2))
-#nd.generate_nodes()
 Node.load_all()
 #print(len(noude.passages))
-x1 = (210846, 6598117, 0)
-x2 = (215846, 6642117, 100)
+x1 = (230846, 6598117, 0)
+x2 = (235846, 6642117, 100)
 pas = predict.predict_path(x1, x2)
 
 noude = nd.get_closest_node(x1[0], x1[1])
-predict.test_case(noude)
-#noude.draw('green')
+#predict.test_case(noude)
+noude.draw('green')
 print(noude.accuracy_score, noude.optimal_k)
-#for p in noude.passages:
-#	p.plot('orange')
-#for p in pas:
-#	p.plot()
 
+for p in pas:
+	px, py, pt = p.route_in_meas_area()
+
+	if len(px) == 0:
+		continue
+
+	c = "orange"
+
+	if px[0] > px[-1]:
+		c = "purple"
+	#map.Map.plot_route(px, py, c)
+	p.plot(c)
+
+p = route.calculate_mean_route(pas)
+
+p1 = noude.get_passages_reaching_meas_area()
+p2 = noude.get_exit_times()
+times = []
+for i in range(0, len(p1)):
+	td = p1[i].enters_measurement_area() - p2[i]
+	times.append(td)
+
+# next only calculate from nearest neighbours
+print("Enters in: ",np.average(times) / 60 / 60, "h")
+
+px = p[0]
+py = p[1]
+ptime = p[2]
+
+map.Map.plot_route(px, py, "red")
+#for t in p.time:
+#	print((x2 - t) / 60)
+#	x2 = t
+
+#p.plot()
+
+#m = map.Map.draw_map()
+#m.show()
 #pas.reaches_measurement_area()
 
 #cn = nd.get_closest_node(58846, 6408117)
@@ -42,12 +75,13 @@ print(noude.accuracy_score, noude.optimal_k)
 #print(n.x)
 #predict.predict_path(n)
 
-scores = nd.draw_reach_percentages(True)
+#scores = nd.draw_reach_percentages(limit=0.01)
 
-print("avg:",np.mean(scores), np.median(scores), np.std(scores))
+#print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
 #k = 0
-#m = map.Map.draw_map()
+m = map.Map.draw_map()
+m.show()
 '''
 for n in Node.list:
 	rp = n.reach_percentage()

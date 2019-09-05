@@ -1,12 +1,10 @@
 # - reach measurement area:
 #	- (index laajemmaksi länteen?)
 # - time of day featureksi
-from datetime import datetime, timedelta
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
 import node
@@ -41,44 +39,26 @@ def predict_path(start, end):
 		print("Node not found?")
 		return
 
-	x_train, x_test = normalize_features(nod.get_features(), new_passage)
+	x_train, x_test = normalize_features(nod.get_features_reaching_meas_area(), new_passage)
 
 	print("# training and predictions")
-	classifier = KNeighborsClassifier(n_neighbors=nod.optimal_k)
-	classifier.fit(x_train, nod.get_labels())
+	nearest = NearestNeighbors(n_neighbors=nod.optimal_k)
+	nearest.fit(x_train)
 
 	# calculate mean from:
-	#print(classifier.kneighbors())
-
-	y_pred = classifier.predict(x_test)
-
-	# evaluating the algorithm
-	print("# evaluating the algorithm")
-	print(y_pred)
-	dists, neighbors_id = classifier.kneighbors(new_passage)
+	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
 	for p_id in neighbors_id[0]:
-		passes.append(nod.passages[p_id])
+		passes.append(nod.get_passages_reaching_meas_area()[p_id])
 
 	return passes
 
-	#print(confusion_matrix(y_test, y_pred))
-	#print(classification_report(y_test, y_pred))
-#print("Loading test case...")
-#Ship.load_all()
 
-#test_ship = Ship.list[1]
-#pas = test_ship.passages[0]
+def calculate_enter_time(passages):
+	times = [p.enters_measurement_area() for p in passages]
+	return np.average(times)
 
-#predict_path(pas.x, pas.y)
-
-
-def calculate_mean_route(routes):
-
-	route = []
-
-	return route
 
 def test_case(node_id=-1):
 	#map = Map()

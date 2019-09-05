@@ -1,3 +1,5 @@
+# Draw functions for map visualizations
+#
 import alphashape
 import cartopy.crs as ccrs
 import cartopy.feature as feature
@@ -6,6 +8,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 from route import MEAS_AREA
+
 
 class Map:
 	ax = plt.axes(projection=ccrs.Mercator())
