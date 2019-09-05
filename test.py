@@ -39,8 +39,8 @@ for p in pas:
 
 p = route.calculate_mean_route(pas)
 
-p1 = noude.get_passages_reaching_meas_area()
-p2 = noude.get_exit_times()
+p1 = noude.getattr_reaching_passages("passages")
+p2 = noude.getattr_reaching_passages("exits_node")
 times = []
 for i in range(0, len(p1)):
 	td = p1[i].enters_measurement_area() - p2[i]

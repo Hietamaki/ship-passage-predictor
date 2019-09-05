@@ -72,15 +72,22 @@ class Node:
 	def get_labels(self):
 		return np.array(self.label)
 
-	def get_features(self):
+	def get_features(self, reaching_only=False):
+
+		cog = self.cog
+		speed = self.speed
+
+		if reaching_only:
+			cog = self.getattr_reaching_passages("speed")
+			speed = self.getattr_reaching_passages("cog")
 
 		# break course to x, y components
-		features = np.array((np.sin(self.cog), np.cos(self.cog), self.speed))
+		features = np.array((np.sin(cog), np.cos(cog), speed))
 		features = np.reshape(features, (-1, 3))
 
 		return features
 
-	def passages_reaching_area(self, what):
+	def getattr_reaching_passages(self, what):
 
 		attrs = []
 
@@ -90,41 +97,6 @@ class Node:
 				attrs.append(attr[i])
 
 		return attrs
-
-	def get_exit_times(self):
-
-		times = []
-
-		for i in range(0, len(self.label)):
-			if self.label[i] is not False:
-				times.append(self.exits_node[i])
-
-		return times
-
-	def get_passages_reaching_meas_area(self):
-
-		passages = []
-
-		for i in range(0, len(self.label)):
-			if self.label[i] is not False:
-				passages.append(self.passages[i])
-
-		return passages
-
-	def get_features_reaching_meas_area(self):
-
-		cogs = []
-		speeds = []
-
-		for i in range(0, len(self.label)):
-			if self.label[i] is not False:
-				speeds.append(self.speed[i])
-				cogs.append(self.cog[i])
-
-		routes = np.array((np.sin(cogs), np.cos(cogs), speeds))
-		routes = np.reshape(routes, (-1, 3))
-
-		return routes
 
 	def reach_percentage(self):
 		k = 0

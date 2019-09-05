@@ -39,7 +39,7 @@ def predict_path(start, end):
 		print("Node not found?")
 		return
 
-	x_train, x_test = normalize_features(nod.get_features_reaching_meas_area(), new_passage)
+	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
 	print("# training and predictions")
 	nearest = NearestNeighbors(n_neighbors=nod.optimal_k)
@@ -49,8 +49,9 @@ def predict_path(start, end):
 	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
+	passages = nod.getattr_reaching_passages("passages")
 	for p_id in neighbors_id[0]:
-		passes.append(nod.get_passages_reaching_meas_area()[p_id])
+		passes.append(passages[p_id])
 
 	return passes
 
