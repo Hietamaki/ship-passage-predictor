@@ -9,10 +9,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 
-from map import Map
-from ship import Ship
 import node
-import util
+from util import get_velocity
 
 
 def normalize_features(train_data, test_data):
@@ -31,7 +29,7 @@ def normalize_features(train_data, test_data):
 
 def predict_path(start, end):
 
-	m_s, cog = util.get_velocity(start, end)
+	m_s, cog = get_velocity(start, end)
 	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
 	new_passage = np.reshape(new_passage, (-1, 3))
 	print(new_passage)
