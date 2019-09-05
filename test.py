@@ -17,7 +17,8 @@ Node.load_all()
 #print(len(noude.passages))
 x1 = (230846, 6598117, 0)
 x2 = (235846, 6642117, 100)
-pas = predict.predict_path(x1, x2)
+pas, exits = predict.predict_path(x1, x2)
+print("Arrives in", predict.calculate_enter_time(pas, exits), "h")
 
 noude = nd.get_closest_node(x1[0], x1[1])
 #predict.test_case(noude)
@@ -38,16 +39,11 @@ for p in pas:
 	p.plot(c)
 
 p = route.calculate_mean_route(pas)
+print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
 
-p1 = noude.getattr_reaching_passages("passages")
-p2 = noude.getattr_reaching_passages("exits_node")
-times = []
-for i in range(0, len(p1)):
-	td = p1[i].enters_measurement_area() - p2[i]
-	times.append(td)
 
-# next only calculate from nearest neighbours
-print("Enters in: ",np.average(times) / 60 / 60, "h")
+# next set start point close to test data
+
 
 px = p[0]
 py = p[1]

@@ -72,6 +72,10 @@ class Node:
 	def get_labels(self):
 		return np.array(self.label)
 
+	# getting features of passages in node
+	# reaching_only=True will return paths that only reach
+	# measurement area, used for non-supervised learning
+	#
 	def get_features(self, reaching_only=False):
 
 		cog = self.cog
@@ -105,6 +109,19 @@ class Node:
 				k += 1
 
 		return k / len(self.label)
+
+	# Return arrival time in seconds
+	def predict_arrival_time(self):
+		p1 = self.getattr_reaching_passages("passages")
+		p2 = self.getattr_reaching_passages("exits_node")
+		times = []
+
+		for i in range(0, len(p1)):
+			td = p1[i].enters_measurement_area() - p2[i]
+			times.append(td)
+
+		# next only calculate from nearest neighbours
+		return np.average(times)
 
 	def find_optimal_k(self, scale=True):
 		max_k = 25

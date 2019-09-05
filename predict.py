@@ -49,16 +49,23 @@ def predict_path(start, end):
 	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
+	exits = []
 	passages = nod.getattr_reaching_passages("passages")
+	exits_node = nod.getattr_reaching_passages("exits_node")
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
+		exits.append(exits_node[p_id])
+	return passes, exits
 
-	return passes
 
+def calculate_enter_time(pas, exits):
+	times = []
 
-def calculate_enter_time(passages):
-	times = [p.enters_measurement_area() for p in passages]
-	return np.average(times)
+	for i in range(0, len(pas)):
+		td = pas[i].enters_measurement_area() - exits[i]
+		times.append(td)
+
+	return np.average(times)/60/60
 
 
 def test_case(node_id=-1):
