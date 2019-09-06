@@ -79,7 +79,7 @@ def calculate_arrival(pas, end):
 
 	for i in range(0, len(pas)):
 		smallest = 99999999999999
-		smallest_i = 0
+		smallest_i = -1
 
 		for j in range(0, len(pas[i].x)):
 			dist = distance(
