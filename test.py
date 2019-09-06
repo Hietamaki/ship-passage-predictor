@@ -48,7 +48,7 @@ map.Map.plot_route(p[0], p[1], "red")
 
 #print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
 
-#scores = nd.draw_reach_percentages(nodes, limit=0.01)
+scores = nd.draw_reach_percentages(nodes, True) #, limit=0.01)
 
 #print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]

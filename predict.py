@@ -13,6 +13,9 @@ from util import get_velocity
 
 def normalize_features(train_data, test_data):
 
+	if len(train_data) < 1:
+		print("Train data is empty!")
+
 	scaler = StandardScaler()
 	scaler.fit(train_data)
 
@@ -39,6 +42,10 @@ def predict_path(nodes, start, end):
 
 	if not nod:
 		print("Node not found?")
+		return
+
+	if nod.reach_percentage == 0:
+		print("No passages reaching meas zone.")
 		return
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
@@ -69,7 +76,7 @@ def calculate_arrival(pas, exits):
 		td = pas[i].enters_measurement_area() - exits[i]
 		times.append(td)
 
-	return np.average(times)/60/60
+	return int(np.average(times))
 
 
 def test_case(node_id=-1):
