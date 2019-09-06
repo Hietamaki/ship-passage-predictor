@@ -8,7 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
 import node
-from util import get_velocity
+from util import get_velocity, distance
 
 
 def normalize_features(train_data, test_data):
@@ -35,7 +35,6 @@ def predict_path(nodes, start, end):
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
 	new_passage = np.reshape(new_passage, (-1, 3))
-	print(new_passage)
 
 	# Node from start of path
 	nod = node.get_closest_node(nodes, start[0], start[1])
@@ -50,7 +49,6 @@ def predict_path(nodes, start, end):
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	print("# training and predictions")
 	nearest = NearestNeighbors(n_neighbors=nod.optimal_k)
 	nearest.fit(x_train)
 
@@ -64,16 +62,35 @@ def predict_path(nodes, start, end):
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
 		exits.append(exits_node[p_id])
-	return passes, calculate_arrival(passes, exits)
+	return passes, calculate_arrival(passes, end)
 
 
 #calculate average arrival time from passages and their start times from node
-# return in h
-def calculate_arrival(pas, exits):
+def calculate_arrival(pas, end):
 	times = []
 
+	# either
+	# 1) add correction how long it takes from observation to node exit
+	# 2) from each passage take point that is closest to the observation
+	#	 and use that time
+
+	# from passage start index to end index ~(only inside node to increase perf)
+	# dist(end, pas[i]) <- get smallest index from x,y -> use time
+
 	for i in range(0, len(pas)):
-		td = pas[i].enters_measurement_area() - exits[i]
+		smallest = 99999999999999
+		smallest_i = 0
+
+		for j in range(0, len(pas[i].x)):
+			dist = distance(
+				(pas[i].x[j], pas[i].y[j]),
+				(end[0], end[1]))
+
+			if dist < smallest:
+				smallest = dist
+				smallest_i = i
+
+		td = pas[i].enters_meas_area() - pas[i].time[smallest_i]
 		times.append(td)
 
 	return int(np.average(times))

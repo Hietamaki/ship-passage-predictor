@@ -36,25 +36,34 @@ def human_readable_time(time):
 n_train = load_list(c.NODES_FILENAME)
 n_test = load_list(c.TEST_NODES_FILENAME)
 
-testpassage = pick_random_passage(load_list(c.TEST_NODES_FILENAME))
+testpassage = pick_random_passage(n_test)
 
 testpassage.plot()
-Map.draw_circle(testpassage.x[0], testpassage.y[0], 3000, "orange")
-real_arrival = testpassage.time[testpassage.reaches[0]] - testpassage.time[0]
-
+Map.draw_circle(testpassage.x[0], testpassage.y[0], 3000, "yellow")
+Map.draw_circle(testpassage.x[20], testpassage.y[20], 3000, "purple")
+real_arrival = testpassage.enters_meas_area() - testpassage.time[0]
 
 
 predict_p, predict_t = predict.predict_path(
 	n_train,
 	(testpassage.x[0], testpassage.y[0], testpassage.time[0]),
-	(testpassage.x[2], testpassage.y[2], testpassage.time[2]))
+	(testpassage.x[1], testpassage.y[1], testpassage.time[1]))
+
+predict2_p, predict2_t = predict.predict_path(
+	n_train,
+	(testpassage.x[20], testpassage.y[20], testpassage.time[20]),
+	(testpassage.x[22], testpassage.y[22], testpassage.time[22]))
 
 route = calculate_mean_route(predict_p)
-Map.plot_route(route[0], route[1], "purple")
+route2 = calculate_mean_route(predict2_p)
+Map.plot_route(route[0], route[1], "yellow")
+Map.plot_route(route2[0], route2[1], "purple")
 
-print(predict_t)
+Map.draw_circle(testpassage.x[testpassage.reaches[0]], testpassage.y[testpassage.reaches[0]], 3000, "white")
+
 print("Real arrival", human_readable_time(real_arrival))
 print("Predicted arrival", human_readable_time(predict_t))
+print("Predicted arrival2", human_readable_time(predict2_t))
 
 Map.draw_map().show()
 
