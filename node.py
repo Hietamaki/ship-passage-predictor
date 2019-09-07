@@ -20,6 +20,7 @@ class Node:
 		self.speed = []
 		self.label = []
 		self.exits_node = []
+		self.route = []
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
@@ -54,6 +55,10 @@ class Node:
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
+
+		self.route.append(np.array(route))
+		# experimental, more memory efficient would be to just save indexes
+		# nodes.h5: 234M before, 415M after, with np.array 347M
 
 	def draw(self, color='red'):
 		Map.draw_circle(self.x, self.y, SPACING_M // 2, color)

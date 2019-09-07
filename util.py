@@ -7,6 +7,8 @@ import numpy as np
 def format_date(ts):
 	return datetime.fromtimestamp(int(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
+def readable_time(time):
+	return "{0} h {1} min".format((time // 60 // 60), (time // 60 % 60))
 
 def random_color():
 	return (random.random(), random.random(), random.random())
