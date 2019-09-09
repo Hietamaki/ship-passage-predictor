@@ -1,5 +1,5 @@
 from datetime import datetime
-import random
+from random import random
 
 import numpy as np
 
@@ -7,18 +7,27 @@ import numpy as np
 def format_date(ts):
 	return datetime.fromtimestamp(int(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
+
 def readable_time(time):
-	return "{0} h {1} min".format((time // 60 // 60), (time // 60 % 60))
+
+	time = int(time)
+	s = ""
+
+	if (time // 3600) == 0:
+		s = "{0} s".format(time % 3600)
+
+	return "{0} h {1} min {2}".format((time // 3600), (time // 60 % 60), s)
+
 
 def random_color():
-	return (random.random(), random.random(), random.random())
+	return (random(), random(), random())
 
 
 # @.input	self
 #			start timeloc
 #			end timeloc for which to calculate velocity
 # @.output	velocity in m/s, course
-#
+
 def get_velocity(start, end):
 
 	# euclidean distance, not geodesic calculation
@@ -40,16 +49,9 @@ def get_velocity(start, end):
 	return m_s, course
 
 
-# 3.8s
-# 10s
 def distance(instance1, instance2):
-    # just in case, if the instances are lists or tuples:
-    instance1 = np.array(instance1[0:2]) 
-    instance2 = np.array(instance2[0:2])
+	# if the instances are lists or tuples:
+	instance1 = np.array(instance1[0:2])
+	instance2 = np.array(instance2[0:2])
 
-    return np.linalg.norm(instance1 - instance2)
-
-# https://stackoverflow.com/questions/52436743/optimizing-numpy-euclidean-distance-and-direction-function
-#for i in range(0, 1000000):
-	#get_velocity((0, 0, 9), (1, 1, 10))
-	#distance((10, 20), (30, 40))
+	return np.linalg.norm(instance1 - instance2)

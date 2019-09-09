@@ -41,15 +41,25 @@ def predict_path(nodes, start, end):
 
 	if not nod:
 		print("Node not found?")
-		return
+		return 0, 0
 
 	if nod.reach_percentage == 0:
 		print("No passages reaching meas zone.")
-		return
+		return 0, 0
+
+	if nod.optimal_k == 0:
+		print("K=0, no routes reaching.")
+		return 0, 0
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	nearest = NearestNeighbors(n_neighbors=nod.optimal_k)
+	k = nod.optimal_k
+
+	if k > len(x_test):
+		#print(k, len(x_test))
+		k = len(x_test)
+
+	nearest = NearestNeighbors(n_neighbors=k)
 	nearest.fit(x_train)
 
 	# calculate mean from:
@@ -79,18 +89,18 @@ def calculate_arrival(pas, end):
 
 	for i in range(0, len(pas)):
 		smallest = 99999999999999
-		smallest_i = -1
+		smallest_j = -1
 
-		for j in range(0, len(pas[i].x)):
+		for j in range(0, len(pas[i].x) - 1):
 			dist = distance(
 				(pas[i].x[j], pas[i].y[j]),
 				(end[0], end[1]))
 
 			if dist < smallest:
 				smallest = dist
-				smallest_i = i
+				smallest_j = j
 
-		td = pas[i].enters_meas_area() - pas[i].time[smallest_i]
+		td = pas[i].enters_meas_area() - pas[i].time[smallest_j]
 		times.append(td)
 
 	return int(np.average(times))

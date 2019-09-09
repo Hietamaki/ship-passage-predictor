@@ -7,6 +7,7 @@ import predict
 from route import calculate_mean_route
 from util import readable_time
 
+
 def pick_random_passage(nodefile):
 
 	while True:

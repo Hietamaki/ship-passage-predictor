@@ -119,6 +119,10 @@ class Node:
 		return np.average(times)
 
 	def find_optimal_k(self, scale=True):
+
+		if len(self.get_features(True)) < 3:
+			return 0, 0
+
 		#return 5, 1 # debug option
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
