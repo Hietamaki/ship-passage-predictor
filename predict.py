@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
+from map import Map
 import node
 from util import get_velocity, distance
 
@@ -55,9 +56,9 @@ def predict_path(nodes, start, end):
 
 	k = nod.optimal_k
 
-	if k > len(x_test):
-		#print(k, len(x_test))
-		k = len(x_test)
+	#if k > len(x_test):
+	#	#print(k, len(x_test))
+	#	k = len(x_test)
 
 	nearest = NearestNeighbors(n_neighbors=k)
 	nearest.fit(x_train)
@@ -72,11 +73,11 @@ def predict_path(nodes, start, end):
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
 		exits.append(exits_node[p_id])
-	return passes, calculate_arrival(passes, end)
+	return passes, calculate_arrival(passes, start)
 
 
 #calculate average arrival time from passages and their start times from node
-def calculate_arrival(pas, end):
+def calculate_arrival(passages, end):
 	times = []
 
 	# either
@@ -85,23 +86,31 @@ def calculate_arrival(pas, end):
 	#	 and use that time
 
 	# from passage start index to end index ~(only inside node to increase perf)
-	# dist(end, pas[i]) <- get smallest index from x,y -> use time
+	# dist(end, pas) <- get smallest index from x,y -> use time
 
-	for i in range(0, len(pas)):
+	for pas in passages:
 		smallest = 99999999999999
-		smallest_j = -1
+		smallest_j = -1009
 
-		for j in range(0, len(pas[i].x) - 1):
+		for j in range(0, len(pas.x) - 1):
 			dist = distance(
-				(pas[i].x[j], pas[i].y[j]),
+				(pas.x[j], pas.y[j]),
 				(end[0], end[1]))
 
 			if dist < smallest:
 				smallest = dist
 				smallest_j = j
 
-		td = pas[i].enters_meas_area() - pas[i].time[smallest_j]
+			Map.draw_circle(pas.x[j], pas.y[j], 1000, "red")
+		print("Smallest J is", smallest_j)
+
+		Map.draw_circle(pas.x[smallest_j], pas.y[smallest_j], 1000, "orange")
+
+		td = pas.enters_meas_area() - pas.time[smallest_j]
 		times.append(td)
+
+	print(td)
+	Map.draw_circle(end[0], end[1], 1000, "blue")
 
 	return int(np.average(times))
 

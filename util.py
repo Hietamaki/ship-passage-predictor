@@ -14,7 +14,7 @@ def readable_time(time):
 	s = ""
 
 	if (time // 3600) == 0:
-		s = "{0} s".format(time % 3600)
+		s = "{0} s".format(time % 60)
 
 	return "{0} h {1} min {2}".format((time // 3600), (time // 60 % 60), s)
 
