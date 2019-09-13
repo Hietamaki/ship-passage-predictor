@@ -48,13 +48,13 @@ def predict_path(nodes, start, end):
 		print("No passages reaching meas zone.")
 		return 0, 0
 
-	if nod.optimal_k == 0:
+	if nod.time_k == 0:
 		print("K=0, no routes reaching.")
 		return 0, 0
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	k = nod.optimal_k
+	k = nod.time_k
 
 	#if k > len(x_test):
 	#	#print(k, len(x_test))
@@ -76,8 +76,9 @@ def predict_path(nodes, start, end):
 	return passes, calculate_arrival(passes, start)
 
 
-#calculate average arrival time from passages and their start times from node
-def calculate_arrival(passages, end):
+# calculate average arrival time from passages and their start times
+# from node at point
+def calculate_arrival(passages, point):
 	times = []
 
 	# either
@@ -85,8 +86,8 @@ def calculate_arrival(passages, end):
 	# 2) from each passage take point that is closest to the observation
 	#	 and use that time
 
-	# from passage start index to end index ~(only inside node to increase perf)
-	# dist(end, pas) <- get smallest index from x,y -> use time
+	# from passage start index to point index ~(only inside node to increase perf)
+	# dist(point, pas) <- get smallest index from x,y -> use time
 
 	for pas in passages:
 		smallest = 99999999999999
@@ -95,22 +96,22 @@ def calculate_arrival(passages, end):
 		for j in range(0, len(pas.x) - 1):
 			dist = distance(
 				(pas.x[j], pas.y[j]),
-				(end[0], end[1]))
+				(point[0], point[1]))
 
 			if dist < smallest:
 				smallest = dist
 				smallest_j = j
 
-			Map.draw_circle(pas.x[j], pas.y[j], 1000, "red")
-		print("Smallest J is", smallest_j)
+			#Map.draw_circle(pas.x[j], pas.y[j], 1000, "red")
+		#print("Smallest J is", smallest_j)
 
-		Map.draw_circle(pas.x[smallest_j], pas.y[smallest_j], 1000, "orange")
+		#Map.draw_circle(pas.x[smallest_j], pas.y[smallest_j], 1000, "orange")
 
 		td = pas.enters_meas_area() - pas.time[smallest_j]
 		times.append(td)
 
-	print(td)
-	Map.draw_circle(end[0], end[1], 1000, "blue")
+	#print(td)
+	#Map.draw_circle(point[0], point[1], 1000, "blue")
 
 	return int(np.average(times))
 

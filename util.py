@@ -55,3 +55,12 @@ def distance(instance1, instance2):
 	instance2 = np.array(instance2[0:2])
 
 	return np.linalg.norm(instance1 - instance2)
+
+
+# from
+# https://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+
+def find_nearest(array, value):
+	array = np.asarray(array)
+	idx = (np.abs(array - value)).argmin()
+	return array[idx]

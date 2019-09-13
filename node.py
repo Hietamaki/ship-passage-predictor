@@ -2,6 +2,7 @@
 #
 
 import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -21,6 +22,7 @@ class Node:
 		self.label = []
 		self.exits_node = []
 		self.route = []
+		self.arrival = []
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
@@ -39,7 +41,7 @@ class Node:
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
-			time_to_measurement = passage.time[passage.reaches[0]] - enter_point[2]
+			time_to_measurement = passage.enters_meas_area(enter_point[2])
 
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
@@ -55,6 +57,10 @@ class Node:
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
+
+		# time of arrival from exiting node to meas area
+		if self.label[-1] is not False:
+			self.arrival.append(passage.enters_meas_area(exit_point[2]))
 
 		self.route.append(np.array(route))
 		# experimental, more memory efficient would be to just save indexes
@@ -106,6 +112,7 @@ class Node:
 		return k / len(self.label)
 
 	# Return arrival time in seconds
+	# not used
 	def predict_arrival_time(self):
 		p1 = self.getattr_reaching_passages("passages")
 		p2 = self.getattr_reaching_passages("exits_node")
@@ -118,33 +125,51 @@ class Node:
 		# next only calculate from nearest neighbours
 		return np.average(times)
 
+	# find optimal k for
+	# 1) place and time prediction
+	# 2) going to area prediction
 	def find_optimal_k(self, scale=True):
 
-		if len(self.get_features(True)) < 3:
+		features = self.get_features(True)
+		label = self.arrival
+
+		f_train, f_test, l_train, l_test = train_test_split(
+			features, label, test_size=0.2)
+
+		if len(features) < 3:
 			return 0, 0
 
 		#return 5, 1 # debug option
 		max_k = 25
+		if len(f_train) < max_k:
+			max_k = len(f_train)
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
-		if 35 > len(self.passages):
-			max_k = len(self.passages) // 5 * 4
+		#if 35 > len(self.passages):
+		#	max_k = len(self.passages) // 5 * 4
 			#print("Set Max K to", max_k)
 
-		param_grid = {'n_neighbors': np.arange(1, max_k)}
-		knn_gscv = GridSearchCV(
-			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1)
+		means = []
 
-		features = self.get_features()
+		for test in f_test:
 
-		if scale:
-			scaler = StandardScaler()
-			scaler.fit(features)
-			features = scaler.transform(features)
+		for k in np.arange(1, max_k + 1):
+			means.append(np.average(f_train[0:k]))
 
-		knn_gscv.fit(features, self.get_labels())
+		print(means)
+		print("Real", l_test)
+		print(util.find_nearest(means, l_test[0]))
+
+		array = np.asarray(array)
+    	idx = (np.abs(array - value)).argmin()
+    	means[idx]
+
+		#if scale:
+		#	scaler = StandardScaler()
+		#	scaler.fit(features)
+		#	features = scaler.transform(features)
+
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
+		return util.find_nearest(means, l_test[0]), 0
 
 
 def draw_reach_percentages(node_list, type_accuracy=False, limit=0):

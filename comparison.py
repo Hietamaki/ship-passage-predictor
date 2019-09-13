@@ -16,7 +16,7 @@ def pick_random_passage(nodefile):
 		testpassage = testnode.passages[rand]
 
 		if bool(testnode.label[rand]) is True:
-			if testpassage.reaches[0] < 20:
+			if testpassage.reaches[0] < 60:
 				return testpassage
 
 

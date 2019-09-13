@@ -18,8 +18,10 @@ class Passage:
 		# saves index of when reaches. temporary
 		self.reaches = self.reaches_measurement_area()
 
-	def enters_meas_area(self):
-		return self.time[self.reaches[0]]
+	# returns time when enters measurement area
+	# or time to measurement area from time_delta, if time_delta > 0
+	def enters_meas_area(self, time_delta=0):
+		return self.time[self.reaches[0]] - time_delta
 
 	def interpolate(self, x, y, time):
 
