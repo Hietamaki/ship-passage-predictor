@@ -35,7 +35,7 @@ if job == "ships-test" or job == "all":
 elif job == "nodes-test":
 	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME)
 
-if start_time == time():
+if int(start_time) == int(time()):
 	print("Available commands: all, ships, nodes, *-test")
 else:
 	print("Compiling took", readable_time(time() - start_time))

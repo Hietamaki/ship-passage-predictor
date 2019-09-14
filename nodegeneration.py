@@ -16,7 +16,7 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 			# add passages to nodes
 			for key, value in extract_passages(passage).items():
 				if key not in node_list:
-					node_list[key] = Node(key)
+					node_list[key] = Node(key, node_list)
 
 				node_list[key].add_passage(passage, value)
 
@@ -33,7 +33,7 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 	# Optimize K
 	if optimize_k:
 		for n in node_list.values():
-			n.time_k, n.time_k_acc = (5, 1)
+			n.time_k, n.time_k_acc = n.find_time_k()
 			n.area_k, n.reach_k_acc = (5, 1)
 			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 

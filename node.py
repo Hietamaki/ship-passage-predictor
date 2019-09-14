@@ -8,14 +8,16 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
 from map import Map
+from predict import predict_path, calculate_arrival
 import util
 
 from constants import SPACING_M, NODES_IN_ROW
 
 
 class Node:
-	def __init__(self, id):
+	def __init__(self, id, parent_list):
 		self.id = id
+		self.parent = parent_list
 		self.passages = []
 		self.cog = []
 		self.speed = []
@@ -128,40 +130,51 @@ class Node:
 	# find optimal k for
 	# 1) place and time prediction
 	# 2) going to area prediction
-	def find_optimal_k(self, scale=True):
+	def find_time_k(self, scale=True):
 
 		features = self.get_features(True)
 		label = self.arrival
+		route = self.getattr_reaching_passages("route")
+
+		if len(features) < 3:
+			# nodesta ei lähde väh. kolmea reittiä mittausalueelle
+			return 0, 0
 
 		f_train, f_test, l_train, l_test = train_test_split(
 			features, label, test_size=0.2)
 
-		if len(features) < 3:
-			return 0, 0
-
-		#return 5, 1 # debug option
 		max_k = 25
 		if len(f_train) < max_k:
 			max_k = len(f_train)
-		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
-		#if 35 > len(self.passages):
-		#	max_k = len(self.passages) // 5 * 4
-			#print("Set Max K to", max_k)
 
-		means = []
+		all_ks = []
 
-		for test in f_test:
+		for i in range(0, len(f_test)):
+			means = []
+			#print(route[i][0], route[i][1])
+			#testidatalle tee predict path k max_k:lla
+			pas, eta = predict_path(self.parent, route[i][0], route[i][1], max_k)
 
-		for k in np.arange(1, max_k + 1):
-			means.append(np.average(f_train[0:k]))
+			#sitten käy läpi millä k:n arvolla pääsee lähimmäksi todellista
+			#print(eta, l_test[i])
 
-		print(means)
-		print("Real", l_test)
-		print(util.find_nearest(means, l_test[0]))
+			# toista parittomat k arvot 1 - max_k
+			for k in np.arange(1, max_k + 1, 2):
+				means.append(calculate_arrival(pas[0:k], route[i][0]))
+				#print(k, means)
 
-		array = np.asarray(array)
-    	idx = (np.abs(array - value)).argmin()
-    	means[idx]
+			#katso mitä k:n arvoa on eniten
+
+			#print(util.find_nearest(means, l_test[i]))
+
+			array = np.asarray(means)
+			idx = (np.abs(array - l_test[i])).argmin()
+			
+			all_ks.append(idx)
+		#means[idx]
+
+		#print(all_ks)
+		return np.argmax(np.bincount(all_ks)), 0
 
 		#if scale:
 		#	scaler = StandardScaler()

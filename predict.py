@@ -31,14 +31,14 @@ def normalize_features(train_data, test_data):
 #	most likely passages
 #	how long it will take to arrive in h
 
-def predict_path(nodes, start, end):
+def predict_path(nodes, start, end, k=-1):
 
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
 	new_passage = np.reshape(new_passage, (-1, 3))
 
 	# Node from start of path
-	nod = node.get_closest_node(nodes, start[0], start[1])
+	nod = node.get_closest_node(nodes.values(), start[0], start[1])
 
 	if not nod:
 		print("Node not found?")
@@ -48,13 +48,14 @@ def predict_path(nodes, start, end):
 		print("No passages reaching meas zone.")
 		return 0, 0
 
-	if nod.time_k == 0:
-		print("K=0, no routes reaching.")
-		return 0, 0
+	#if nod.time_k == 0:
+	#	print("K=0, no routes reaching.")
+	#	return 0, 0
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	k = nod.time_k
+	if k==-1:
+		k = nod.time_k
 
 	#if k > len(x_test):
 	#	#print(k, len(x_test))
