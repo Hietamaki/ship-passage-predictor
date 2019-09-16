@@ -60,7 +60,7 @@ def predict_path(nodes, start, end, k=-1):
 
 	if k == 0:
 		print("K=0", len(x_train), "entries")
-		k = 3
+		k = 1
 	#if k > len(x_test):
 	#	#print(k, len(x_test))
 	#	k = len(x_test)

@@ -15,7 +15,7 @@ class Map:
 	#ax = plt.axes(projection=ccrs.epsg(3067))
 
 	@classmethod
-	def draw_map(cls):
+	def draw(cls):
 		ax = cls.ax
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
@@ -28,6 +28,7 @@ class Map:
 		ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
 
 		cls.draw_area(MEAS_AREA, 'green')
+		plt.show()
 		return plt
 
 	@classmethod

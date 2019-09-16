@@ -3,6 +3,8 @@ import random
 import constants as c
 from database import load_list
 from predict import predict_path, calculate_arrival
+from map import Map
+from util import format_date, random_color
 
 import numpy as np
 
@@ -24,7 +26,7 @@ td = []
 
 for n in n_test:
 
-	if n.reach_percentage() < 0.5:
+	if n.reach_percentage() < 0.2:
 		continue
 
 	i = pick_random_passage(n)
@@ -35,7 +37,7 @@ for n in n_test:
 	# use 2 data points for calculation
 	spot = random.randint(0, len(route) - 2)
 
-	real_arrival = passage.enters_meas_area() - passage.time[spot + 1]
+	real_arrival = passage.enters_meas_area() - route[spot + 1][2]
 
 	predict_p, pred_parts = predict_path(n_train, route[spot], route[spot + 1])
 
@@ -45,11 +47,27 @@ for n in n_test:
 
 
 	t = (predict_t - real_arrival) / 3600
-	print(t)
+	
+	if abs(t) > 2:
+		# Yks
+		print(predict_t/3600, real_arrival / 3600, "(",
+			format_date(route[spot + 1][2]), format_date(passage.enters_meas_area()), ")")
+		c = random_color()
+		n.draw(c)
+		Map.draw_circle(route[spot + 1][0], route[spot + 1][1], 2000, "red")
+		passage.plot(c)
+		#for i in range(0, len(passage.x)):
+		#	Map.draw_circle(passage.x[i], passage.y[i], 2000, "red")
 
+		#for p in predict_p:
+		#	p.plot(c)
+		break
+	
+	print(t)
 	td.append(t)
 
 print("Average time delta", np.mean(td))
+Map.draw()
 
 
 # draw nn-passages for debug
