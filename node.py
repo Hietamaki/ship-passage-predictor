@@ -36,24 +36,25 @@ class Node:
 	#		[(x, y, t), (x, y, t)]
 	def add_passage(self, passage, route):
 
-		enter_point = get_xyt(passage, route[0])
-		exit_point = get_xyt(passage, route[-1])
+		node_enter = get_xyt(passage, route[0])
+		node_exit = get_xyt(passage, route[-1])
 
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
-			time_to_measurement = passage.enters_meas_area(enter_point[2])
+			time_to_measurement = passage.enters_meas_area(node_enter[2])
 
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
 				# false if already exited measurement area
 				# converting to bool from numpy.bool
-				self.label.append(bool(enter_point[2] <= passage.time[passage.reaches[1]]))
+				measurement_exit_t = passage.time[passage.reaches[1]]
+				self.label.append(bool(node_enter[2] <= measurement_exit_t))
 			else:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
 
-		speed, course = get_velocity(enter_point, exit_point)
+		speed, course = get_velocity(node_enter, node_exit)
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
@@ -61,7 +62,7 @@ class Node:
 
 		# time of arrival from exiting node to meas area
 		if self.label[-1] is not False:
-			self.arrival.append(passage.enters_meas_area(exit_point[2]))
+			self.arrival.append(passage.enters_meas_area(node_exit[2]))
 
 		#self.route.append(np.array(route))
 		# experimental, more memory efficient would be to just save indexes
@@ -146,8 +147,6 @@ class Node:
 	# 2) going to area prediction
 	def find_time_k(self, scale=True):
 
-		print("Finding K for node (xy", self.x, self.y, ")")
-
 		features = self.get_features(True)
 		label = self.arrival
 
@@ -210,11 +209,6 @@ def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 	scores = []
 
 	for n in node_list:
-		if n.time_k == 0:
-			n.draw("orange")
-
-		continue
-
 		if type_accuracy:
 			rp = 1 - n.accuracy_score
 

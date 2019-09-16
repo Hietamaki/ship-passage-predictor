@@ -1,4 +1,4 @@
-import map
+from map import Map
 from database import load_list
 
 import node as nd
@@ -41,21 +41,20 @@ for p in pas:
 		c = "purple"
 	#map.Map.plot_route(px, py, c)
 	p.plot(c)
-	map.Map.draw_circle(px[0], py[0], 1000, c)
+	Map.draw_circle(px[0], py[0], 1000, c)
 	print(pt[0] - pt[-1])
 
 p = route.calculate_mean_route(pas)
-map.Map.plot_route(p[0], p[1], "red")
+Map.plot_route(p[0], p[1], "red")
 
 #print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
 
-scores = nd.draw_reach_percentages(nodes) #, limit=0.01)
+scores = nd.draw_reach_percentages(nodes, limit=0.01)
 
 #print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
 #k = 0
-m = map.Map.draw_map()
-m.show()
+Map.draw()
 '''
 for n in Node.list:
 	rp = n.reach_percentage()

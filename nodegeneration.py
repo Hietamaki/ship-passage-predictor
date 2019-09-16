@@ -31,7 +31,9 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 
 	# Optimize K
 	if optimize_k:
-		for n in node_list.values():
+		for n in range(0, len(node_list)):
+			node = node_list.values()[i]
+			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
 			n.time_k, n.time_k_acc = n.find_time_k()
 			n.area_k, n.reach_k_acc = (5, 1)
 			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)

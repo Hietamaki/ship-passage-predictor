@@ -26,7 +26,7 @@ td = []
 
 for n in n_test:
 
-	if n.reach_percentage() < 0.2:
+	if n.reach_percentage() < 0.1:
 		continue
 
 	i = pick_random_passage(n)
@@ -36,8 +36,7 @@ for n in n_test:
 	# pick random spot from passage.route
 	# use 2 data points for calculation
 	spot = random.randint(0, len(route) - 2)
-
-	real_arrival = passage.enters_meas_area() - route[spot + 1][2]
+	real_arrival = passage.enters_meas_area(route[spot + 1][2])
 
 	predict_p, pred_parts = predict_path(n_train, route[spot], route[spot + 1])
 
@@ -45,24 +44,21 @@ for n in n_test:
 		continue
 	predict_t = calculate_arrival(predict_p, route[spot], pred_parts)
 
-
-	t = (predict_t - real_arrival) / 3600
-	
-	if abs(t) > 2:
-		# Yks
-		print(predict_t/3600, real_arrival / 3600, "(",
-			format_date(route[spot + 1][2]), format_date(passage.enters_meas_area()), ")")
+	if real_arrival < -3 * 3600:
+		n.add_passage(passage, n.passage_i[i])
+		#print("Already visited area")
 		c = random_color()
+		passage.plot(c)
 		n.draw(c)
 		Map.draw_circle(route[spot + 1][0], route[spot + 1][1], 2000, "red")
-		passage.plot(c)
-		#for i in range(0, len(passage.x)):
-		#	Map.draw_circle(passage.x[i], passage.y[i], 2000, "red")
+		#print(n.label[i])
+		print(
+			predict_t / 3600, real_arrival / 3600, "(",
+			format_date(route[spot + 1][2]),
+			format_date(passage.enters_meas_area()), ")")
 
-		#for p in predict_p:
-		#	p.plot(c)
-		break
-	
+	t = (predict_t - real_arrival) / 3600
+
 	print(t)
 	td.append(t)
 
