@@ -3,6 +3,7 @@ from database import load_list
 
 import node as nd
 import route
+from util import get_closest
 
 import pandas as pd
 import predict
@@ -23,7 +24,7 @@ x2 = (235846, 6642117, 100)
 pas, exits = predict.predict_path(nodes, x1, x2)
 print("Arrives in", exits, "h")
 
-noude = nd.get_closest_node(nodes, x1[0], x1[1])
+noude = get_closest(nodes, x1[0], x1[1])
 #predict.test_case(noude)
 noude.draw('green')
 #print(noude.accuracy_score, noude.optimal_k)

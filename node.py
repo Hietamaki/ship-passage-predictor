@@ -126,13 +126,19 @@ class Node:
 		# next only calculate from nearest neighbours
 		return np.average(times)
 
-	def get_route(self, i):
+	def get_route(self, i, reach_only=False):
 		# impelement
-		start, end = self.passage_i[i]
+		pi = self.passage_i
+		pa = self.passages
+		if reach_only:
+			pi = self.getattr_reaching_passages("passage_i")
+			pa = self.getattr_reaching_passages("passages")
+
+		start, end = pi[i]
 		array = []
 
 		for j in range(start, end + 1):
-			array.append(get_xyt(self.passages[i], j))
+			array.append(get_xyt(pa[i], j))
 		return array
 
 	# find optimal k for
@@ -149,18 +155,18 @@ class Node:
 			# nodesta ei lähde väh. kolmea reittiä mittausalueelle
 			return 0, 0
 
-		f_train, f_test, l_train, l_test = train_test_split(
-			features, label, test_size=0.2)
+		#f_train, f_test, l_train, l_test = train_test_split(
+		#	features, label, test_size=0.2)
 
 		max_k = 25
-		if len(f_train) < max_k:
-			max_k = len(f_train)
+		if len(features) < max_k:
+			max_k = len(features)
 
 		all_ks = []
 
-		for i in range(0, len(f_test)):
+		for i in range(0, len(features)):
 			means = []
-			route = self.get_route(i)
+			route = self.get_route(i, True)
 			#print(route[i][0], route[i][1])
 			#testidatalle tee predict path k max_k:lla
 			if len(route) < 2:
@@ -184,12 +190,12 @@ class Node:
 			#print(find_nearest(means, l_test[i]))
 
 			array = np.asarray(means)
-			idx = (np.abs(array - l_test[i])).argmin()
+			idx = (np.abs(array - label[i])).argmin() * 2 + 1
 
 			all_ks.append(idx)
 		#means[idx]
 
-		#print(all_ks)
+		print(all_ks, np.argmax(np.bincount(all_ks)))
 		return np.argmax(np.bincount(all_ks)), 0
 
 		#if scale:
@@ -204,6 +210,10 @@ def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 	scores = []
 
 	for n in node_list:
+		if n.time_k == 0:
+			n.draw("orange")
+
+		continue
 
 		if type_accuracy:
 			rp = 1 - n.accuracy_score
