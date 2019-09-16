@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 
 from map import Map
 from predict import predict_path, calculate_arrival
-import util
+from util import get_xyt, get_velocity, distance
 
 from constants import SPACING_M, NODES_IN_ROW
 
@@ -22,8 +22,7 @@ class Node:
 		self.cog = []
 		self.speed = []
 		self.label = []
-		self.exits_node = []
-		self.route = []
+		self.passage_i = []
 		self.arrival = []
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
@@ -37,8 +36,8 @@ class Node:
 	#		[(x, y, t), (x, y, t)]
 	def add_passage(self, passage, route):
 
-		enter_point = route[0]
-		exit_point = route[-1]
+		enter_point = get_xyt(passage, route[0])
+		exit_point = get_xyt(passage, route[-1])
 
 		if passage.reaches is False:
 			self.label.append(False)
@@ -54,17 +53,17 @@ class Node:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
 
-		speed, course = util.get_velocity(enter_point, exit_point)
-		self.exits_node.append(exit_point[2])  # change to more exact later
+		speed, course = get_velocity(enter_point, exit_point)
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
+		self.passage_i.append((route[0], route[-1]))
 
 		# time of arrival from exiting node to meas area
 		if self.label[-1] is not False:
 			self.arrival.append(passage.enters_meas_area(exit_point[2]))
 
-		self.route.append(np.array(route))
+		#self.route.append(np.array(route))
 		# experimental, more memory efficient would be to just save indexes
 		# nodes.h5: 234M before, 415M after, with np.array 347M
 
@@ -127,14 +126,24 @@ class Node:
 		# next only calculate from nearest neighbours
 		return np.average(times)
 
+	def get_route(self, i):
+		# impelement
+		start, end = self.passage_i[i]
+		array = []
+
+		for j in range(start, end + 1):
+			array.append(get_xyt(self.passages[i], j))
+		return array
+
 	# find optimal k for
 	# 1) place and time prediction
 	# 2) going to area prediction
 	def find_time_k(self, scale=True):
 
+		print("Finding K for node (xy", self.x, self.y, ")")
+
 		features = self.get_features(True)
 		label = self.arrival
-		route = self.getattr_reaching_passages("route")
 
 		if len(features) < 3:
 			# nodesta ei lähde väh. kolmea reittiä mittausalueelle
@@ -151,25 +160,32 @@ class Node:
 
 		for i in range(0, len(f_test)):
 			means = []
+			route = self.get_route(i)
 			#print(route[i][0], route[i][1])
 			#testidatalle tee predict path k max_k:lla
-			pas, eta = predict_path(self.parent, route[i][0], route[i][1], max_k)
+			if len(route) < 2:
+				print("hups", route)
+				route.append(route[0])
+			pas, part = predict_path(self.parent.values(), route[0], route[1], max_k)
+
+			if not pas:
+				return 0, 0
 
 			#sitten käy läpi millä k:n arvolla pääsee lähimmäksi todellista
 			#print(eta, l_test[i])
 
 			# toista parittomat k arvot 1 - max_k
 			for k in np.arange(1, max_k + 1, 2):
-				means.append(calculate_arrival(pas[0:k], route[i][0]))
+				means.append(calculate_arrival(pas[0:k], route[0], part[0:k]))
 				#print(k, means)
 
 			#katso mitä k:n arvoa on eniten
 
-			#print(util.find_nearest(means, l_test[i]))
+			#print(find_nearest(means, l_test[i]))
 
 			array = np.asarray(means)
 			idx = (np.abs(array - l_test[i])).argmin()
-			
+
 			all_ks.append(idx)
 		#means[idx]
 
@@ -182,7 +198,6 @@ class Node:
 		#	features = scaler.transform(features)
 
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		return util.find_nearest(means, l_test[0]), 0
 
 
 def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
@@ -212,16 +227,3 @@ def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 		n.draw(color)
 
 	return scores
-
-
-def get_closest_node(node_list, x, y):
-
-	closest_dist = 9999999999999999
-	closest_node = -1
-
-	for node in node_list:
-		if closest_dist > util.distance((x, y), (node.x, node.y)):
-			closest_dist = util.distance((x, y), (node.x, node.y))
-			closest_node = node
-
-	return closest_node

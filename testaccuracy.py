@@ -2,7 +2,7 @@ import random
 
 import constants as c
 from database import load_list
-import predict
+from predict import predict_path, calculate_arrival
 
 import numpy as np
 
@@ -29,7 +29,7 @@ for n in n_test:
 
 	i = pick_random_passage(n)
 	passage = n.passages[i]
-	route = n.route[i]
+	route = n.get_route(i)
 
 	# pick random spot from passage.route
 	# use 2 data points for calculation
@@ -37,13 +37,12 @@ for n in n_test:
 
 	real_arrival = passage.enters_meas_area() - passage.time[spot + 1]
 
-	predict_p, predict_t = predict.predict_path(
-		n_train,
-		(route[spot][0], route[spot][1], route[spot][2]),
-		(route[spot + 1][0], route[spot + 1][1], route[spot + 1][2]))
+	predict_p, pred_parts = predict_path(n_train, route[spot], route[spot + 1])
 
 	if predict_p == 0:
 		continue
+	predict_t = calculate_arrival(predict_p, route[spot], pred_parts)
+
 
 	t = (predict_t - real_arrival) / 3600
 	print(t)

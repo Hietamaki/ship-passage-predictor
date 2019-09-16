@@ -7,15 +7,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
-from map import Map
-import node
-from util import get_velocity, distance
+#from map import Map
+from util import get_velocity, distance, get_closest
 
 
 def normalize_features(train_data, test_data):
 
-	if len(train_data) < 1:
-		print("Train data is empty!")
+	#if len(train_data) < 1:
+	#		print("Train data is empty!")
 
 	scaler = StandardScaler()
 	scaler.fit(train_data)
@@ -38,13 +37,15 @@ def predict_path(nodes, start, end, k=-1):
 	new_passage = np.reshape(new_passage, (-1, 3))
 
 	# Node from start of path
-	nod = node.get_closest_node(nodes.values(), start[0], start[1])
+	nod = get_closest(nodes, start[0], start[1])
 
 	if not nod:
 		print("Node not found?")
 		return 0, 0
 
-	if nod.reach_percentage == 0:
+	features = nod.get_features(True)
+
+	if len(features) < 1:
 		print("No passages reaching meas zone.")
 		return 0, 0
 
@@ -54,9 +55,12 @@ def predict_path(nodes, start, end, k=-1):
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	if k==-1:
+	if k == -1:
 		k = nod.time_k
 
+	if k == 0:
+		print("K=0", len(x_train), "entries")
+		k = 3
 	#if k > len(x_test):
 	#	#print(k, len(x_test))
 	#	k = len(x_test)
@@ -68,19 +72,25 @@ def predict_path(nodes, start, end, k=-1):
 	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
-	exits = []
+	part = []
 	passages = nod.getattr_reaching_passages("passages")
-	exits_node = nod.getattr_reaching_passages("exits_node")
+	passage_i = nod.getattr_reaching_passages("passage_i")
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
-		exits.append(exits_node[p_id])
-	return passes, calculate_arrival(passes, start)
+		part.append(passage_i[p_id])
+	return passes, part
 
 
 # calculate average arrival time from passages and their start times
-# from node at point
-def calculate_arrival(passages, point):
+#	passages
+#	point				from node at point
+#	i_limit (tuple)		limit to part of passage
+def calculate_arrival(passages, point, i_limit=-1):
 	times = []
+
+	# set limits to sizes of passages if not limited
+	if i_limit == -1:
+		i_limit = [(0, len(passage.x) - 1) for passage in passages]
 
 	# either
 	# 1) add correction how long it takes from observation to node exit
@@ -90,11 +100,11 @@ def calculate_arrival(passages, point):
 	# from passage start index to point index ~(only inside node to increase perf)
 	# dist(point, pas) <- get smallest index from x,y -> use time
 
-	for pas in passages:
+	for pas, limit in zip(passages, i_limit):
 		smallest = 99999999999999
 		smallest_j = -1009
 
-		for j in range(0, len(pas.x) - 1):
+		for j in range(limit[0], limit[1]):
 			dist = distance(
 				(pas.x[j], pas.y[j]),
 				(point[0], point[1]))
@@ -117,16 +127,10 @@ def calculate_arrival(passages, point):
 	return int(np.average(times))
 
 
-def test_case(node_id=-1):
-	#map = Map()
+def test_case(nlist):
 
 	# preprocess
 	print("# preprocess")
-
-	if node_id != -1:
-		nlist = [node_id]
-	else:
-		nlist = node.Node.list
 
 	for n in nlist:
 		attributes = n.get_features()

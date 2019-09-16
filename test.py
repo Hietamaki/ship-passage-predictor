@@ -26,7 +26,7 @@ print("Arrives in", exits, "h")
 noude = nd.get_closest_node(nodes, x1[0], x1[1])
 #predict.test_case(noude)
 noude.draw('green')
-print(noude.accuracy_score, noude.optimal_k)
+#print(noude.accuracy_score, noude.optimal_k)
 
 for p in pas:
 	px, py, pt = p.route_in_meas_area()
@@ -48,7 +48,7 @@ map.Map.plot_route(p[0], p[1], "red")
 
 #print("Node average arrival time: ",noude.predict_arrival_time() / 60 / 60, "h")
 
-scores = nd.draw_reach_percentages(nodes, True) #, limit=0.01)
+scores = nd.draw_reach_percentages(nodes) #, limit=0.01)
 
 #print("avg:", np.mean(scores), np.median(scores), np.std(scores))
 #pl = Node.list[0]
