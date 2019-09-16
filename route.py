@@ -36,7 +36,7 @@ def route_in_area(x, y):
 			if enters_i is False:
 				enters_i = i
 
-		elif enters_i:
+		elif enters_i is not False:
 			return enters_i, i
 
 	if enters_i is not False:
