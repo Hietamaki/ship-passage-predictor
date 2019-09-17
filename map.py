@@ -1,9 +1,9 @@
 # Draw functions for map visualizations
 #
-import alphashape
+#from alphashape import alphashape
 import cartopy.crs as ccrs
 import cartopy.feature as feature
-from descartes import PolygonPatch
+#from descartes import PolygonPatch
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
