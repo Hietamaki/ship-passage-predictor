@@ -13,10 +13,9 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 	for shp in load_list(filename):
 		for passage in shp.passages:
 
-			# add passages to nodes
-			for key, value in extract_passages(passage).items():
+			for key, value in split_passage(passage).items():
 				if key not in node_list:
-					node_list[key] = Node(key)
+					node_list[key] = Node(key, node_list)
 
 				node_list[key].add_passage(passage, value)
 
@@ -32,15 +31,19 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 
 	# Optimize K
 	if optimize_k:
-		for n in node_list.values():
-			n.optimal_k, n.accuracy_score = n.find_optimal_k()
+		for n in range(0, len(node_list)):
+			node = node_list.values()[i]
+			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
+			n.time_k, n.time_k_acc = n.find_time_k()
+			n.area_k, n.reach_k_acc = (5, 1)
 			#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(node_list), "nodes to local disk...")
 	save_list(nodes_filename, node_list, 'w')
 
 
-def extract_passages(passage):
+# split passage into nodes
+def split_passage(passage):
 
 	nodes = {}
 	prev_id = get_node_id(passage.x[0], passage.y[0])
@@ -57,7 +60,7 @@ def extract_passages(passage):
 			nodes[node_id] = []
 
 		# add timecoord to specific node
-		nodes[node_id].append((passage.x[i], passage.y[i], passage.time[i]))
+		nodes[node_id].append(i)
 
 		# in case there is only datapoint in previous node, add the next one
 		if prev_id != node_id and prev_id != -1:
@@ -67,12 +70,11 @@ def extract_passages(passage):
 				nodes[prev_id] = []
 
 			# add timecoord to specific node
-			nodes[prev_id].append((passage.x[i], passage.y[i], passage.time[i]))
+			nodes[prev_id].append(i)
 
 		# if second last, add the last one
 		if i == len(passage.x) - 2:
-			nodes[node_id].append(
-				(passage.x[i + 1], passage.y[i + 1], passage.time[i + 1]))
+			nodes[node_id].append(i + 1)
 
 		prev_id = node_id
 

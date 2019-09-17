@@ -7,15 +7,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.metrics import classification_report, confusion_matrix
 
-from map import Map
-import node
-from util import get_velocity, distance
+#from map import Map
+from util import get_velocity, distance, get_closest
 
 
 def normalize_features(train_data, test_data):
 
-	if len(train_data) < 1:
-		print("Train data is empty!")
+	#if len(train_data) < 1:
+	#		print("Train data is empty!")
 
 	scaler = StandardScaler()
 	scaler.fit(train_data)
@@ -31,31 +30,37 @@ def normalize_features(train_data, test_data):
 #	most likely passages
 #	how long it will take to arrive in h
 
-def predict_path(nodes, start, end):
+def predict_path(nodes, start, end, k=-1):
 
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
 	new_passage = np.reshape(new_passage, (-1, 3))
 
 	# Node from start of path
-	nod = node.get_closest_node(nodes, start[0], start[1])
+	nod = get_closest(nodes, start[0], start[1])
 
 	if not nod:
 		print("Node not found?")
 		return 0, 0
 
-	if nod.reach_percentage == 0:
+	features = nod.get_features(True)
+
+	if len(features) < 1:
 		print("No passages reaching meas zone.")
 		return 0, 0
 
-	if nod.optimal_k == 0:
-		print("K=0, no routes reaching.")
-		return 0, 0
+	#if nod.time_k == 0:
+	#	print("K=0, no routes reaching.")
+	#	return 0, 0
 
 	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
 
-	k = nod.optimal_k
+	if k == -1:
+		k = nod.time_k
 
+	if k == 0:
+		print("K=0", len(x_train), "entries")
+		k = 1
 	#if k > len(x_test):
 	#	#print(k, len(x_test))
 	#	k = len(x_test)
@@ -67,64 +72,65 @@ def predict_path(nodes, start, end):
 	dists, neighbors_id = nearest.kneighbors(x_test)
 
 	passes = []
-	exits = []
+	part = []
 	passages = nod.getattr_reaching_passages("passages")
-	exits_node = nod.getattr_reaching_passages("exits_node")
+	passage_i = nod.getattr_reaching_passages("passage_i")
 	for p_id in neighbors_id[0]:
 		passes.append(passages[p_id])
-		exits.append(exits_node[p_id])
-	return passes, calculate_arrival(passes, start)
+		part.append(passage_i[p_id])
+	return passes, part
 
 
-#calculate average arrival time from passages and their start times from node
-def calculate_arrival(passages, end):
+# calculate average arrival time from passages and their start times
+#	passages
+#	point				from node at point
+#	i_limit (tuple)		limit to part of passage
+def calculate_arrival(passages, point, i_limit=-1):
 	times = []
+
+	# set limits to sizes of passages if not limited
+	if i_limit == -1:
+		i_limit = [(0, len(passage.x) - 1) for passage in passages]
 
 	# either
 	# 1) add correction how long it takes from observation to node exit
 	# 2) from each passage take point that is closest to the observation
 	#	 and use that time
 
-	# from passage start index to end index ~(only inside node to increase perf)
-	# dist(end, pas) <- get smallest index from x,y -> use time
+	# from passage start index to point index ~(only inside node to increase perf)
+	# dist(point, pas) <- get smallest index from x,y -> use time
 
-	for pas in passages:
+	for pas, limit in zip(passages, i_limit):
 		smallest = 99999999999999
 		smallest_j = -1009
 
-		for j in range(0, len(pas.x) - 1):
+		for j in range(limit[0], limit[1]):
 			dist = distance(
 				(pas.x[j], pas.y[j]),
-				(end[0], end[1]))
+				(point[0], point[1]))
 
 			if dist < smallest:
 				smallest = dist
 				smallest_j = j
 
-			Map.draw_circle(pas.x[j], pas.y[j], 1000, "red")
-		print("Smallest J is", smallest_j)
+			#Map.draw_circle(pas.x[j], pas.y[j], 1000, "red")
+		#print("Smallest J is", smallest_j)
 
-		Map.draw_circle(pas.x[smallest_j], pas.y[smallest_j], 1000, "orange")
+		#Map.draw_circle(pas.x[smallest_j], pas.y[smallest_j], 1000, "orange")
 
 		td = pas.enters_meas_area() - pas.time[smallest_j]
 		times.append(td)
 
-	print(td)
-	Map.draw_circle(end[0], end[1], 1000, "blue")
+	#print(td)
+	#Map.draw_circle(point[0], point[1], 1000, "blue")
 
 	return int(np.average(times))
 
 
-def test_case(node_id=-1):
-	#map = Map()
+def test_case(nlist):
 
 	# preprocess
 	print("# preprocess")
-
-	if node_id != -1:
-		nlist = [node_id]
-	else:
-		nlist = node.Node.list
 
 	for n in nlist:
 		attributes = n.get_features()

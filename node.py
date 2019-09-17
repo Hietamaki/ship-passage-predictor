@@ -2,25 +2,28 @@
 #
 
 import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
 from map import Map
-import util
+from predict import predict_path, calculate_arrival
+from util import get_xyt, get_velocity, distance
 
 from constants import SPACING_M, NODES_IN_ROW
 
 
 class Node:
-	def __init__(self, id):
+	def __init__(self, id, parent_list):
 		self.id = id
+		self.parent = parent_list
 		self.passages = []
 		self.cog = []
 		self.speed = []
 		self.label = []
-		self.exits_node = []
-		self.route = []
+		self.passage_i = []
+		self.arrival = []
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
@@ -33,30 +36,35 @@ class Node:
 	#		[(x, y, t), (x, y, t)]
 	def add_passage(self, passage, route):
 
-		enter_point = route[0]
-		exit_point = route[-1]
+		node_enter = get_xyt(passage, route[0])
+		node_exit = get_xyt(passage, route[-1])
 
 		if passage.reaches is False:
 			self.label.append(False)
 		else:
-			time_to_measurement = passage.time[passage.reaches[0]] - enter_point[2]
+			time_to_measurement = passage.enters_meas_area(node_enter[2])
 
 			# is passage going to measurement area or coming from measurement area?
 			if time_to_measurement < 0:
 				# false if already exited measurement area
 				# converting to bool from numpy.bool
-				self.label.append(bool(enter_point[2] <= passage.time[passage.reaches[1]]))
+				measurement_exit_t = passage.time[passage.reaches[1]]
+				self.label.append(bool(node_enter[2] <= measurement_exit_t))
 			else:
 				# false if over 8 hours to measurement area
 				self.label.append(time_to_measurement < (3600 * 8))
 
-		speed, course = util.get_velocity(enter_point, exit_point)
-		self.exits_node.append(exit_point[2])  # change to more exact later
+		speed, course = get_velocity(node_enter, node_exit)
 		self.speed.append(speed)
 		self.cog.append(course)
 		self.passages.append(passage)
+		self.passage_i.append((route[0], route[-1]))
 
-		self.route.append(np.array(route))
+		# time of arrival from exiting node to meas area
+		if self.label[-1] is not False:
+			self.arrival.append(passage.enters_meas_area(node_exit[2]))
+
+		#self.route.append(np.array(route))
 		# experimental, more memory efficient would be to just save indexes
 		# nodes.h5: 234M before, 415M after, with np.array 347M
 
@@ -106,6 +114,7 @@ class Node:
 		return k / len(self.label)
 
 	# Return arrival time in seconds
+	# not used
 	def predict_arrival_time(self):
 		p1 = self.getattr_reaching_passages("passages")
 		p2 = self.getattr_reaching_passages("exits_node")
@@ -118,40 +127,88 @@ class Node:
 		# next only calculate from nearest neighbours
 		return np.average(times)
 
-	def find_optimal_k(self, scale=True):
+	def get_route(self, i, reach_only=False):
+		# impelement
+		pi = self.passage_i
+		pa = self.passages
+		if reach_only:
+			pi = self.getattr_reaching_passages("passage_i")
+			pa = self.getattr_reaching_passages("passages")
 
-		if len(self.get_features(True)) < 3:
+		start, end = pi[i]
+		array = []
+
+		for j in range(start, end + 1):
+			array.append(get_xyt(pa[i], j))
+		return array
+
+	# find optimal k for
+	# 1) place and time prediction
+	# 2) going to area prediction
+	def find_time_k(self, scale=True):
+
+		features = self.get_features(True)
+		label = self.arrival
+
+		if len(features) < 3:
+			# nodesta ei lähde väh. kolmea reittiä mittausalueelle
 			return 0, 0
 
-		#return 5, 1 # debug option
+		#f_train, f_test, l_train, l_test = train_test_split(
+		#	features, label, test_size=0.2)
+
 		max_k = 25
-		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
-		if 35 > len(self.passages):
-			max_k = len(self.passages) // 5 * 4
-			#print("Set Max K to", max_k)
+		if len(features) < max_k:
+			max_k = len(features)
 
-		param_grid = {'n_neighbors': np.arange(1, max_k)}
-		knn_gscv = GridSearchCV(
-			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1)
+		all_ks = []
 
-		features = self.get_features()
+		for i in range(0, len(features)):
+			means = []
+			route = self.get_route(i, True)
+			#print(route[i][0], route[i][1])
+			#testidatalle tee predict path k max_k:lla
+			if len(route) < 2:
+				print("hups", route)
+				route.append(route[0])
+			pas, part = predict_path(self.parent.values(), route[0], route[1], max_k)
 
-		if scale:
-			scaler = StandardScaler()
-			scaler.fit(features)
-			features = scaler.transform(features)
+			if not pas:
+				return 0, 0
 
-		knn_gscv.fit(features, self.get_labels())
+			#sitten käy läpi millä k:n arvolla pääsee lähimmäksi todellista
+			#print(eta, l_test[i])
+
+			# toista parittomat k arvot 1 - max_k
+			for k in np.arange(1, max_k + 1, 2):
+				means.append(calculate_arrival(pas[0:k], route[0], part[0:k]))
+				#print(k, means)
+
+			#katso mitä k:n arvoa on eniten
+
+			#print(find_nearest(means, l_test[i]))
+
+			array = np.asarray(means)
+			idx = (np.abs(array - label[i])).argmin() * 2 + 1
+
+			all_ks.append(idx)
+		#means[idx]
+
+		print(all_ks, np.argmax(np.bincount(all_ks)))
+		return np.argmax(np.bincount(all_ks)), 0
+
+		#if scale:
+		#	scaler = StandardScaler()
+		#	scaler.fit(features)
+		#	features = scaler.transform(features)
+
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
 
 
 def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 	scores = []
 
 	for n in node_list:
-
 		if type_accuracy:
 			rp = 1 - n.accuracy_score
 
@@ -174,16 +231,3 @@ def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 		n.draw(color)
 
 	return scores
-
-
-def get_closest_node(node_list, x, y):
-
-	closest_dist = 9999999999999999
-	closest_node = -1
-
-	for node in node_list:
-		if closest_dist > util.distance((x, y), (node.x, node.y)):
-			closest_dist = util.distance((x, y), (node.x, node.y))
-			closest_node = node
-
-	return closest_node

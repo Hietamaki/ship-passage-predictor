@@ -33,14 +33,10 @@ def get_velocity(start, end):
 	# euclidean distance, not geodesic calculation
 
 	dist = distance(start, end)
-
 	time_passed = end[2] - start[2]
 
-	if start == end:
-		#print("Start is end")
-		time_passed = 1
-	elif time_passed < 1:
-		print("get_velocity(): trying to divide by", time_passed, "seconds")
+	if time_passed <= 1:
+		#print("get_velocity(): trying to divide by", time_passed, "seconds")
 		time_passed = 1
 
 	m_s = dist / time_passed
@@ -55,3 +51,30 @@ def distance(instance1, instance2):
 	instance2 = np.array(instance2[0:2])
 
 	return np.linalg.norm(instance1 - instance2)
+
+
+# from
+# https://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+
+def find_nearest(array, value):
+	array = np.asarray(array)
+	idx = (np.abs(array - value)).argmin()
+	return array[idx]
+
+
+# convert object's position at i to xyt tuple
+def get_xyt(object, i):
+	return (object.x[i], object.y[i], object.time[i])
+
+
+def get_closest(list, x, y):
+
+	closest_dist = 9999999999999999
+	closest_obj = -1
+
+	for obj in list:
+		if closest_dist > distance((x, y), (obj.x, obj.y)):
+			closest_dist = distance((x, y), (obj.x, obj.y))
+			closest_obj = obj
+
+	return closest_obj
