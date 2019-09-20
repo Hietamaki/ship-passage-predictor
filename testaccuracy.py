@@ -7,7 +7,7 @@ from map import Map
 from util import format_date, random_color
 
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def pick_random_passage(node):
 
@@ -23,10 +23,12 @@ n_train = load_list(c.NODES_FILENAME)
 n_test = load_list(c.TEST_NODES_FILENAME)
 
 td = []
+succeeds = 0
 
 for n in n_test:
 
-	if n.reach_percentage() < 0.1:
+	# limit test for nodes with 8h reach boundary
+	if n.reach_percentage() < 0.05:
 		continue
 
 	i = pick_random_passage(n)
@@ -44,7 +46,8 @@ for n in n_test:
 		continue
 	predict_t = calculate_arrival(predict_p, route[spot], pred_parts)
 
-	if real_arrival < -3 * 3600:
+	t = (predict_t - real_arrival) / 3600
+	if abs(t) > 13:
 		n.add_passage(passage, n.passage_i[i])
 		#print("Already visited area")
 		c = random_color()
@@ -57,13 +60,30 @@ for n in n_test:
 			format_date(route[spot + 1][2]),
 			format_date(passage.enters_meas_area()), ")")
 
-	t = (predict_t - real_arrival) / 3600
+	if abs(t) < 0.5:
+		succeeds += 1
 
-	print(t)
+	#print(t)
 	td.append(t)
 
 print("Average time delta", np.mean(td))
-Map.draw()
+print("Successful predictions", succeeds / len(td), "%")
+
+def draw_chart(values):
+	plt.hist(values, np.arange(-5, 5, step=0.5), density=False)
+	plt.xlabel("hours")
+	plt.ylabel("propability")
+	plt.xticks(np.arange(-5, 6, step=1))
+	plt.yticks(np.arange(0, 1, step=0.2))
+	plt.ticklabel_format(axis='x')
+	plt.gca().set_aspect('auto', adjustable='datalim')
+
+	plt.show()
+
+
+draw_chart(td)
+
+#Map.draw()
 
 
 # draw nn-passages for debug
