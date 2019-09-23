@@ -1,32 +1,33 @@
-from util import distance
+import numpy as np
 
 from passage import Passage
 
 
 class Ship:
 
-	def __init__(self, id, x, y, time):
-		self.id = id
-		self.x = x
-		self.y = y
-		self.time = time
-		self.passages = []
+	def __init__(self, xyt):
 
+		#sometimes there are duplicate values in data
+		#so remove those to ease processing
+		_, idx = np.unique(xyt, axis=1, return_index=True)
+		self.xyt = xyt[:, np.sort(idx)]
+		self.passages = []
 		self.create_passages()
+		#print("paslen", len(self.passages), len(self.xyt[0]))
 
 	# detect and create Passage objects from timecoords
 	def create_passages(self):
 
-		for passage_indices in self.detect_passages():
+		for indices in self.detect_passages():
 
 			# discard passages that have less than 3 data points
-			if passage_indices[0] + 1 >= passage_indices[1]:
+			if indices[0] + 1 >= indices[1]:
 				continue
 
 			passage = Passage(
-				self.x[passage_indices[0]:passage_indices[1]],
-				self.y[passage_indices[0]:passage_indices[1]],
-				self.time[passage_indices[0]:passage_indices[1]],
+				self.xyt[0, indices[0]:indices[1]],
+				self.xyt[1, indices[0]:indices[1]],
+				self.xyt[2, indices[0]:indices[1]],
 				self
 			)
 
@@ -50,26 +51,26 @@ class Ship:
 		passages = []
 		start_of_passage = 0
 
-		for i in range(1, len(self.x)):
-			time_passed = self.time[i] - self.time[i - 1]
+		time_passed = self.xyt[2, 1:] - self.xyt[2, 0:-1]
 
-			ship_still = time_passed >= MAXIMUM_BLACKOUT_S
-			lost_contact = self.get_speed(i) < MOVEMENT_DETECTION_MS
+		ship_still = time_passed >= MAXIMUM_BLACKOUT_S
+		lost_contact = self.get_speed() < MOVEMENT_DETECTION_MS
 
+		for i, (still, nosig) in enumerate(zip(ship_still, lost_contact)):
 			# check if passage is started
 			if start_of_passage >= 0:
 				# end passage
-				if ship_still or lost_contact:
+				if still or nosig:
 					passages.append((start_of_passage, i))
 					start_of_passage = -1
 			else:
 				# start passage
-				if not ship_still and not lost_contact:
+				if not still and not nosig:
 					start_of_passage = i
 
 		# close if passage is started
 		if start_of_passage >= 0:
-			passages.append((start_of_passage, len(self.x)))
+			passages.append((start_of_passage, self.xyt.shape[1]))
 
 		return passages
 
@@ -77,21 +78,16 @@ class Ship:
 	#			index of timeloc for which to calculate speed
 	# @.output	speed in m/s
 	#
-	def get_speed(self, index):
+	def get_speed(self):
 
-		dist = distance(
-			(self.x[index - 1], self.y[index - 1]),
-			(self.x[index], self.y[index]))
-
-		time_passed = self.time[index] - self.time[index - 1]
-
-		if time_passed < 1:
-			print("get_speed(): trying to divide by", time_passed, "at index", index, "ship id", self.id)
-			time_passed = 1
-
+		xyt_delta = self.xyt[:, 1:] - self.xyt[:, 0:-1]
+		dist = np.linalg.norm(xyt_delta[0:2], axis=0)
+		time_passed = xyt_delta[2]
 		m_s = dist / time_passed
 
 		return m_s
+	'''
+	# reacharea.py functions
 
 	def get_route(self, start_time=0, end_time=253385798400000):
 		range = self.get_range_by_time(start_time, end_time)
@@ -128,3 +124,4 @@ class Ship:
 				range_start = i
 
 		return [range_start, range_end]
+'''

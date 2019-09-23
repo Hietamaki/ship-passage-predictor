@@ -230,4 +230,5 @@ def draw_reach_percentages(node_list, type_accuracy=False, limit=0):
 		color = (rp, 0, 1 - rp)
 		n.draw(color)
 
+	Map.draw()
 	return scores
