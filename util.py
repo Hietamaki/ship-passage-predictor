@@ -10,13 +10,12 @@ def format_date(ts):
 
 def readable_time(time):
 
-	time = int(time)
 	s = ""
 
 	if (time // 3600) == 0:
-		s = "{0} s".format(time % 60)
+		s = "{0} s".format(round(time % 60, 2))
 
-	return "{0} h {1} min {2}".format((time // 3600), (time // 60 % 60), s)
+	return "{0} h {1} min {2}".format(int(time // 3600), int(time // 60 % 60), s)
 
 
 def random_color():

@@ -25,10 +25,8 @@ class Ship:
 				continue
 
 			passage = Passage(
-				self.xyt[0, indices[0]:indices[1]],
-				self.xyt[1, indices[0]:indices[1]],
-				self.xyt[2, indices[0]:indices[1]],
-				self
+				self,
+				self.xyt[:, indices[0]:indices[1]]
 			)
 
 			self.passages.append(passage)

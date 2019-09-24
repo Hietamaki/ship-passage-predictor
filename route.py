@@ -6,43 +6,31 @@ import numpy as np
 from constants import MEAS_AREA
 
 
-# interpolates entered route to minute intervals
-def get_minute_interpolation():
+def route_in_area(xy):
+	''' returns
+			(start index, end index)
+				when in area
+			False
+				if doesn't cross area
 	'''
-	rx, ry, rt = passage.route_in_meas_area()
 
-	# interpolation to 1 min spacing
-	nt = np.arange(rt[0], rt[-1], 60)
-	nx = np.interp(nt, rt, rx).astype(np.int32)
-	ny = np.interp(nt, rt, ry).astype(np.int32)
+	b = ((xy[0] > MEAS_AREA[0]) & (xy[0] < MEAS_AREA[1]) &
+		 (xy[1] > MEAS_AREA[2]) & (xy[1] < MEAS_AREA[3]))
+	
+	nz = np.nonzero(b)[0]
 
-	routes.append((nx, ny, nt))
-	'''
-	return
-
-
-# return enters_i and end_i when in area or False if doesn't cross area
-def route_in_area(x, y):
-
-	enters_i = False
-
-	if len(x) == 0:
+	if nz.shape[0] == 0:
 		return False
 
-	for i in range(0, len(x) - 1):
-		if (x[i] > MEAS_AREA[0] and x[i] < MEAS_AREA[1] and
-			y[i] > MEAS_AREA[2] and y[i] < MEAS_AREA[3]):
+	# Sometimes exits meas area temporarily. This examination shows
+	# it's not a huge issue.
 
-			if enters_i is False:
-				enters_i = i
+	#if not np.array_equal(np.arange(nz[0], nz[-1] + 1), nz):
+	#	map.Map.plot_route(xy[0].tolist(), xy[1].tolist(), random_color())
+	#	print(np.arange(nz[0], nz[-1] + 1), nz)
 
-		elif enters_i is not False:
-			return enters_i, i
 
-	if enters_i is not False:
-		return enters_i, len(x) - 1
-	else:
-		return False
+	return (nz[0], nz[-1])
 
 
 def is_in_area(x, y):

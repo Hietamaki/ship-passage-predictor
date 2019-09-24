@@ -11,12 +11,14 @@ class Passage:
 
 	next_id = 0
 
-	def __init__(self, x, y, time, ship):
+	def __init__(self, ship, xyt):
 		self.ship = ship
-		self.interpolate(x, y, time)
+		self.interpolate(xyt[0], xyt[1], xyt[2])
 
-		# saves index of when reaches. temporary
+		# saves index when in meas area
 		self.reaches = self.reaches_measurement_area()
+		# maybe seperating concerns of reach_index and reaches y/n
+		# would be good practice
 
 	# returns time when enters measurement area
 	# or time to measurement area from time_delta, if time_delta > 0
@@ -31,9 +33,9 @@ class Passage:
 		self.y = np.interp(self.time, time, y).astype(np.int32)
 
 	def reaches_measurement_area(self):
-		# if start of passage over 8h from reaching area, return false
-		# check also if time is between 8.00-16.00
-		in_area = route_in_area(self.x, self.y)
+		return route_in_area(np.vstack((self.x, self.y)))
+		
+		# check if time is between 8.00-16.00
 		#time_window = False
 
 		#if in_area is not False:
@@ -48,21 +50,22 @@ class Passage:
 		#else:
 		#	return False
 
-		return in_area
+		#return in_area
 
 	def plot(self, color="red"):
 		Map.plot_route(self.x, self.y, color=color)
 
 	# return the part of route that is in measurement area
-	#	+1 timecoord in each direction
+	
 	def route_in_meas_area(self):
 
-		route = route_in_area(self.x, self.y)
+		route = self.reaches
 
 		# if route is not in measurement area
 		if route is False:
 			return ([], [], [])
 
+		#	+1 timecoord in each direction
 		start = route[0]
 		end = route[1]
 
