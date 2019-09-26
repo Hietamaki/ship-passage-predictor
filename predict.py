@@ -25,6 +25,45 @@ def normalize_features(train_data, test_data):
 	return train_data, test_data
 
 
+def predict_going(nodes, start, end, k=-1):
+
+	m_s, cog = get_velocity(start, end)
+	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
+	new_passage = np.reshape(new_passage, (-1, 3))
+
+	# Node from start of path
+	nod = get_closest(nodes, start[0], start[1])
+
+	if not nod:
+		print("Node not found?")
+		return 0, 0
+
+	features = nod.get_features()
+
+	if len(features) < 1:
+		print("No passages reaching meas zone.")
+		return 0, 0
+
+	#if nod.time_k == 0:
+	#	print("K=0, no routes reaching.")
+	#	return 0, 0
+
+	x_train, x_test = normalize_features(features, new_passage)
+
+	if k == -1:
+		k = nod.time_k
+
+	if k == 0:
+		print("K=0", len(x_train), "entries")
+		k = 1
+	#if k > len(x_test):
+	#	#print(k, len(x_test))
+	#	k = len(x_test)
+
+	nearest = KNeighborsClassifier(n_neighbors=k)
+	nearest.fit(x_train, nod.get_labels())
+	return nearest.predict(x_test)
+
 #
 # returns
 #	most likely passages

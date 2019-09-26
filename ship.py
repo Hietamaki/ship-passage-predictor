@@ -43,7 +43,7 @@ class Ship:
 		passage_started = 0
 
 		for i, active in enumerate(self.when_active()):
-			if passage_started >= 0
+			if passage_started >= 0:
 				# end passage if ship is not active
 				if not active:
 					passages.append((passage_started, i))
