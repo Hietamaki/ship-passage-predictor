@@ -38,52 +38,47 @@ class Ship:
 	#		   ship stays still or previous contact is over MAXIMUM_BLACKOUT_S
 	def detect_passages(self):
 
+		# count time_passed to previous observation > speed
+		passages = []
+		passage_started = 0
+
+		for i, active in enumerate(self.when_active()):
+			if passage_started >= 0
+				# end passage if ship is not active
+				if not active:
+					passages.append((passage_started, i))
+					passage_started = -1
+			elif active:
+				# start passage
+				passage_started = i
+
+		if passage_started >= 0:
+			# end unfinished passage
+			passages.append((passage_started, self.xyt.shape[1]))
+
+		return passages
+
+	# @.input	self
+	# @.output	return indices when ship is active
+	#
+	def when_active(self):
+
 		# 2h
 		MAXIMUM_BLACKOUT_S = 3600 * 2
 		# 2 m/s = ~3.9 knots
 		MOVEMENT_DETECTION_MS = 2
 
-		# count time_passed to previous observation > speed
-		time_passed = []
-
-		passages = []
-		start_of_passage = 0
-
-		time_passed = self.xyt[2, 1:] - self.xyt[2, 0:-1]
-
-		ship_still = time_passed >= MAXIMUM_BLACKOUT_S
-		lost_contact = self.get_speed() < MOVEMENT_DETECTION_MS
-
-		for i, (still, nosig) in enumerate(zip(ship_still, lost_contact)):
-			# check if passage is started
-			if start_of_passage >= 0:
-				# end passage
-				if still or nosig:
-					passages.append((start_of_passage, i))
-					start_of_passage = -1
-			else:
-				# start passage
-				if not still and not nosig:
-					start_of_passage = i
-
-		# close if passage is started
-		if start_of_passage >= 0:
-			passages.append((start_of_passage, self.xyt.shape[1]))
-
-		return passages
-
-	# @.input	self
-	#			index of timeloc for which to calculate speed
-	# @.output	speed in m/s
-	#
-	def get_speed(self):
-
+		# calculate ship movement
 		xyt_delta = self.xyt[:, 1:] - self.xyt[:, 0:-1]
-		dist = np.linalg.norm(xyt_delta[0:2], axis=0)
-		time_passed = xyt_delta[2]
-		m_s = dist / time_passed
 
-		return m_s
+		dist = np.linalg.norm(xyt_delta[0:2], axis=0)
+		speed = dist / xyt_delta[2]
+
+		ship_still = xyt_delta[2] >= MAXIMUM_BLACKOUT_S
+		lost_contact = speed < MOVEMENT_DETECTION_MS
+		
+		return ~(ship_still | lost_contact)
+
 	'''
 	# reacharea.py functions
 
