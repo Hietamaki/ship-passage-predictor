@@ -29,15 +29,19 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 	for key in removed_nodes:
 		del node_list[key]
 
+	optimize_k(node_list)
+
+def optimize_k(node_list)
 	# Optimize K
 	for i, n in enumerate(node_list.values()):
 		if optimize_k:
 			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
-			n.time_k, n.time_k_acc = n.find_time_k()
-			n.area_k, n.reach_k_acc = (5, 1)
+			n.reach_k, n.reach_k_acc = n.find_reach_k()
+			#n.time_k, n.time_k_acc = n.find_time_k()
+			n.time_k, n.time_k_acc = (3, 1)
 		else:
 			n.time_k, n.time_k_acc = (3, 1)
-			n.area_k, n.reach_k_acc = (5, 1)
+			n.reach_k, n.reach_k_acc = (5, 1)
 		#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(node_list), "nodes to local disk...")

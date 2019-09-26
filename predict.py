@@ -51,7 +51,7 @@ def predict_going(nodes, start, end, k=-1):
 	x_train, x_test = normalize_features(features, new_passage)
 
 	if k == -1:
-		k = nod.time_k
+		k = nod.reach_k
 
 	if k == 0:
 		print("K=0", len(x_train), "entries")

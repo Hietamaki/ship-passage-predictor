@@ -142,6 +142,29 @@ class Node:
 			array.append(get_xyt(pa[i], j))
 		return array
 
+	def find_reach_k(self, scale=True):
+		max_k = 25
+		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
+		if 35 > len(self.passages):
+			max_k = len(self.passages) // 5 * 4
+			#print("Set Max K to", max_k)
+		#print(len(self.passages))
+		param_grid = {'n_neighbors': np.arange(1, max_k)}
+		knn_gscv = GridSearchCV(
+			KNeighborsClassifier(), param_grid,
+			cv=5, n_jobs=-1)
+
+		features = self.get_features()
+
+		if scale:
+			scaler = StandardScaler()
+			scaler.fit(features)
+			features = scaler.transform(features)
+
+		knn_gscv.fit(features, self.get_labels())
+		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
+		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
+
 	# find optimal k for
 	# 1) place and time prediction
 	# 2) going to area prediction
@@ -194,7 +217,7 @@ class Node:
 			all_ks.append(idx)
 		#means[idx]
 
-		print(all_ks, np.argmax(np.bincount(all_ks)))
+		#print(all_ks, np.argmax(np.bincount(all_ks)))
 		return np.argmax(np.bincount(all_ks)), 0
 
 		#if scale:
