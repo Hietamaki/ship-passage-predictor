@@ -5,7 +5,7 @@ from database import load_list, save_list
 
 
 # Generate nodes and find optimal k value for each
-def generate_nodes(filename, nodes_filename, optimize_k=True):
+def generate_nodes(filename, nodes_filename, optimize=True):
 
 	print("Generating nodes to", nodes_filename)
 	node_list = {}
@@ -29,16 +29,16 @@ def generate_nodes(filename, nodes_filename, optimize_k=True):
 	for key in removed_nodes:
 		del node_list[key]
 
-	optimize_k(node_list)
+	optimize_k(node_list, nodes_filename, optimize)
 
-def optimize_k(node_list)
+def optimize_k(node_list, nodes_filename, optimize):
 	# Optimize K
 	for i, n in enumerate(node_list.values()):
-		if optimize_k:
+		if optimize:
 			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
 			n.reach_k, n.reach_k_acc = n.find_reach_k()
-			#n.time_k, n.time_k_acc = n.find_time_k()
-			n.time_k, n.time_k_acc = (3, 1)
+			n.time_k, n.time_k_acc = n.find_time_k()
+			#n.time_k, n.time_k_acc = (3, 1)
 		else:
 			n.time_k, n.time_k_acc = (3, 1)
 			n.reach_k, n.reach_k_acc = (5, 1)

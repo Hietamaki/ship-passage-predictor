@@ -92,7 +92,7 @@ def predict_path(nodes, start, end, k=-1):
 	#	print("K=0, no routes reaching.")
 	#	return 0, 0
 
-	x_train, x_test = normalize_features(nod.get_features(True), new_passage)
+	x_train, x_test = normalize_features(features, new_passage)
 
 	if k == -1:
 		k = nod.time_k

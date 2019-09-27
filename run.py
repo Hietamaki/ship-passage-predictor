@@ -38,9 +38,9 @@ if job == "ships-test" or job == "all":
 	# k optimization is not necessary for test data
 	print("Pre-processing test data from", TEST_DATA_PATH)
 	convert_all_data(TEST_DATA_PATH, TEST_SHIPS_FILENAME)
-	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize_k=False)
+	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize=False)
 elif job == "nodes-test":
-	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize_k=False)
+	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize=False)
 
 if int(start_time) == int(time()):
 	print("Available commands: all, ships, nodes, *-test")
