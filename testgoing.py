@@ -30,11 +30,11 @@ predictions = []
 for n in n_test:
 
 	# do not include nodes that are out of reach area
-	if n.reach_percentage() < 0.01 or len(n.passages) < 100:
+	if n.reach_percentage() < 0.1 or len(n.passages) < 100:
 		continue
 
 	labels = n.get_labels()
-	for i in pick_random_passage(n, 10):
+	for i in pick_random_passage(n, 50):
 		passage = n.passages[i]
 		route = n.get_route(i)
 		if len(route) < 2:

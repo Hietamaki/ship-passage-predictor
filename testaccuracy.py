@@ -39,7 +39,7 @@ for n in n_test:
 		spot = random.randint(0, len(route) - 2)
 		real_arrival = passage.enters_meas_area(route[spot + 1][2])
 
-		predict_p, pred_parts = predict_path(n_train, route[spot], route[spot + 1])
+		predict_p, pred_parts = predict_path(n_train, route[spot], route[spot + 1], 3)
 
 		if predict_p == 0:
 			continue

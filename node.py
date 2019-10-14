@@ -2,14 +2,14 @@
 #
 
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import make_scorer, matthews_corrcoef
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
 from map import Map
 from predict import predict_path, calculate_arrival
-from util import get_xyt, get_velocity, distance
+from util import get_xyt, get_velocity
 
 from constants import SPACING_M, NODES_IN_ROW
 
@@ -27,6 +27,8 @@ class Node:
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
+
+		self.rp = self.reach_percentage()
 
 	# add passage to node and calculate speed and course inside node
 	# @.in
@@ -143,6 +145,9 @@ class Node:
 		return array
 
 	def find_reach_k(self, scale=True):
+
+		if self.rp == 0:
+			return 1, 1, 1
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
 		if 35 > len(self.passages):
@@ -150,9 +155,10 @@ class Node:
 			#print("Set Max K to", max_k)
 		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
+		#scorer = make_scorer(matthews_corrcoef)
 		knn_gscv = GridSearchCV(
 			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1)
+			cv=5, n_jobs=-1, scoring="f1")
 
 		features = self.get_features()
 
@@ -161,9 +167,21 @@ class Node:
 			scaler.fit(features)
 			features = scaler.transform(features)
 
-		knn_gscv.fit(features, self.get_labels())
+		best_k = []
+		weight = []
+		best_score = []
+
+		for w in np.arange(0, 1.1, 0.1):
+			hm = (w, w, 1 - w) * features
+			knn_gscv.fit(hm, self.get_labels())
+			best_k.append(knn_gscv.best_params_['n_neighbors'])
+			weight.append(w)
+			best_score.append(knn_gscv.best_score_)
+		best_score = np.array(best_score)
+		i = best_score.argmax()
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		return knn_gscv.best_params_['n_neighbors'], knn_gscv.best_score_
+		print(best_k[i], weight[i])
+		return best_k[i], weight[i], best_score[i]
 
 	# find optimal k for
 	# 1) place and time prediction

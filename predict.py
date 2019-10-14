@@ -49,6 +49,8 @@ def predict_going(nodes, start, end, k=-1):
 	#	return 0, 0
 
 	x_train, x_test = normalize_features(features, new_passage)
+	x_train = x_train * (nod.alpha, nod.alpha, 1 - nod.alpha)
+	x_test = x_test * (nod.alpha, nod.alpha, 1 - nod.alpha)
 
 	if k == -1:
 		k = nod.reach_k

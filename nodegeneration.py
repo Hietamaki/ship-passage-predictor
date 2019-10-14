@@ -36,9 +36,9 @@ def optimize_k(node_list, nodes_filename, optimize):
 	for i, n in enumerate(node_list.values()):
 		if optimize:
 			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
-			n.reach_k, n.reach_k_acc = n.find_reach_k()
-			n.time_k, n.time_k_acc = n.find_time_k()
-			#n.time_k, n.time_k_acc = (3, 1)
+			n.reach_k, n.alpha, n.reach_k_acc = n.find_reach_k()
+			#n.time_k, n.time_k_acc = n.find_time_k()
+			n.time_k, n.time_k_acc = (3, 1)
 		else:
 			n.time_k, n.time_k_acc = (3, 1)
 			n.reach_k, n.reach_k_acc = (5, 1)
