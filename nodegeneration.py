@@ -36,12 +36,12 @@ def optimize_k(node_list, nodes_filename, optimize):
 	for i, n in enumerate(node_list.values()):
 		if optimize:
 			print("Finding K for node (xy", n.x, n.y, ")", i, "of", len(node_list))
-			n.reach_k, n.alpha, n.reach_k_acc = n.find_reach_k()
+			n.reach_k, n.alpha, n.reach_acc = n.find_reach_k()
 			#n.time_k, n.time_k_acc = n.find_time_k()
-			n.time_k, n.time_k_acc = (3, 1)
+			n.time_k, n.time_acc = (3, 1)
 		else:
-			n.time_k, n.time_k_acc = (3, 1)
-			n.reach_k, n.reach_k_acc = (5, 1)
+			n.time_k, n.time_acc = (3, 1)
+			n.reach_k, n.reach_acc = (5, 1)
 		#print("Scaling before & after:", n.find_optimal_k(False), n.optimal_k)
 
 	print("Saving", len(node_list), "nodes to local disk...")

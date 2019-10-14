@@ -24,11 +24,10 @@ class Node:
 		self.label = []
 		self.passage_i = []
 		self.arrival = []
+		self.rp = -1
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
-
-		self.rp = self.reach_percentage()
 
 	# add passage to node and calculate speed and course inside node
 	# @.in
@@ -108,12 +107,16 @@ class Node:
 		return attrs
 
 	def reach_percentage(self):
-		k = 0
-		for i in self.label:
-			if i:
-				k += 1
 
-		return k / len(self.label)
+		if self.rp == -1:
+			k = 0
+			for i in self.label:
+				if i:
+					k += 1
+
+			self.rp = k / len(self.label)
+
+		return self.rp
 
 	# Return arrival time in seconds
 	# not used
@@ -146,7 +149,7 @@ class Node:
 
 	def find_reach_k(self, scale=True):
 
-		if self.rp == 0:
+		if self.reach_percentage() == 0:
 			return 1, 1, 1
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
@@ -181,6 +184,7 @@ class Node:
 		i = best_score.argmax()
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
 		print(best_k[i], weight[i])
+		print(best_score)
 		return best_k[i], weight[i], best_score[i]
 
 	# find optimal k for

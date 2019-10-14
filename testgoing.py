@@ -32,7 +32,7 @@ for n in n_test:
 	# do not include nodes that are out of reach area
 	if n.reach_percentage() < 0.1 or len(n.passages) < 100:
 		continue
-
+	print(n.reach_acc)
 	labels = n.get_labels()
 	for i in pick_random_passage(n, 50):
 		passage = n.passages[i]
