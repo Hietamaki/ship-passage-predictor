@@ -163,6 +163,8 @@ class Node:
 			KNeighborsClassifier(), param_grid,
 			cv=5, n_jobs=-1, scoring="f1")
 
+		#UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 due to no predicted samples.
+
 		features = self.get_features()
 
 		if scale:

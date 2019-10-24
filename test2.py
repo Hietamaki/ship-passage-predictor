@@ -13,8 +13,8 @@ x2 = (348298, 6620462, 1530070027)
 
 for n in nodes:
 	rp = n.reach_acc
-	color = (1 - rp, 0, rp)
-	if rp > 0:
+	color = (rp, 0, 1 - rp)
+	if rp < 0.2:
 		n.draw(color)
 
 Map.draw()

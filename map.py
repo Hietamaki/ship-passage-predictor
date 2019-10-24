@@ -6,6 +6,7 @@ import cartopy.feature as feature
 #from descartes import PolygonPatch
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import numpy as np
 
 from route import MEAS_AREA
 
@@ -28,6 +29,10 @@ class Map:
 		ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
 
 		cls.draw_area(MEAS_AREA, 'green')
+		fld=np.random.rand(10,10)
+		levels = np.linspace(0,2,21)
+		img=plt.contourf(fld,levels=levels,cmap='coolwarm')
+		plt.colorbar(img)
 		plt.show()
 		return plt
 
