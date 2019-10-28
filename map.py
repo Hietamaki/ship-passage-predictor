@@ -16,7 +16,7 @@ class Map:
 	#ax = plt.axes(projection=ccrs.epsg(3067))
 
 	@classmethod
-	def draw(cls):
+	def draw(cls, title=False, cbar=False, cbar_steps=100, cmap="coolwarm"):
 		ax = cls.ax
 		ax.add_feature(feature.NaturalEarthFeature("physical", "ocean", "10m"))
 		ax.add_feature(feature.NaturalEarthFeature("physical", "lakes", "10m"))
@@ -29,10 +29,14 @@ class Map:
 		ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
 
 		cls.draw_area(MEAS_AREA, 'green')
-		fld=np.random.rand(10,10)
-		levels = np.linspace(0,2,21)
-		img=plt.contourf(fld,levels=levels,cmap='coolwarm')
-		plt.colorbar(img)
+
+		if cbar:
+			levels = np.linspace(0, cbar, cbar_steps)
+			img = plt.contourf([[0, 0], [0, 0]], levels=levels, cmap=cmap)
+			plt.colorbar(img, boundaries=[10, 20, 100, 200])
+
+		if title:
+			plt.title(title)
 		plt.show()
 		return plt
 

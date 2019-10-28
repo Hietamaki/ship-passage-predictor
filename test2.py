@@ -1,3 +1,5 @@
+from matplotlib import cm
+
 import constants as c
 import database as db
 from map import Map
@@ -13,8 +15,8 @@ x2 = (348298, 6620462, 1530070027)
 
 for n in nodes:
 	rp = n.reach_acc
-	color = (rp, 0, 1 - rp)
-	if rp < 0.2:
-		n.draw(color)
+	cmap = cm.get_cmap('coolwarm')
+	#if n.reach_acc < 1:
+	n.draw(cmap(rp))
 
-Map.draw()
+Map.draw("Accuracy", cbar=1)

@@ -26,23 +26,23 @@ if len(sys.argv) > 2:
 		print("No K optimization")
 		optimize_k = False
 
-if job == "ships" or job == "all":
+if job == "train" or job == "all":
 	print("Pre-processing train data from", AIS_DATA_PATH)
 	convert_all_data(AIS_DATA_PATH, SHIPS_FILENAME)
 	generate_nodes(SHIPS_FILENAME, NODES_FILENAME, optimize_k)
 
-elif job == "nodes":
+elif job == "train-nodes":
 	generate_nodes(SHIPS_FILENAME, NODES_FILENAME, optimize_k)
 
-if job == "ships-test" or job == "all":
+if job == "test" or job == "all":
 	# k optimization is not necessary for test data
 	print("Pre-processing test data from", TEST_DATA_PATH)
 	convert_all_data(TEST_DATA_PATH, TEST_SHIPS_FILENAME)
 	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize=False)
-elif job == "nodes-test":
+elif job == "test-nodes":
 	generate_nodes(TEST_SHIPS_FILENAME, TEST_NODES_FILENAME, optimize=False)
 
 if int(start_time) == int(time()):
-	print("Available commands: all, ships, nodes, *-test")
+	print("Available commands: <all, train, test, train-nodes, test-nodes> <(optional) skipk>")
 else:
 	print("Compiling took", readable_time(time() - start_time))
