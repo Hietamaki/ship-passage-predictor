@@ -37,7 +37,7 @@ for n in n_test:
 	total = 0
 
 	# do not include nodes that are out of reach area
-	if n.reach_percentage() < 0.01 or len(n.passages) < 200:
+	if n.reach_percentage() < 0.01 or len(n.passages) < 100:
 		continue
 	labels = n.get_labels()
 	for i in pick_random_passage(n, NUM_PASSAGES):

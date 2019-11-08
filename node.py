@@ -158,10 +158,15 @@ class Node:
 			#print("Set Max K to", max_k)
 		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
-		#scorer = make_scorer(matthews_corrcoef)
+
+		#def my_scorer(y_true, y_pred):
+		#	return np.count_nonzero(y_true == y_pred) / y_true.shape[0]
+
+		#scorer = make_scorer(my_scorer)
+
 		knn_gscv = GridSearchCV(
 			KNeighborsClassifier(), param_grid,
-			cv=5, n_jobs=-1, scoring="f1")
+			cv=10, n_jobs=-1, scoring="f1")
 
 		#UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 due to no predicted samples.
 

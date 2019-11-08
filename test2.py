@@ -14,7 +14,7 @@ x2 = (348298, 6620462, 1530070027)
 #node.draw_reach_percentages(db.load_list(c.NODES_FILENAME), limit=0.95)
 
 for n in nodes:
-	rp = n.reach_acc
+	rp = n.alpha
 	cmap = cm.get_cmap('coolwarm')
 	#if n.reach_acc < 1:
 	n.draw(cmap(rp))
