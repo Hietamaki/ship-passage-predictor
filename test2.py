@@ -13,10 +13,12 @@ x2 = (348298, 6620462, 1530070027)
 #print("Drawing reach percentages...")
 #node.draw_reach_percentages(db.load_list(c.NODES_FILENAME), limit=0.95)
 
-for n in nodes:
-	rp = n.alpha
-	cmap = cm.get_cmap('coolwarm')
-	#if n.reach_acc < 1:
-	n.draw(cmap(rp))
+cmap = cm.get_cmap('coolwarm')
 
-Map.draw("Accuracy", cbar=1)
+for n in nodes:
+	rp = n.reach_k
+	if rp > 1:
+		print(rp)
+		n.draw(cmap(rp/c.MAX_K))
+
+Map.draw("K", c.MAX_K, c.MAX_K)

@@ -28,8 +28,8 @@ def normalize_features(train_data, test_data):
 def predict_going(nodes, start, end, k=-1):
 
 	m_s, cog = get_velocity(start, end)
-	new_passage = np.array([np.sin(cog), np.cos(cog), m_s])
-	new_passage = np.reshape(new_passage, (-1, 3))
+	new_passage = np.array((0, m_s))
+	new_passage = np.reshape(new_passage, (-1, 2))
 
 	# Node from start of path
 	nod = get_closest(nodes, start[0], start[1])
@@ -39,18 +39,35 @@ def predict_going(nodes, start, end, k=-1):
 		return 0, 0
 
 	features = nod.get_features()
+	features = features.reshape((2, -1))
+	fcog = features[1]
+	#print(cog, fcog)
+	fspeed = features[0]
 
 	if len(features) < 1:
 		print("No passages reaching meas zone.")
 		return 0, 0
+
+	def to_rad(angle):
+		return (angle + np.pi) % (2 * np.pi) - np.pi
+
+	#print(cog, to_rad(cog))
+	# reshape cog so that new_passage is at center
+	fcog = fcog - (cog + np.pi)
+	fcog = fcog % (2 * np.pi)
+	fcog = fcog - np.pi
+	#print(fcog)
+
+	features = np.array((fcog, fspeed))
+	features = np.reshape(features, (-1, 2))
 
 	#if nod.time_k == 0:
 	#	print("K=0, no routes reaching.")
 	#	return 0, 0
 
 	x_train, x_test = normalize_features(features, new_passage)
-	#x_train = x_train * (nod.alpha, nod.alpha, 1 - nod.alpha)
-	#x_test = x_test * (nod.alpha, nod.alpha, 1 - nod.alpha)
+	x_train = x_train * (nod.alpha, 1 - nod.alpha)
+	x_test = x_test * (nod.alpha, 1 - nod.alpha)
 
 	if k == -1:
 		k = nod.reach_k
@@ -63,6 +80,7 @@ def predict_going(nodes, start, end, k=-1):
 	#	k = len(x_test)
 
 	nearest = KNeighborsClassifier(n_neighbors=k)
+	#print(x_train.shape, nod.get_labels().shape)
 	nearest.fit(x_train, nod.get_labels())
 	return nearest.predict(x_test)
 

@@ -90,8 +90,8 @@ class Node:
 			speed = self.getattr_reaching_passages("cog")
 
 		# break course to x, y components
-		features = np.array((np.sin(cog), np.cos(cog), speed))
-		features = np.reshape(features, (-1, 3))
+		features = np.array((cog, speed))
+		features = np.reshape(features, (-1, 2))
 
 		return features
 
@@ -182,8 +182,8 @@ class Node:
 		best_score = []
 
 		for w in np.arange(0, 1.1, 0.1):
-			hm = (w, w, 1 - w) * features
-			knn_gscv.fit(hm, self.get_labels())
+			weighted_featues = (w, 1 - w) * features
+			knn_gscv.fit(weighted_featues, self.get_labels())
 			best_k.append(knn_gscv.best_params_['n_neighbors'])
 			weight.append(w)
 			best_score.append(knn_gscv.best_score_)
