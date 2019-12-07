@@ -29,7 +29,7 @@ def predict_going(nodes, start, end, k=-1):
 
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array((0, m_s))
-	new_passage = np.reshape(new_passage, (-1, 2))
+	new_passage = np.reshape(new_passage.T, (-1, 2))
 
 	# Node from start of path
 	nod = get_closest(nodes, start[0], start[1])
@@ -39,10 +39,9 @@ def predict_going(nodes, start, end, k=-1):
 		return 0, 0
 
 	features = nod.get_features()
-	features = features.reshape((2, -1))
-	fcog = features[1]
-	#print(cog, fcog)
-	fspeed = features[0]
+	features = np.reshape(features.T, (2, -1))
+	fcog = features[0]
+	fspeed = features[1]
 
 	if len(features) < 1:
 		print("No passages reaching meas zone.")
@@ -59,18 +58,20 @@ def predict_going(nodes, start, end, k=-1):
 	#print(fcog)
 
 	features = np.array((fcog, fspeed))
-	features = np.reshape(features, (-1, 2))
+	features = np.reshape(features.T, (-1, 2))
 
 	#if nod.time_k == 0:
 	#	print("K=0, no routes reaching.")
 	#	return 0, 0
 
 	x_train, x_test = normalize_features(features, new_passage)
-	x_train = x_train * (nod.alpha, 1 - nod.alpha)
-	x_test = x_test * (nod.alpha, 1 - nod.alpha)
+	#print("New_pas",new_passage)
+	#print("Feature",features)
 
 	if k == -1:
 		k = nod.reach_k
+		x_train = x_train * (nod.alpha, 2 - nod.alpha)
+		x_test = x_test * (nod.alpha, 2 - nod.alpha)
 
 	if k == 0:
 		print("K=0", len(x_train), "entries")

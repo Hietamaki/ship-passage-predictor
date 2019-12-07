@@ -1,6 +1,8 @@
 from functools import partial
 import sys
 from time import time
+import warnings
+warnings.filterwarnings('once')
 
 from aisparser import convert_all_data
 from nodegeneration import generate_nodes

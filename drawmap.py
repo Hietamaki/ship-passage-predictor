@@ -4,6 +4,12 @@ import constants as c
 import database as db
 from map import Map
 
+attrib = "reach_acc"
+label = "Epävarmuustarkastelu"
+check = lambda n: n.reach_acc < 1
+
+#attrib = "reach_k"
+#label = "Optimoitu K"
 
 def ToNearest(n, to_nearest):
 	x = (n + (to_nearest / 2)) % to_nearest
@@ -23,11 +29,11 @@ cmap = cm.get_cmap(colormap)
 for n in nodes:
 
 	# To nearest 0.2
-	rp = ToNearest(n.reach_acc, 0.2)
+	rp = ToNearest(n.getattr(attrib), 0.2)
 
 	#if rp > 1:
 	#print(n.reach_acc,"-", x, "=", rp)
-	if n.reach_acc < 1:
+	if check:
 		n.draw(cmap(rp + 0.1))
 
-Map.draw("Epävarmuustarkastelu", 1, 6, cmap=colormap)
+Map.draw(label, 1, 6, cmap=colormap)

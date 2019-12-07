@@ -1,7 +1,6 @@
-from node import Node
-
 from constants import AREA_BOUNDARIES, NODES_IN_ROW, SPACING_M
 from database import load_list, save_list
+from node import Node
 
 
 # Generate nodes and find optimal k value for each

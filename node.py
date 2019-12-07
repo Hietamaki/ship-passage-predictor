@@ -1,5 +1,7 @@
 # Node
 #
+import warnings
+warnings.filterwarnings('once')
 
 import numpy as np
 from sklearn.metrics import make_scorer, matthews_corrcoef
@@ -86,12 +88,12 @@ class Node:
 		speed = self.speed
 
 		if reaching_only:
-			cog = self.getattr_reaching_passages("speed")
-			speed = self.getattr_reaching_passages("cog")
+			cog = self.getattr_reaching_passages("cog")
+			speed = self.getattr_reaching_passages("speed")
 
 		# break course to x, y components
 		features = np.array((cog, speed))
-		features = np.reshape(features, (-1, 2))
+		features = np.reshape(features.T, (-1, 2))
 
 		return features
 
@@ -149,7 +151,7 @@ class Node:
 
 	def find_reach_k(self, scale=True):
 
-		if self.reach_percentage() == 0:
+		if self.reach_percentage() == 0 or self.reach_percentage() == 1:
 			return 1, 1, 1
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
@@ -159,39 +161,61 @@ class Node:
 		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 
-		#def my_scorer(y_true, y_pred):
-		#	return np.count_nonzero(y_true == y_pred) / y_true.shape[0]
+		def my_scorer(y_true, y_pred):
+			return matthews_corrcoef(y_true, y_pred)
+			#return np.count_nonzero(y_true == y_pred) / y_true.shape[0]
 
-		#scorer = make_scorer(my_scorer)
+		scorer = make_scorer(my_scorer)
 
-		knn_gscv = GridSearchCV(
-			KNeighborsClassifier(), param_grid,
-			cv=10, n_jobs=-1, scoring="f1")
+		with warnings.catch_warnings(record=True) as w:
+			warnings.simplefilter("ignore")
+			
+			knn_gscv = GridSearchCV(
+				KNeighborsClassifier(), param_grid,
+				cv=10, n_jobs=-1, scoring=scorer)
 
-		#UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 due to no predicted samples.
+			#UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 due to no predicted samples.
 
-		features = self.get_features()
+			features = self.get_features()
+			#print(features)
 
-		if scale:
-			scaler = StandardScaler()
-			scaler.fit(features)
-			features = scaler.transform(features)
+			print("RP for node", self.id, "is", self.reach_percentage())
 
-		best_k = []
-		weight = []
-		best_score = []
+		
+			if scale:
+				scaler = StandardScaler()
+				scaler.fit(features)
+				features = scaler.transform(features)
 
-		for w in np.arange(0, 1.1, 0.1):
-			weighted_featues = (w, 1 - w) * features
-			knn_gscv.fit(weighted_featues, self.get_labels())
-			best_k.append(knn_gscv.best_params_['n_neighbors'])
-			weight.append(w)
-			best_score.append(knn_gscv.best_score_)
+			best_k = []
+			weight = []
+			best_score = []
+
+			print("Node scaled. Calculating weight.")
+
+			#print(features)
+			for w in np.arange(0, 2.1, 0.2):
+			#for w in np.arange(0, 1.1, 0.1):
+				weighted_features = (w, 1 - w) * features
+				#print(w, "Weighted features: ", weighted_features)
+				knn_gscv.fit(weighted_features, self.get_labels())
+				best_k.append(knn_gscv.best_params_['n_neighbors'])
+				weight.append(w)
+				best_score.append(knn_gscv.best_score_)
+
+			print(w)
+
+		print("Node weighted, scores: ", best_score)
+		print("Best Ks: ", best_k)
+		print("Best weight: ", weight)
+
 		best_score = np.array(best_score)
 		i = best_score.argmax()
 		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		print(best_k[i], weight[i])
-		print(best_score)
+		print("Best score:", best_score[i], "index", i)
+		print("Best K and a combination:", best_k[i], weight[i])
+		print("\n")
+		print("\n")
 		return best_k[i], weight[i], best_score[i]
 
 	# find optimal k for
