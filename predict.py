@@ -83,7 +83,8 @@ def predict_going(nodes, start, end, k=-1):
 	nearest = KNeighborsClassifier(n_neighbors=k)
 	#print(x_train.shape, nod.get_labels().shape)
 	nearest.fit(x_train, nod.get_labels())
-	return nearest.predict(x_test)
+	#print(x_test)
+	return nearest
 
 #
 # returns
