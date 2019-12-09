@@ -161,11 +161,10 @@ class Node:
 		#print(len(self.passages))
 		param_grid = {'n_neighbors': np.arange(1, max_k)}
 
-		def my_scorer(y_true, y_pred):
-			return matthews_corrcoef(y_true, y_pred)
-			#return np.count_nonzero(y_true == y_pred) / y_true.shape[0]
+		#def my_scorer(y_true, y_pred):
+		#	return np.count_nonzero(y_true == y_pred) / y_true.shape[0]
 
-		scorer = make_scorer(my_scorer)
+		scorer = make_scorer(matthews_corrcoef)
 
 		with warnings.catch_warnings(record=True) as w:
 			warnings.simplefilter("ignore")
@@ -193,29 +192,34 @@ class Node:
 			print("Node scaled. Calculating weight.")
 
 			#print(features)
-			for w in np.arange(0, 2.1, 0.2):
-			#for w in np.arange(0, 1.1, 0.1):
-				weighted_features = (w, 2 - w) * features
-				#print(w, "Weighted features: ", weighted_features)
-				knn_gscv.fit(weighted_features, self.get_labels())
-				best_k.append(knn_gscv.best_params_['n_neighbors'])
-				weight.append(w)
-				best_score.append(knn_gscv.best_score_)
+			optimize_a = True
 
-			print(w)
+			if optimize_a:
+				for w in np.arange(0, 1.1, 0.1):
+				#for w in np.arange(0, 1.1, 0.1):
+					weighted_features = (w, 1 - w) * features
+					#print(w, "Weighted features: ", weighted_features)
+					knn_gscv.fit(weighted_features, self.get_labels())
+					best_k.append(knn_gscv.best_params_['n_neighbors'])
+					weight.append(w)
+					best_score.append(knn_gscv.best_score_)
 
-		print("Node weighted, scores: ", best_score)
-		print("Best Ks: ", best_k)
-		print("Best weight: ", weight)
+				print("Node weighted, scores: ", best_score)
+				print("Best Ks: ", best_k)
+				print("Best weight: ", weight)
 
-		best_score = np.array(best_score)
-		i = best_score.argmax()
-		#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
-		print("Best score:", best_score[i], "index", i)
-		print("Best K and a combination:", best_k[i], weight[i])
-		print("\n")
-		print("\n")
-		return best_k[i], weight[i], best_score[i]
+				best_score = np.array(best_score)
+				i = best_score.argmax()
+				#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
+				print("Best score:", best_score[i], "index", i)
+				print("Best K and a combination:", best_k[i], weight[i])
+				print("\n")
+				print("\n")
+
+				return best_k[i], weight[i], best_score[i]
+			else:
+				knn_gscv.fit(features, self.get_labels())
+				return knn_gscv.best_params_['n_neighbors'], 0.5, knn_gscv.best_score_
 
 	# find optimal k for
 	# 1) place and time prediction

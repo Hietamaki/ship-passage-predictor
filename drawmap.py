@@ -5,7 +5,7 @@ import constants as c
 import database as db
 from map import Map
 
-t = 2
+t = 3
 
 
 def reach_acc(x): return x.reach_acc < 1
@@ -23,6 +23,10 @@ if t == 2:
 	check = reach_k
 	scale = c.MAX_K
 
+if t == 3:
+	attrib = "alpha"
+	label = "Optimoitu painotuskerroin"
+	scale = 1
 
 def ToNearest(n, to_nearest):
 	x = (n + (to_nearest / 2)) % to_nearest
@@ -38,11 +42,15 @@ x2 = (348298, 6620462, 1530070027)
 
 colormap = "RdYlGn"
 cmap = cm.get_cmap(colormap)
+values = []
 
 for n in nodes:
 
+	attrib_value = getattr(n, attrib)
+	values.append(attrib_value)
+
 	# To nearest 0.2
-	rp = ToNearest(getattr(n, attrib) / scale, 0.2)
+	rp = ToNearest(attrib_value / scale, 0.2)
 
 	# (0.8, 1) same color
 	if rp == 1:
@@ -52,4 +60,5 @@ for n in nodes:
 		print(rp)
 		n.draw(cmap(rp + 0.1))
 
+print(np.mean(values))
 Map.draw(label, scale, 6, cmap=colormap)

@@ -50,48 +50,36 @@ def predict_going(nodes, start, end, k=-1):
 	def to_rad(angle):
 		return (angle + np.pi) % (2 * np.pi) - np.pi
 
-	#print(cog, to_rad(cog))
 	# reshape cog so that new_passage is at center
 	fcog = fcog - (cog + np.pi)
 	fcog = fcog % (2 * np.pi)
 	fcog = fcog - np.pi
-	#print(fcog)
 
 	features = np.array((fcog, fspeed))
 	features = np.reshape(features.T, (-1, 2))
 
-	#if nod.time_k == 0:
-	#	print("K=0, no routes reaching.")
-	#	return 0, 0
-
 	x_train, x_test = normalize_features(features, new_passage)
-	#print("New_pas",new_passage)
-	#print("Feature",features)
 
+	# get optimized k
 	if k == -1:
 		k = nod.reach_k
 
-		# k is out of reach area or in measurement area
-		if k == -1:
-			if nod.rp == 1:
-				return True
-			else:
-				return False
-		else:
-			x_train = x_train * (nod.alpha, 2 - nod.alpha)
-			x_test = x_test * (nod.alpha, 2 - nod.alpha)
-
-	if k == 0:
-		print("K=0", len(x_train), "entries")
+	# if k not optimized (node in out of reach area or in measurement area)
+	if k == -1:
 		k = 1
-	#if k > len(x_test):
-	#	#print(k, len(x_test))
-	#	k = len(x_test)
+		#huonompi tulos vaikka ei pitäisi olla väliä?
+		#if nod.reach_percentage() == 1:
+		#	return [True]
+		#else:
+		#	return [False]
+	else:
+		x_train = x_train * (nod.alpha, 1 - nod.alpha)
+		x_test = x_test * (nod.alpha, 1 - nod.alpha)
+
+	#print("K=", k, "alpha=",nod.alpha)
 
 	nearest = KNeighborsClassifier(n_neighbors=k)
-	#print(x_train.shape, nod.get_labels().shape)
 	nearest.fit(x_train, nod.get_labels())
-	#print(x_test)
 	return nearest.predict(x_test)
 
 #
