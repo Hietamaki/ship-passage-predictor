@@ -70,8 +70,16 @@ def predict_going(nodes, start, end, k=-1):
 
 	if k == -1:
 		k = nod.reach_k
-		x_train = x_train * (nod.alpha, 2 - nod.alpha)
-		x_test = x_test * (nod.alpha, 2 - nod.alpha)
+
+		# k is out of reach area or in measurement area
+		if k == -1:
+			if nod.rp == 1:
+				return True
+			else:
+				return False
+		else:
+			x_train = x_train * (nod.alpha, 2 - nod.alpha)
+			x_test = x_test * (nod.alpha, 2 - nod.alpha)
 
 	if k == 0:
 		print("K=0", len(x_train), "entries")
@@ -84,7 +92,7 @@ def predict_going(nodes, start, end, k=-1):
 	#print(x_train.shape, nod.get_labels().shape)
 	nearest.fit(x_train, nod.get_labels())
 	#print(x_test)
-	return nearest
+	return nearest.predict(x_test)
 
 #
 # returns

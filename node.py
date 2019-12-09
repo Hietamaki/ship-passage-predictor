@@ -152,7 +152,7 @@ class Node:
 	def find_reach_k(self, scale=True):
 
 		if self.reach_percentage() == 0 or self.reach_percentage() == 1:
-			return 1, 1, 1
+			return -1, -1, -1
 		max_k = 25
 		# k ei voi olla isompi kuin samplen koko. k-fold 5:llä k = sampleja * 4/5
 		if 35 > len(self.passages):
@@ -181,7 +181,6 @@ class Node:
 
 			print("RP for node", self.id, "is", self.reach_percentage())
 
-		
 			if scale:
 				scaler = StandardScaler()
 				scaler.fit(features)
@@ -196,7 +195,7 @@ class Node:
 			#print(features)
 			for w in np.arange(0, 2.1, 0.2):
 			#for w in np.arange(0, 1.1, 0.1):
-				weighted_features = (w, 1 - w) * features
+				weighted_features = (w, 2 - w) * features
 				#print(w, "Weighted features: ", weighted_features)
 				knn_gscv.fit(weighted_features, self.get_labels())
 				best_k.append(knn_gscv.best_params_['n_neighbors'])

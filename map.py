@@ -27,6 +27,7 @@ class Map:
 
 		# limit to Finnish sea area
 		#ax.set_extent([1800100, 3400100, 7600100, 8800100], crs=ccrs.Mercator())
+		# limit to reach area
 		ax.set_extent([2180000, 3300000, 7900000, 8500000], crs=ccrs.Mercator())
 
 		cls.draw_area(MEAS_AREA, 'green')

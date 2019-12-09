@@ -1,19 +1,32 @@
 from matplotlib import cm
+import numpy as np
 
 import constants as c
 import database as db
 from map import Map
 
+t = 2
+
+
+def reach_acc(x): return x.reach_acc < 1
+
 attrib = "reach_acc"
 label = "Epävarmuustarkastelu"
-check = lambda n: n.reach_acc < 1
+check = reach_acc
+scale = 1
 
-#attrib = "reach_k"
-#label = "Optimoitu K"
+def reach_k(x): return x.reach_k > 0
+
+if t == 2:
+	attrib = "reach_k"
+	label = "Optimoitu K"
+	check = reach_k
+	scale = c.MAX_K
+
 
 def ToNearest(n, to_nearest):
 	x = (n + (to_nearest / 2)) % to_nearest
-	return n + 0.1 - x
+	return np.around(n + 0.1 - x, 2)
 
 nodes = db.load_list(c.NODES_FILENAME)
 
@@ -29,11 +42,14 @@ cmap = cm.get_cmap(colormap)
 for n in nodes:
 
 	# To nearest 0.2
-	rp = ToNearest(n.getattr(attrib), 0.2)
+	rp = ToNearest(getattr(n, attrib) / scale, 0.2)
 
-	#if rp > 1:
-	#print(n.reach_acc,"-", x, "=", rp)
-	if check:
+	# (0.8, 1) same color
+	if rp == 1:
+		rp -= 0.2
+
+	if getattr(n, attrib) > 0:
+		print(rp)
 		n.draw(cmap(rp + 0.1))
 
-Map.draw(label, 1, 6, cmap=colormap)
+Map.draw(label, scale, 6, cmap=colormap)
