@@ -25,7 +25,7 @@ def normalize_features(train_data, test_data):
 	return train_data, test_data
 
 
-def predict_going(nodes, start, end, k=-1):
+def going_preprocess(nodes, start, end, k=-1):
 
 	m_s, cog = get_velocity(start, end)
 	new_passage = np.array((0, m_s))
@@ -76,10 +76,15 @@ def predict_going(nodes, start, end, k=-1):
 		x_train = x_train * (nod.alpha, 1 - nod.alpha)
 		x_test = x_test * (nod.alpha, 1 - nod.alpha)
 
+	return x_train, x_test, nod.get_labels(), k
+
 	#print("K=", k, "alpha=",nod.alpha)
 
+def predict_going(nodes, start, end, k=-1):
+
+	x_train, x_test, labels, k = going_preprocess(nodes, start, end, k)
 	nearest = KNeighborsClassifier(n_neighbors=k)
-	nearest.fit(x_train, nod.get_labels())
+	nearest.fit(x_train, labels)
 	return nearest.predict(x_test)
 
 #

@@ -7,7 +7,8 @@ import constants as c
 from node import Node
 from database import load_list
 from map import Map
-from predict import predict_going
+from predict import predict_going, going_preprocess
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 
 nodes = load_list(c.NODES_FILENAME)
 
@@ -28,17 +29,27 @@ def mean_confidence_interval(data, confidence=0.95):
     return m, m-h, m+h
 
 n.draw()
-print(n.rp)
+#print(n.rp)
 
 #Map.draw()
 
-print(len(n.passages))
+#print(len(n.passages))
 means = []
-for p in pick_random_passage(n, 50):
-	route = n.get_route(p)
+#for p in pick_random_passage(n, 50):
+p = pick_random_passage(n, 1)[0]
+route = n.get_route(p)
+x_train, x_test, labels, k = going_preprocess(nodes, route[0], route[1])
+nearest = NearestNeighbors(n_neighbors=k)
+nearest.fit(x_train)
+dists, neighbors_id = nearest.kneighbors(x_test)
+print(neighbors_id[0])
+print("A")
+for i in range(0, 500):
+	means.append(np.mean(np.random.choice(labels[neighbors_id[0]], n.reach_k)))
+	
 
-	means.append(predict_going(nodes, route[0], route[1]))
 
+print(means)
 print(mean_confidence_interval(means))
 print(np.mean(means))
 plt.hist(means, 20)

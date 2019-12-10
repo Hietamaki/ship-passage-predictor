@@ -30,7 +30,7 @@ predictions = []
 
 cmap = cm.get_cmap('coolwarm')
 
-NUM_PASSAGES = 100
+NUM_PASSAGES = 10
 
 for n in n_test:
 	correct = 0
