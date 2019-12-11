@@ -27,6 +27,7 @@ class Node:
 		self.passage_i = []
 		self.arrival = []
 		self.rp = -1
+		self.uncertainty = []
 
 		self.x = id % NODES_IN_ROW * SPACING_M + (SPACING_M / 2)
 		self.y = (id // NODES_IN_ROW) * SPACING_M + 6100000 + (SPACING_M / 2)
@@ -119,6 +120,12 @@ class Node:
 			self.rp = k / len(self.label)
 
 		return self.rp
+
+	def get_k(self):
+		if self.reach_k == -1:
+			return 1
+		else:
+			return self.reach_k
 
 	# Return arrival time in seconds
 	# not used

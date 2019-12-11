@@ -31,6 +31,7 @@ predictions = []
 cmap = cm.get_cmap('coolwarm')
 
 NUM_PASSAGES = 10
+MAP_TYPE = True
 
 for n in n_test:
 	correct = 0
@@ -40,12 +41,17 @@ for n in n_test:
 	if n.reach_percentage() < 0.01 or len(n.passages) < 100:
 		continue
 	labels = n.get_labels()
+
 	for i in pick_random_passage(n, NUM_PASSAGES):
+		if n.uncertainty[i] != MAP_TYPE:
+			continue
+
 		passage = n.passages[i]
 		route = n.get_route(i)
 		if len(route) < 2:
 			print("Empty route")
 			continue
+
 
 		# pick random spot from passage.route
 		# use 2 data points for calculation
