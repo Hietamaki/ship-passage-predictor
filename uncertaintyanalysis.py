@@ -86,7 +86,7 @@ for i, n in enumerate(tnodes):
 	print(i,"of", len(tnodes), "Results:", len(results), "of", len(n.passages), np.sum(results) / len(results))
 
 	#print(np.mean(means))
-save_list(TEST_NODES_FILENAME, tnodes, "w")
+save_list(c.TEST_NODES_FILENAME, tnodes, "w")
 #plt.hist(means, 20)
 
 

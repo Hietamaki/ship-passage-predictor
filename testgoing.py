@@ -16,10 +16,13 @@ from sklearn.metrics import (brier_score_loss, precision_score, recall_score,
 
 def pick_random_passage(node, n):
 
-	labeleds = [i for i in range(0, len(node.label))]
-	size = len(labeleds) if len(labeleds) < n else n
+	ids = node.uncertainty == MAP_TYPE
+	passages = [i for i, x in enumerate(ids) if x]
+	#passages =  
+	#labeleds = [i for i in range(0, len(node.label))]
+	size = len(passages) if len(passages) < n else n
 
-	return random.sample(labeleds, size)
+	return random.sample(passages, size)
 
 
 n_train = load_list(c.NODES_FILENAME)
@@ -30,7 +33,7 @@ predictions = []
 
 cmap = cm.get_cmap('coolwarm')
 
-NUM_PASSAGES = 10
+NUM_PASSAGES = 30
 MAP_TYPE = True
 
 for n in n_test:
@@ -42,6 +45,7 @@ for n in n_test:
 		continue
 	labels = n.get_labels()
 
+	count = 0
 	for i in pick_random_passage(n, NUM_PASSAGES):
 		if n.uncertainty[i] != MAP_TYPE:
 			continue
@@ -51,7 +55,6 @@ for n in n_test:
 		if len(route) < 2:
 			print("Empty route")
 			continue
-
 
 		# pick random spot from passage.route
 		# use 2 data points for calculation
@@ -76,16 +79,19 @@ for n in n_test:
 		predictions.append(prediction)
 
 		correct += labels[i] == prediction
+		count += 1
 
 		#if labels[i] != prediction:
 		#	passage.plot(random_color())
 		#total += 1
 
-	#if n.reach_acc < 1:
-	#hmmp = np.bincount(np.array(labels[i]) == np.array(predictions))[1]
-	hmmp = correct / NUM_PASSAGES
-	print(correct, NUM_PASSAGES, hmmp)
-	n.draw(cmap(np.round(hmmp, 1)))
+	if count >= 5:
+		#if n.reach_acc < 1:
+		#hmmp = np.bincount(np.array(labels[i]) == np.array(predictions))[1]
+		hmmp = correct / count
+		print(correct, count, hmmp)
+		n.draw(cmap(np.round(hmmp, 1)))
+
 
 
 # do confusion matrix
