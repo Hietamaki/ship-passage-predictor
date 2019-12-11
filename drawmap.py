@@ -25,7 +25,7 @@ if t == 2:
 
 if t == 3:
 	attrib = "alpha"
-	label = "Optimoitu painotuskerroin"
+	label = "Optimoitu painotuskerroin (suunta=1, nopeus=0)"
 	scale = 1
 
 def ToNearest(n, to_nearest):
@@ -47,7 +47,6 @@ values = []
 for n in nodes:
 
 	attrib_value = getattr(n, attrib)
-	values.append(attrib_value)
 
 	# To nearest 0.2
 	rp = ToNearest(attrib_value / scale, 0.2)
@@ -56,9 +55,11 @@ for n in nodes:
 	if rp == 1:
 		rp -= 0.2
 
-	if getattr(n, attrib) > 0:
-		print(rp)
+	if getattr(n, attrib) > -1:
+		values.append(attrib_value)
+		print(attrib_value)
 		n.draw(cmap(rp + 0.1))
 
+print(values)
 print(np.mean(values))
 Map.draw(label, scale, 6, cmap=colormap)

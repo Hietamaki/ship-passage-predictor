@@ -185,18 +185,17 @@ class Node:
 				scaler.fit(features)
 				features = scaler.transform(features)
 
-			best_k = []
-			weight = []
-			best_score = []
-
-			print("Node scaled. Calculating weight.")
-
 			#print(features)
 			optimize_a = True
 
 			if optimize_a:
+				best_k = []
+				weight = []
+				best_score = []
+
+				print("Node scaled. Calculating weight.")
+
 				for w in np.arange(0, 1.1, 0.1):
-				#for w in np.arange(0, 1.1, 0.1):
 					weighted_features = (w, 1 - w) * features
 					#print(w, "Weighted features: ", weighted_features)
 					knn_gscv.fit(weighted_features, self.get_labels())
@@ -212,11 +211,11 @@ class Node:
 				i = best_score.argmax()
 				#print("Setting to", knn_gscv.best_params_, knn_gscv.best_score_)
 				print("Best score:", best_score[i], "index", i)
-				print("Best K and a combination:", best_k[i], weight[i])
+				print("Best K and a combination:", best_k[i], np.round(weight[i],2))
 				print("\n")
 				print("\n")
 
-				return best_k[i], weight[i], best_score[i]
+				return best_k[i], np.round(weight[i], 2), best_score[i]
 			else:
 				knn_gscv.fit(features, self.get_labels())
 				return knn_gscv.best_params_['n_neighbors'], 0.5, knn_gscv.best_score_
