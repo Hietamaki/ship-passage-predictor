@@ -50,15 +50,15 @@ def get_route_ci(nodes, route):
 	sum = np.sum(means)
 
 	if sum == 0:
-		return False
+		return 0
 	elif sum == len(means):
-		return True
+		return 1
 
 	ci = mean_confidence_interval(means)
 	if ci[0] < 0.5 and ci[1] < 0.5:
-		return False
+		return 0
 	elif ci[0] > 0.5 and ci[1] > 0.5:
-		return True
+		return 1
 	else:
 		print(ci)
 		return -1
