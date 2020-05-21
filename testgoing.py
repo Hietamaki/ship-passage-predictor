@@ -14,99 +14,113 @@ from sklearn.utils.multiclass import unique_labels
 from sklearn.metrics import (brier_score_loss, precision_score, recall_score,
                              f1_score, matthews_corrcoef)
 
-def pick_random_passage(node, n):
+UNCERTAINTY_ANALYSIS = True;
+# 1 = varmat menevät, 0 = varmat ei menevät, -1 = confidence interval on both sides
+MAP_TYPE = -1
+NUM_PASSAGES = 20
 
-	ids = node.uncertainty == MAP_TYPE
-	passages = [i for i, x in enumerate(ids) if x]
-	#passages =  
-	#labeleds = [i for i in range(0, len(node.label))]
+def pick_random_passage(node, n, analysis_type):
+
+	if UNCERTAINTY_ANALYSIS == analysis_type:
+		ids = node.uncertainty == MAP_TYPE
+		passages = [i for i, x in enumerate(ids) if x]
+	else:
+		# Accuracy analysis:
+		passages = [i for i in range(0, len(node.label))]
 	size = len(passages) if len(passages) < n else n
 
 	return random.sample(passages, size)
 
 
-n_train = load_list(c.NODES_FILENAME)
-n_test = load_list(c.TEST_NODES_FILENAME)
 
-actuals = []
-predictions = []
+def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAGES):
+	#n_train = load_list(c.NODES_FILENAME)
+	#n_test = load_list(c.TEST_NODES_FILENAME)
 
-cmap = cm.get_cmap('coolwarm')
+	actuals = []
+	predictions = []
 
-NUM_PASSAGES = 500
-MAP_TYPE = -1
+	cmap = cm.get_cmap('coolwarm')
+	Map.init()
 
-for n in n_test:
-	correct = 0
-	total = 0
+	for n in n_test:
+		correct = 0
+		total = 0
 
-	# do not include nodes that are out of reach area
-	if n.reach_percentage() < 0.01 or len(n.passages) < 100:
-		continue
-	labels = n.get_labels()
-
-	count = 0
-	for i in pick_random_passage(n, NUM_PASSAGES):
-		if n.uncertainty[i] != MAP_TYPE:
+		# do not include nodes that are out of reach area
+		if n.reach_percentage() < 0.01 or len(n.passages) < 100:
 			continue
+		labels = n.get_labels()
 
-		passage = n.passages[i]
-		route = n.get_route(i)
-		if len(route) < 2:
-			print("Empty route")
-			continue
+		count = 0
+		for i in pick_random_passage(n, num_passages, analysis_type):
+			if analysis_type == UNCERTAINTY_ANALYSIS and n.uncertainty[i] != MAP_TYPE:
+				continue
 
-		# pick random spot from passage.route
-		# use 2 data points for calculation
-		spot = random.randint(0, len(route) - 2)
-		prediction = predict_going(n_train, route[spot], route[spot + 1])[0]
+			passage = n.passages[i]
+			route = n.get_route(i)
+			if len(route) < 2:
+				print("Empty route")
+				continue
 
-		'''
-		if abs(t) > 13:
-			n.add_passage(passage, n.passage_i[i])
-			#print("Already visited area")
-			c = random_color()
-			passage.plot(c)
-			n.draw(c)
-			Map.draw_circle(route[spot + 1][0], route[spot + 1][1], 2000, "red")
-			#print(n.label[i])
-			print(
-				predict_t / 3600, real_arrival / 3600, "(",
-				format_date(route[spot + 1][2]),
-				format_date(passage.enters_meas_area()), ")")
-		'''
-		actuals.append(labels[i])
-		predictions.append(prediction)
+			# pick random spot from passage.route
+			# use 2 data points for calculation
+			spot = random.randint(0, len(route) - 2)
+			prediction = predict_going(n_train, route[spot], route[spot + 1])[0]
 
-		correct += labels[i] == prediction
-		count += 1
+			'''
+			if abs(t) > 13:
+				n.add_passage(passage, n.passage_i[i])
+				#print("Already visited area")
+				c = random_color()
+				passage.plot(c)
+				n.draw(c)
+				Map.draw_circle(route[spot + 1][0], route[spot + 1][1], 2000, "red")
+				#print(n.label[i])
+				print(
+					predict_t / 3600, real_arrival / 3600, "(",
+					format_date(route[spot + 1][2]),
+					format_date(passage.enters_meas_area()), ")")
+			'''
+			actuals.append(labels[i])
+			predictions.append(prediction)
 
-		#if labels[i] != prediction:
-		#	passage.plot(random_color())
-		#total += 1
+			correct += labels[i] == prediction
+			count += 1
 
-	if count >= 5:
-		#if n.reach_acc < 1:
-		#hmmp = np.bincount(np.array(labels[i]) == np.array(predictions))[1]
-		hmmp = correct / count
-		print(correct, count, hmmp)
-		n.draw(cmap(np.round(hmmp, 1)))
+			#if labels[i] != prediction:
+			#	passage.plot(random_color())
+			#total += 1
 
+		if count >= 5:
+			#if n.reach_acc < 1:
+			#hmmp = np.bincount(np.array(labels[i]) == np.array(predictions))[1]
+			hmmp = correct / count
+			print(correct, count, hmmp)
+			n.draw(cmap(np.round(hmmp, 1)))
 
+	label = "Uncertainty analysis" if analysis_type else "Prediction accuracy"
+	Map.draw(label, cbar=1, cbar_steps=11)
 
-# do confusion matrix
-matrix = confusion_matrix(actuals, predictions)
-text = "x"
-print(matrix)
-print("\tPrecision: %1.3f" % precision_score(actuals, predictions))
-print("\tRecall: %1.3f" % recall_score(actuals, predictions))
-print("\tF1: %1.3f\n" % f1_score(actuals, predictions))
-print("\tMatthew's: %1.3f\n" % matthews_corrcoef(actuals, predictions))
-#print("Average time delta", np.mean(td))
-#text = "Correct predictions {0}%\n".format(int((1) / len(actuals) * 100))
-#text += "n=" + str(len(td))
-#print(text)
-Map.draw("Prediction accuracy", cbar=1, cbar_steps=11)
+	# do confusion matrix
+	matrix = confusion_matrix(actuals, predictions)
+	text = "x"
+	print(matrix)
+	print("\tPrecision: %1.3f" % precision_score(actuals, predictions))
+	print("\tRecall: %1.3f" % recall_score(actuals, predictions))
+	print("\tF1: %1.3f\n" % f1_score(actuals, predictions))
+	print("\tMatthew's: %1.3f\n" % matthews_corrcoef(actuals, predictions))
+	#print("Average time delta", np.mean(td))
+	#text = "Correct predictions {0}%\n".format(int((1) / len(actuals) * 100))
+	#text += "n=" + str(len(td))
+	#print(text)
+	
+
+	plot_confusion_matrix(
+		actuals, predictions, ["Yes", "No"], True,
+		"Prediction accuracy for ships going to measurement area"
+		)
+	plt.show()
 
 def draw_chart(values):
 	plt.hist(values, np.arange(-5, 5, step=0.5), density=True)
@@ -174,11 +188,6 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     fig.tight_layout()
     return ax
 
-plot_confusion_matrix(
-	actuals, predictions, ["Yes", "No"], True,
-	"Prediction accuracy for ships going to measurement area"
-	)
-plt.show()
 
 
 #draw_chart(td)
