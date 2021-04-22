@@ -44,30 +44,13 @@ def pick_random_passage(node, n, analysis_type):
 		return pos_arr + neg_arr
 
 
+def do_analysis(n_train, n, actuals, predictions, num_passages, analysis_type):
 
-def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
-	#n_train = load_list(c.NODES_FILENAME)
-	#n_test = load_list(c.TEST_NODES_FILENAME)
+	correct = 0
+	count = 0
+	labels = n.get_labels()
 
-	actuals = []
-	predictions = []
-
-	cmap = cm.get_cmap('coolwarm')
-	Map.init()
-
-	for n in n_test:
-		correct = 0
-		total = 0
-
-		# do not include nodes that are out of reach area
-		# n.reach_percentage() > 0.95 or 
-		if n.reach_percentage() < 0.01 or len(n.passages) < num_passages:
-			print("skipping: "+str(n.reach_percentage()) + " (len "+str(len(n.passages))+")")
-			continue
-		labels = n.get_labels()
-
-		count = 0
-		for i in pick_random_passage(n, num_passages, analysis_type):
+	for i in pick_random_passage(n, num_passages, analysis_type):
 			if analysis_type == UNCERTAINTY_ANALYSIS and n.uncertainty[i] != MAP_TYPE:
 				continue
 
@@ -107,6 +90,48 @@ def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
 			#if labels[i] != prediction:
 			#	passage.plot(random_color())
 			#total += 1
+	return correct, count, actuals, predictions
+
+def do_uncertainty(n_train, n, actuals, predictions, num_passages, analysis_type):
+
+	labels = n.get_labels()
+	#print(labels)
+	#print(actuals)
+	actuals = labels.tolist() + actuals
+	predictions = (n.uncertainty_pred >= 0.5).tolist() + predictions
+	#predictions = predict_going + np.asarray(labels)
+	#print(n.uncertainty)
+	return np.sum(n.uncertainty != -1), n.uncertainty.shape[0], actuals, predictions
+
+def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
+	#n_train = load_list(c.NODES_FILENAME)
+	#n_test = load_list(c.TEST_NODES_FILENAME)
+
+	actuals = []
+	predictions = []
+
+	total = 0
+	total2 = 0
+	cmap = cm.get_cmap('coolwarm')
+	Map.init()
+
+	for n in n_test:
+		
+		#total = 0
+
+		# do not include nodes that are out of reach area
+		# n.reach_percentage() > 0.95 or 
+		if n.reach_percentage() < 0.01 or len(n.passages) < num_passages:
+			print("skipping: "+str(n.reach_percentage()) + " (len "+str(len(n.passages))+")")
+			continue
+
+		if analysis_type == UNCERTAINTY_ANALYSIS:
+			correct, count, actuals, predictions = do_uncertainty(n_train, n, actuals, predictions, num_passages, analysis_type)
+		else:
+			correct, count, actuals, predictions = do_analysis(n_train, n, actuals, predictions, num_passages, analysis_type)
+
+		total += np.sum(n.uncertainty != -1)
+		total2 += n.uncertainty.shape[0]
 
 		if count >= 5:
 			#if n.reach_acc < 1:
@@ -120,9 +145,13 @@ def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
 		label = "Permutation test"
 
 	Map.draw(label, cbar=1, cbar_steps=11)
-
+	print("total, total2")
+	print(total, total2, total / total2)
 	actuals = np.array(actuals)
 	predictions = np.array(predictions)
+	print("actuals & predictions:")
+	print(actuals)
+	print(predictions)
 
 	matrix = confusion_matrix(actuals, predictions)
 	text = "x"
