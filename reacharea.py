@@ -7,6 +7,13 @@ import pandas as pd
 
 import route
 import ship as sh
+import constants as c
+import database as db
+import numpy as np
+import pandas as pd
+
+nodes = db.load_list(c.NODES_FILENAME)
+ships = db.load_list(c.SHIPS_FILENAME)
 
 def draw_reach_area(start_date, end_date):
 	dates = [r for r in pd.date_range(start_date, end_date)]
@@ -28,7 +35,7 @@ def points_reaching_measurement_area(date):
 	count1 = 0
 	count2 = 0
 
-	for ship in sh.Ship.list:
+	for ship in ships:
 		route = ship.get_route(
 			date.timestamp(),
 			(date + timedelta(days=1)).timestamp())

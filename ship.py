@@ -79,7 +79,7 @@ class Ship:
 		
 		return ~(ship_still | lost_contact)
 
-	'''
+	
 	# reacharea.py functions
 
 	def get_route(self, start_time=0, end_time=253385798400000):
@@ -92,23 +92,23 @@ class Ship:
 	def get_timecoords(self, range):
 
 		return {
-			"x": self.x[range[0]:range[1]],
-			"y": self.y[range[0]:range[1]],
-			"time": self.time[range[0]:range[1]]
+			"x": self.xyt[0][range[0]:range[1]],
+			"y": self.xyt[1][range[0]:range[1]],
+			"time": self.xyt[2][range[0]:range[1]]
 		}
 
 	def get_range_by_time(self, start_time=0, end_time=253385798400000):
 
 		range_start = -1
-		range_end = len(self.x) - 1
+		range_end = len(self.xyt) - 1
 
-		for i in range(0, len(self.x)):
+		for i in range(0, len(self.xyt)):
 			#print(self.time[i], "vs.")
 			#print(end_time)
 
-			if start_time > self.time[i]:
+			if start_time > self.xyt[2][i]:
 				continue
-			elif end_time < self.time[i]:
+			elif end_time < self.xyt[2][i]:
 				#print("Range ends", i)
 				range_end = i - 1
 				break
@@ -117,4 +117,3 @@ class Ship:
 				range_start = i
 
 		return [range_start, range_end]
-'''

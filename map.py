@@ -14,7 +14,9 @@ import random;
 
 class Map:
 	print("Uusi ax")
+	plt.figure(figsize=(16,16))
 	ax = plt.axes(projection=ccrs.Mercator())
+	plt.gcf().set_size_inches(18,8)
 	print(ax)
 	#ax = plt.axes(projection=ccrs.epsg(3067))
 	@classmethod
@@ -25,6 +27,8 @@ class Map:
 		cls.ax = plt.axes(projection=ccrs.Mercator(), label=str(random.randint(0, 1000000)))
 		cls.ax.set_xlabel("uniq label" + str(random.randint(0, 1000000)))
 		cls.ax.set_ylabel("uniq label" + str(random.randint(0, 1000000)))
+		plt.gcf().set_size_inches(18,8)
+
 
 	@classmethod
 	def draw(cls, title=False, cbar=False, cbar_steps=100, cmap="coolwarm"):

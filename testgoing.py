@@ -14,26 +14,38 @@ from sklearn.utils.multiclass import unique_labels
 from sklearn.metrics import (brier_score_loss, precision_score, recall_score,
                              f1_score, matthews_corrcoef)
 
-UNCERTAINTY_ANALYSIS = True;
+UNCERTAINTY_ANALYSIS = 1;
+PERMUTATION_TEST = 2;
 # 1 = varmat menevät, 0 = varmat ei menevät, -1 = confidence interval on both sides
-MAP_TYPE = -1
-NUM_PASSAGES = 20
+MAP_TYPE = 0
+NUM_PASSAGES = 100
 
 def pick_random_passage(node, n, analysis_type):
 
 	if UNCERTAINTY_ANALYSIS == analysis_type:
 		ids = node.uncertainty == MAP_TYPE
 		passages = [i for i, x in enumerate(ids) if x]
+
+		size = len(passages) if len(passages) < n else n
+
+		return random.sample(passages, size)
 	else:
 		# Accuracy analysis:
-		passages = [i for i in range(0, len(node.label))]
-	size = len(passages) if len(passages) < n else n
+		# Do stratification so that at least 20%
+		positive_passages = [i for i, x in enumerate(np.array(node.label) == True) if x]
+		negative_passages = [i for i, x in enumerate(np.array(node.label) == False) if x]
 
-	return random.sample(passages, size)
+		#passages = [i for i in range(0, len(node.label))]
+		size = len(positive_passages) if len(positive_passages) < int(n/2) else int(n/2)
+		pos_arr = random.sample(positive_passages, size)
+		size = len(negative_passages) if len(negative_passages) < int(n/2) else int(n/2)
+		neg_arr = random.sample(negative_passages, size)
+
+		return pos_arr + neg_arr
 
 
 
-def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAGES):
+def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
 	#n_train = load_list(c.NODES_FILENAME)
 	#n_test = load_list(c.TEST_NODES_FILENAME)
 
@@ -48,7 +60,9 @@ def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAG
 		total = 0
 
 		# do not include nodes that are out of reach area
-		if n.reach_percentage() < 0.01 or len(n.passages) < 100:
+		# n.reach_percentage() > 0.95 or 
+		if n.reach_percentage() < 0.01 or len(n.passages) < num_passages:
+			print("skipping: "+str(n.reach_percentage()) + " (len "+str(len(n.passages))+")")
 			continue
 		labels = n.get_labels()
 
@@ -66,7 +80,9 @@ def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAG
 			# pick random spot from passage.route
 			# use 2 data points for calculation
 			spot = random.randint(0, len(route) - 2)
-			prediction = predict_going(n_train, route[spot], route[spot + 1])[0]
+			prediction = predict_going(n_train,
+				route[spot], route[spot + 1],
+				permutate=(analysis_type == PERMUTATION_TEST))[0]
 
 			'''
 			if abs(t) > 13:
@@ -81,7 +97,7 @@ def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAG
 					predict_t / 3600, real_arrival / 3600, "(",
 					format_date(route[spot + 1][2]),
 					format_date(passage.enters_meas_area()), ")")
-			'''
+			'''	
 			actuals.append(labels[i])
 			predictions.append(prediction)
 
@@ -100,9 +116,14 @@ def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAG
 			n.draw(cmap(np.round(hmmp, 1)))
 
 	label = "Uncertainty analysis" if analysis_type else "Prediction accuracy"
+	if analysis_type == PERMUTATION_TEST:
+		label = "Permutation test"
+
 	Map.draw(label, cbar=1, cbar_steps=11)
 
-	# do confusion matrix
+	actuals = np.array(actuals)
+	predictions = np.array(predictions)
+
 	matrix = confusion_matrix(actuals, predictions)
 	text = "x"
 	print(matrix)
@@ -115,10 +136,14 @@ def test_going(n_train, n_test, analysis_type = False, num_passages = NUM_PASSAG
 	#text += "n=" + str(len(td))
 	#print(text)
 	
+	label = "Prediction accuracy for ships going to measurement area"
+
+	if analysis_type == PERMUTATION_TEST:
+		label = "Permutation test for ships going to measurement area"
 
 	plot_confusion_matrix(
 		actuals, predictions, ["Yes", "No"], True,
-		"Prediction accuracy for ships going to measurement area"
+		label
 		)
 	plt.show()
 

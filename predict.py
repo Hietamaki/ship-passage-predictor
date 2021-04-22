@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from util import get_velocity, distance, get_closest
 
 
-def normalize_features(train_data, test_data):
+def normalize_features(train_data, test_data = False):
 
 	#if len(train_data) < 1:
 	#		print("Train data is empty!")
@@ -20,23 +20,23 @@ def normalize_features(train_data, test_data):
 	scaler.fit(train_data)
 
 	train_data = scaler.transform(train_data)
-	test_data = scaler.transform(test_data)
+
+	if test_data is not False:
+		test_data = scaler.transform(test_data)
 
 	return train_data, test_data
 
 
-def going_preprocess(nodes, start, end, k=-1):
+def center_cogs(cogs, center_cog):
+	fcog = cogs - (center_cog + np.pi)
+	fcog = fcog % (2 * np.pi)
+	return fcog - np.pi
 
-	m_s, cog = get_velocity(start, end)
-	new_passage = np.array((0, m_s))
-	new_passage = np.reshape(new_passage.T, (-1, 2))
+def new_passage(cog, speed):
+	new_passage = np.array((cog, speed))
+	return np.reshape(new_passage.T, (-1, 2))
 
-	# Node from start of path
-	nod = get_closest(nodes, start[0], start[1])
-
-	if not nod:
-		print("Node not found?")
-		return 0, 0
+def feature_preparation(nod, cog=0, m_s=0, k=-1, alpha=True):
 
 	features = nod.get_features()
 	features = np.reshape(features.T, (2, -1))
@@ -47,18 +47,17 @@ def going_preprocess(nodes, start, end, k=-1):
 		print("No passages reaching meas zone.")
 		return 0, 0
 
-	def to_rad(angle):
-		return (angle + np.pi) % (2 * np.pi) - np.pi
+	#def to_rad(angle):
+	#	return (angle + np.pi) % (2 * np.pi) - np.pi
 
 	# reshape cog so that new_passage is at center
-	fcog = fcog - (cog + np.pi)
-	fcog = fcog % (2 * np.pi)
-	fcog = fcog - np.pi
+	fcog = center_cogs(fcog, cog)
 
 	features = np.array((fcog, fspeed))
 	features = np.reshape(features.T, (-1, 2))
 
-	x_train, x_test = normalize_features(features, new_passage)
+	new_pas = new_passage(0, m_s)
+	x_train, x_test = normalize_features(features, new_pas)
 
 	# get optimized k
 	if k == -1:
@@ -72,7 +71,7 @@ def going_preprocess(nodes, start, end, k=-1):
 		#	return [True]
 		#else:
 		#	return [False]
-	else:
+	elif alpha:
 		x_train = x_train * (nod.alpha, 1 - nod.alpha)
 		x_test = x_test * (nod.alpha, 1 - nod.alpha)
 
@@ -80,11 +79,25 @@ def going_preprocess(nodes, start, end, k=-1):
 
 	#print("K=", k, "alpha=",nod.alpha)
 
-def predict_going(nodes, start, end, k=-1):
+def predict_going(nodes, start, end, k=-1, permutate=False, alpha=True):
 
-	x_train, x_test, labels, k = going_preprocess(nodes, start, end, k)
+	m_s, cog = get_velocity(start, end)
+
+	# Node from start of path
+	nod = get_closest(nodes, start[0], start[1])
+
+	if not nod:
+		print("Node not found?")
+		return 0, 0
+
+	x_train, x_test, labels, k =  feature_preparation(nod, cog, m_s, k, alpha)
+
 	nearest = KNeighborsClassifier(n_neighbors=k)
-	nearest.fit(x_train, labels)
+
+	if permutate:
+		nearest.fit(x_train, np.random.permutation(labels))
+	else:
+		nearest.fit(x_train, labels)
 	return nearest.predict(x_test)
 
 #
