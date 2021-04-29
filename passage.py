@@ -12,6 +12,8 @@ class Passage:
 	next_id = 0
 
 	def __init__(self, ship, xyt):
+		Passage.next_id += 1
+		self.id = Passage.next_id
 		self.ship = ship
 		self.interpolate(xyt[0], xyt[1], xyt[2])
 
@@ -52,8 +54,20 @@ class Passage:
 
 		#return in_area
 
-	def plot(self, color="red"):
-		Map.plot_route(self.x, self.y, color=color)
+	def plot(self, color="red", timelimit=-1, timelimit2=-1):
+
+		x = self.x
+		y = self.y
+
+		if timelimit > 0:
+			times = (self.time >= timelimit) & (self.time <= timelimit2)
+			#print(times)
+			x = x[times]
+			y = y[times]
+			#nz = np.nonzero(times)[0]
+			Map.draw_circle(x[0], y[0], 2000, "orange")
+
+		Map.plot_route(x, y, color=color)
 
 	# return the part of route that is in measurement area
 	

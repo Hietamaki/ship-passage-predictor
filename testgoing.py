@@ -17,8 +17,10 @@ from sklearn.metrics import (brier_score_loss, precision_score, recall_score,
 UNCERTAINTY_ANALYSIS = 1;
 PERMUTATION_TEST = 2;
 # 1 = varmat menevät, 0 = varmat ei menevät, -1 = confidence interval on both sides
-MAP_TYPE = 0
+MAP_TYPE = 1
 NUM_PASSAGES = 100
+
+MAP_CMAP = 'coolwarm'
 
 def pick_random_passage(node, n, analysis_type):
 
@@ -31,18 +33,23 @@ def pick_random_passage(node, n, analysis_type):
 		return random.sample(passages, size)
 	else:
 		# Accuracy analysis:
+		passages = [i for i in range(0, len(node.label))]
+		size = len(passages) if len(passages) < n else n
+
+		return random.sample(passages, size)
+
+		# Accuracy analysis:
 		# Do stratification so that at least 20%
-		positive_passages = [i for i, x in enumerate(np.array(node.label) == True) if x]
-		negative_passages = [i for i, x in enumerate(np.array(node.label) == False) if x]
+#		positive_passages = [i for i, x in enumerate(np.array(node.label) == True) if x]
+#		negative_passages = [i for i, x in enumerate(np.array(node.label) == False) if x]
 
 		#passages = [i for i in range(0, len(node.label))]
-		size = len(positive_passages) if len(positive_passages) < int(n/2) else int(n/2)
-		pos_arr = random.sample(positive_passages, size)
-		size = len(negative_passages) if len(negative_passages) < int(n/2) else int(n/2)
-		neg_arr = random.sample(negative_passages, size)
+#		size = len(positive_passages) if len(positive_passages) < int(n/2) else int(n/2)
+#		pos_arr = random.sample(positive_passages, size)
+#		size = len(negative_passages) if len(negative_passages) < int(n/2) else int(n/2)
+#		neg_arr = random.sample(negative_passages, size)
 
 		return pos_arr + neg_arr
-
 
 def do_analysis(n_train, n, actuals, predictions, num_passages, analysis_type):
 
@@ -65,6 +72,8 @@ def do_analysis(n_train, n, actuals, predictions, num_passages, analysis_type):
 			spot = random.randint(0, len(route) - 2)
 			prediction = predict_going(n_train,
 				route[spot], route[spot + 1],
+				k=-1,
+				alpha=True,
 				permutate=(analysis_type == PERMUTATION_TEST))[0]
 
 			'''
@@ -112,7 +121,7 @@ def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
 
 	total = 0
 	total2 = 0
-	cmap = cm.get_cmap('coolwarm')
+	cmap = cm.get_cmap(MAP_CMAP)
 	Map.init()
 
 	for n in n_test:
@@ -121,31 +130,34 @@ def test_going(n_train, n_test, analysis_type = 0, num_passages = NUM_PASSAGES):
 
 		# do not include nodes that are out of reach area
 		# n.reach_percentage() > 0.95 or 
-		if n.reach_percentage() < 0.01 or len(n.passages) < num_passages:
-			print("skipping: "+str(n.reach_percentage()) + " (len "+str(len(n.passages))+")")
+		if n.reach_percentage() < 0.01 or len(n.passages) < NUM_PASSAGES:
+			#print("skipping: "+str(n.reach_percentage()) + " (len "+str(len(n.passages))+")")
 			continue
 
 		if analysis_type == UNCERTAINTY_ANALYSIS:
+			if not hasattr(n, 'uncertainty_pred'):
+				print("Voi ei", n.uncertainty)
+				continue
 			correct, count, actuals, predictions = do_uncertainty(n_train, n, actuals, predictions, num_passages, analysis_type)
+
+			total += np.sum(n.uncertainty != -1)
+			total2 += n.uncertainty.shape[0]
 		else:
 			correct, count, actuals, predictions = do_analysis(n_train, n, actuals, predictions, num_passages, analysis_type)
-
-		total += np.sum(n.uncertainty != -1)
-		total2 += n.uncertainty.shape[0]
 
 		if count >= 5:
 			#if n.reach_acc < 1:
 			#hmmp = np.bincount(np.array(labels[i]) == np.array(predictions))[1]
 			hmmp = correct / count
-			print(correct, count, hmmp)
-			n.draw(cmap(np.round(hmmp, 1)))
+			#print(correct, count, hmmp, np.round(hmmp, 1))
+			n.draw(cmap(np.round(hmmp, 1) - 0.05))
 
 	label = "Uncertainty analysis" if analysis_type else "Prediction accuracy"
 	if analysis_type == PERMUTATION_TEST:
 		label = "Permutation test"
 
-	Map.draw(label, cbar=1, cbar_steps=11)
-	print("total, total2")
+	Map.draw(cbar=True, cbar_steps=10, cmap=MAP_CMAP)
+	print("Uncertainty: total, total2")
 	print(total, total2, total / total2)
 	actuals = np.array(actuals)
 	predictions = np.array(predictions)

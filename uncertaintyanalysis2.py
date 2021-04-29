@@ -29,6 +29,7 @@ from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 BOOTSTRAP_SAMPLES = 200
 
 nodes = load_list(c.NODES_FILENAME)
+tnodes = load_list(c.TEST_NODES_FILENAME)
 
 #n = nodes[11]
 #for i, na in enumerate(nodes):
@@ -48,6 +49,11 @@ def mean_confidence_interval(data, confidence=0.95):
 #print(n.rp)
 
 #Map.draw()
+
+def find_train_node(test_node):
+	for n in nodes:
+		if n.x == test_node.x and n.y == test_node.y:
+			return n
 
 def get_uncertainty(x_train, x_test, y_train, y_test, k):
 
@@ -94,25 +100,32 @@ def get_uncertainty(x_train, x_test, y_train, y_test, k):
 
 #results = {}
 
-for i, n in enumerate(nodes):
+for i, test_node in enumerate(tnodes):
 
-	#if i < 1711:
-	#§	continue
+	train_node = find_train_node(test_node)
+	#if i < 171:
+	#	continue
+	if not train_node:
+		print("Train node is missing. ID: ", test_node.id, "XY:",test_node.x, test_node.y, "Passages:", len(test_node.passages))
+		continue
+	#print(train_node.id, test_node.id)
+
 	results = []
 	results_pred = []
 
-	x_train, x_test, labels, k = feature_preparation(n)
+	x_train, x_test, labels, k = feature_preparation(train_node, alpha=False)
+	x_test, null, y_test, null2 = feature_preparation(test_node, alpha=False)
 
-	if n.reach_percentage() == 0:
+	if train_node.reach_percentage() == 0:
 		# Certainly 0 so basically n.uncertainty = [0,0,0,...]
 		continue
 	#p = pick_random_passage(n, 1)[0]
-	for p in range(0, len(x_train)):
+	for p in range(0, len(x_test)):
 		going = get_uncertainty(
-			np.delete(x_train, p, 0),
-			x_train[p],
-			np.delete(labels, p, 0),
-			labels[p],
+			x_train,
+			x_test[p],
+			labels,
+			y_test[p],
 			k)
 		#if going is not -1:
 		#if n.id not in results:
@@ -123,12 +136,12 @@ for i, n in enumerate(nodes):
 	#print(nodes_going[n.id], going)
 	#print(n.uncertainty)
 	#print(results)
-	n.uncertainty = np.array(results)
-	n.uncertainty_pred = np.array(results_pred)
+	test_node.uncertainty = np.array(results)
+	test_node.uncertainty_pred = np.array(results_pred)
 	print(i,"of", len(nodes), "Results:", len(results), "of", len(x_train), np.sum(results) / len(results))
 	#break
 	#print(np.mean(means))
-save_list(c.NODES_FILENAME, nodes, "w")
+save_list(c.TEST_NODES_FILENAME, tnodes, "w")
 #plt.hist(means, 20)
 
 

@@ -12,7 +12,12 @@ import database as db
 import numpy as np
 import pandas as pd
 
-nodes = db.load_list(c.NODES_FILENAME)
+from route import route_in_area
+from map import Map
+from alphashape import alphashape
+from descartes import PolygonPatch
+
+#nodes = db.load_list(c.NODES_FILENAME)
 ships = db.load_list(c.SHIPS_FILENAME)
 
 def draw_reach_area(start_date, end_date):
@@ -20,6 +25,7 @@ def draw_reach_area(start_date, end_date):
 
 	# parallel processing for unix
 	if sys.platform == 'linux':
+		print(sys.platform)
 		with Pool() as pool:
 			points = pool.map(points_reaching_measurement_area, dates)
 			pool.close()
@@ -27,10 +33,11 @@ def draw_reach_area(start_date, end_date):
 	else:
 		points = [points_reaching_measurement_area(r) for r in dates]
 
-		Map.draw_concave_hull(list(itertools.chain.from_iterable(points)))
+	Map.draw_concave_hull(list(itertools.chain.from_iterable(points)))
 
 
 def points_reaching_measurement_area(date):
+	print(date)
 	starting_points = []
 	count1 = 0
 	count2 = 0
@@ -40,18 +47,20 @@ def points_reaching_measurement_area(date):
 			date.timestamp(),
 			(date + timedelta(days=1)).timestamp())
 
-		if len(route['x']) > 0:
+		if len(route[0]) > 0:
 			count1 += 1
+			#print(route)
 
 		#col = util.random_color()
 
-		if route.route_in_area(route['x'], route['y']) is not False:
-			starting_points.append([route['x'][0], route['y'][0]])
-			starting_points.append([route['x'][-1], route['y'][-1]])
+		if route_in_area(route[0], route[1]) is not False:
+			starting_points.append([route[0][0], route[1][0]])
+			starting_points.append([route[0][-1], route[1][-1]])
 			count2 += 1
 
 	#print(
 	#	f'Laivoja kaikkiaan {len(map.list)}, {date}. päivänä {count1}, '
 	#	f'mittausalueelle ehtii {count2}')
-
+	#print(starting_points)
 	return starting_points
+

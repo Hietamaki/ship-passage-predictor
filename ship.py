@@ -84,8 +84,11 @@ class Ship:
 
 	def get_route(self, start_time=0, end_time=253385798400000):
 		range = self.get_range_by_time(start_time, end_time)
+		#if range[0] != -1:
+		#	print(range)
 
-		return self.get_timecoords(range)
+		return self.xyt[:, range[0]:range[1]],
+		#return self.get_timecoords(range)
 
 	# @.output	list of loaded ship ids
 	#
@@ -100,13 +103,15 @@ class Ship:
 	def get_range_by_time(self, start_time=0, end_time=253385798400000):
 
 		range_start = -1
-		range_end = len(self.xyt) - 1
+		range_end = len(self.xyt[2]) - 1
+		#print("xyt, start, end: ",self.xyt[2], start_time, end_time)
+		#print(start_time > self.xyt[2])
 
-		for i in range(0, len(self.xyt)):
-			#print(self.time[i], "vs.")
-			#print(end_time)
+		for i in range(0, len(self.xyt[2])):
+			#print(self.xyt[2][i], "vs.", end_time)
 
 			if start_time > self.xyt[2][i]:
+				#print(start_time, " continue ",self.xyt[2][i])
 				continue
 			elif end_time < self.xyt[2][i]:
 				#print("Range ends", i)
